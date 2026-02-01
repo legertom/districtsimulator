@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styles from "./AdminTeam.module.css";
-import { Icons } from "@/components/ui/Icons";
+import { Icons, Icon } from "@/components/ui/Icons";
 
 const teamMembers = [
     {
@@ -206,12 +206,12 @@ export default function AdminTeam() {
                         <div className={styles.modalHeader}>
                             <h2>Add team member</h2>
                             <button className={styles.closeModal} onClick={() => setIsAddModalOpen(false)}>
-                                <Icons.xCircle size={24} />
+                                <Icon name="xCircle" size={24} />
                             </button>
                         </div>
 
                         <div className={styles.infoBox}>
-                            <Icons.portal size={16} />
+                            <Icon name="portal" size={16} />
                             <span>Learn more about user roles and permissions in our <a href="#">Help Center</a>.</span>
                         </div>
 
@@ -236,7 +236,7 @@ export default function AdminTeam() {
                             <div className={styles.rolesSection}>
                                 <div className={styles.rolesHeader}>
                                     <span>Default roles</span>
-                                    <Icons.info size={16} className={styles.roleInfoIcon} />
+                                    <Icon name="info" size={16} className={styles.roleInfoIcon} />
                                 </div>
                                 <div className={styles.roleOptions}>
                                     <label className={styles.roleOption}>
