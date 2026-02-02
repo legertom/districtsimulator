@@ -11,7 +11,6 @@ import MyApplications from "@/components/pages/MyApplications";
 import AddApplications from "@/components/pages/AddApplications";
 import LMSConnect from "@/components/pages/LMSConnect";
 import Library from "@/components/pages/Library";
-import PeoplePage from "@/components/dashboard/pages/PeoplePage";
 import PlaceholderPage from "@/components/dashboard/pages/PlaceholderPage";
 
 // New Pages
@@ -57,8 +56,6 @@ const pageComponents = {
   "badges": Badges,
   "classroom-mfa": ClassroomMFA,
 
-  // People
-  "people": PeoplePage,
 
   // Portal
   "portal-settings": PortalSettings,

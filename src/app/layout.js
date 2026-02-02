@@ -1,3 +1,5 @@
+import { InstructionalProvider } from "@/context/InstructionalContext";
+import CoachMark from "@/components/guidance/CoachMark";
 import "./globals.css";
 
 export const metadata = {
@@ -14,7 +16,12 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <InstructionalProvider>
+          {children}
+          <CoachMark />
+        </InstructionalProvider>
+      </body>
     </html>
   );
 }

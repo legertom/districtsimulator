@@ -1,26 +1,21 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
+import { useInstructional } from "@/context/InstructionalContext";
 import styles from "./ChatPanel.module.css";
-
-const initialMessages = [
-    {
-        id: 1,
-        sender: "customer",
-        text: "Hi, I just started as the new Principal at Lincoln Heights Elementary and I've been assigned to manage Clever for our district.",
-        timestamp: "2:30 PM",
-    },
-    {
-        id: 2,
-        sender: "customer",
-        text: "I'm completely lost 😅 I need to add a new teacher to the system but I have no idea where to start. Can you help me?",
-        timestamp: "2:31 PM",
-    },
-];
+import GuidancePanel from "../guidance/GuidancePanel";
 
 export default function ChatPanel() {
-    const [messages, setMessages] = useState(initialMessages);
-    const [inputValue, setInputValue] = useState("");
+    const {
+        history,
+        currentStep,
+        handleAction,
+        activeScenario,
+        toggleHint,
+        showHint,
+        advanceStep
+    } = useInstructional();
+
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -29,27 +24,70 @@ export default function ChatPanel() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [history]);
 
-    const handleSend = () => {
-        if (!inputValue.trim()) return;
+    // Render actions based on the current step type
+    const renderActions = () => {
+        if (!currentStep) return null;
 
-        const newMessage = {
-            id: messages.length + 1,
-            sender: "agent",
-            text: inputValue,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-
-        setMessages([...messages, newMessage]);
-        setInputValue("");
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
+        // If it's a message step with multiple choices
+        if (currentStep.type === "message" && currentStep.actions) {
+            return (
+                <div className={styles.responseArea}>
+                    <span className={styles.responseLabel}>Choose your response:</span>
+                    <div className={styles.actionButtons}>
+                        {currentStep.actions.map((action, idx) => (
+                            <button
+                                key={idx}
+                                className={styles.actionButton}
+                                onClick={() => handleAction(action)}
+                            >
+                                {action.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
         }
+
+        // If it's a task step, actions are now handled by GuidancePanel
+        if (currentStep.type === "task") {
+            return null;
+        }
+
+        if (currentStep.type === "input") {
+            return (
+                <div className={styles.inputActions}>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const form = e.target;
+                        const fd = new FormData(form);
+                        handleAction({ text: fd.get('answer'), type: 'submitted_answer' });
+                        form.reset();
+                    }} className={styles.inputForm}>
+                        <input
+                            name="answer"
+                            type="text"
+                            placeholder="Type your answer..."
+                            className={styles.textInput}
+                            autoComplete="off"
+                        />
+                        <button type="submit" className={styles.sendButton}>➤</button>
+                    </form>
+                    {currentStep.hint && (
+                        <button
+                            className={`${styles.hintButton} ${showHint ? styles.active : ''}`}
+                            onClick={toggleHint}
+                            type="button"
+                        >
+                            {showHint ? "💡 Hide Hint" : "💡 Show Hint"}
+                        </button>
+                    )}
+                </div>
+            )
+        }
+
+        return null;
     };
 
     return (
@@ -73,17 +111,14 @@ export default function ChatPanel() {
                 </div>
             </div>
 
-            {/* Context Banner */}
-            <div className={styles.contextBanner}>
-                <div className={styles.contextIcon}>📋</div>
-                <div className={styles.contextText}>
-                    <strong>Scenario:</strong> Help Principal Jones add a new teacher to the district.
-                </div>
-            </div>
+            {/* Guidance Panel (The Entity) */}
+            <GuidancePanel />
+
+            {/* Context Banner Removed - moved to GuidancePanel Logic roughly */}
 
             {/* Messages */}
             <div className={styles.messages}>
-                {messages.map((msg) => (
+                {history.map((msg) => (
                     <div
                         key={msg.id}
                         className={`${styles.message} ${styles[msg.sender]}`}
@@ -97,31 +132,13 @@ export default function ChatPanel() {
                         </div>
                     </div>
                 ))}
-                <div ref={messagesEndRef} />
-            </div>
 
-            {/* Input Area */}
-            <div className={styles.inputArea}>
-                <div className={styles.inputWrapper}>
-                    <textarea
-                        className={styles.input}
-                        placeholder="Type your response to Principal Jones..."
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        rows={1}
-                    />
-                    <button
-                        className={styles.sendButton}
-                        onClick={handleSend}
-                        disabled={!inputValue.trim()}
-                    >
-                        Send
-                    </button>
+                {/* Action Area (Inline with chat flow) */}
+                <div className={styles.inputArea}>
+                    {renderActions()}
                 </div>
-                <div className={styles.inputHint}>
-                    Press Enter to send • Shift+Enter for new line
-                </div>
+
+                <div ref={messagesEndRef} />
             </div>
         </div>
     );

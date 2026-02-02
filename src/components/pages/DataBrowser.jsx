@@ -488,7 +488,7 @@ export default function DataBrowser() {
                     <h1>Data browser</h1>
                     <div className={styles.districtId}>
                         DISTRICT ID:
-                        <span className={styles.districtIdValue}>68759062d10d9a9ab79dbe04</span>
+                        <span className={styles.districtIdValue} id="district-id-val">68759062d10d9a9ab79dbe04</span>
                     </div>
                 </div>
                 <button className={styles.exportButton}>

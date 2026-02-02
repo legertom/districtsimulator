@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
 import { Icons } from "@/components/ui/Icons";
+import { useInstructional } from "@/context/InstructionalContext";
 
 const navItems = [
     {
@@ -92,6 +93,7 @@ const navItems = [
 ];
 
 export default function Sidebar({ activeNav, onNavChange }) {
+    const { checkNavigationGoal } = useInstructional();
     const [expandedItems, setExpandedItems] = useState(["applications"]);
     const [activeSubItem, setActiveSubItem] = useState("my-applications");
 
@@ -108,12 +110,14 @@ export default function Sidebar({ activeNav, onNavChange }) {
             toggleExpand(item.id);
         } else {
             onNavChange(item.id);
+            checkNavigationGoal(item.id);
         }
     };
 
     const handleSubItemClick = (parentId, subItem) => {
         setActiveSubItem(subItem.id);
         onNavChange(subItem.id);
+        checkNavigationGoal(subItem.id);
         // Ensure only parent is expanded
         setExpandedItems([parentId]);
     };
