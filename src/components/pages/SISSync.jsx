@@ -9,6 +9,7 @@ import styles from "./SISSync.module.css";
 import { useState } from "react";
 import { useScenario } from "@/context/ScenarioContext";
 import { Icons, Tabs, InfoBanner, StatusBadge } from "@/components/ui";
+import { demoUsers } from "@/data/demoIdentity";
 import {
     LastAttemptedSyncTab,
     SettingsTab,
@@ -43,7 +44,7 @@ export default function SISSync() {
                         Portal
                     </div>
                     <div className={styles.userMenu}>
-                        Tom Leger <span className={styles.chevronDown}>{Icons.chevronDown}</span>
+                        {demoUsers.primaryAdmin.firstName} {demoUsers.primaryAdmin.lastName} <span className={styles.chevronDown}>{Icons.chevronDown}</span>
                     </div>
                 </div>
             </div>

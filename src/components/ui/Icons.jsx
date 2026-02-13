@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Centralized icon library for the Principal Jones Simulator.
+ * Centralized icon library for the Principal support simulator.
  * Import icons from here instead of defining them inline in components.
  * 
  * Usage:

@@ -3,16 +3,19 @@
     flex-direction: column;
     height: 100%;
     background: white;
+    border-left: 1px solid #e0e0e0;
+    position: relative;
+    z-index: 10000;
+    /* Ensure chat is above hint overlay (z-index: 9999) */
 }
 
-/* Header */
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 16px;
-    border-bottom: 1px solid var(--gray-200);
-    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
 }
 
 .customerInfo {
@@ -22,89 +25,57 @@
 }
 
 .avatar {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    width: 40px;
+    height: 40px;
+    background: #e3f2fd;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-}
-
-.customerDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    font-size: 20px;
 }
 
 .customerName {
     font-weight: 600;
-    font-size: 15px;
-    color: var(--gray-900);
+    color: #1a1a1a;
+    font-size: 14px;
 }
 
 .customerStatus {
+    font-size: 12px;
+    color: #666;
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--gray-500);
+    gap: 4px;
 }
 
 .statusDot {
-    width: 8px;
-    height: 8px;
-    background: var(--success);
+    width: 6px;
+    height: 6px;
+    background: #4caf50;
     border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
 }
 
 .badge {
-    padding: 4px 10px;
-    background: var(--clever-blue-light);
-    color: var(--clever-blue);
-    font-size: 11px;
-    font-weight: 600;
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 8px;
     border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
 }
 
-/* Context Banner */
 .contextBanner {
+    padding: 8px 16px;
+    background: #f0f7ff;
+    border-bottom: 1px solid #cce5ff;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    border-bottom: 1px solid #fcd34d;
-}
-
-.contextIcon {
-    font-size: 18px;
-}
-
-.contextText {
+    gap: 8px;
     font-size: 13px;
-    color: #92400e;
+    color: #004085;
 }
 
-.contextText strong {
-    font-weight: 600;
-}
-
-/* Messages */
 .messages {
     flex: 1;
     overflow-y: auto;
@@ -116,7 +87,7 @@
 
 .message {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     max-width: 85%;
 }
 
@@ -130,105 +101,185 @@
 }
 
 .messageAvatar {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    width: 28px;
+    height: 28px;
+    background: #f0f0f0;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     flex-shrink: 0;
 }
 
 .messageBubble {
-    padding: 12px 16px;
-    border-radius: 16px;
+    padding: 10px 14px;
+    border-radius: 12px;
     position: relative;
 }
 
-.message.customer .messageBubble {
-    background: var(--gray-100);
-    border-bottom-left-radius: 4px;
+.customer .messageBubble {
+    background: #f0f2f5;
+    color: #1a1a1a;
+    border-top-left-radius: 2px;
 }
 
-.message.agent .messageBubble {
-    background: var(--clever-blue);
+.agent .messageBubble {
+    background: #007bff;
     color: white;
-    border-bottom-right-radius: 4px;
+    border-top-right-radius: 2px;
 }
 
 .messageText {
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.4;
+    white-space: pre-wrap;
 }
 
 .messageTime {
     font-size: 10px;
-    margin-top: 6px;
-    opacity: 0.6;
+    margin-top: 4px;
+    opacity: 0.7;
+    text-align: right;
 }
 
-/* Input Area */
 .inputArea {
     padding: 16px;
-    border-top: 1px solid var(--gray-200);
-    background: var(--gray-50);
-}
-
-.inputWrapper {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-}
-
-.input {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1px solid var(--gray-300);
-    border-radius: 12px;
-    font-size: 14px;
-    resize: none;
-    font-family: inherit;
-    line-height: 1.5;
-    min-height: 44px;
-    max-height: 120px;
+    border-top: 1px solid #e0e0e0;
     background: white;
-    transition: border-color var(--transition-fast);
 }
 
-.input:focus {
+.responseArea {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+    /* Align responses to the right (user side) */
+}
+
+.responseLabel {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #999;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+}
+
+/* New Action Button Styles */
+.actionButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.actionButton {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.actionButton:hover {
+    background: #0056b3;
+}
+
+.taskActions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.waitingMessage {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+.hintButton {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.hintButton:hover {
+    background: #f0f0f0;
+}
+
+.hintButton.active {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.skipButton {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Input Field Styles */
+.inputActions {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inputForm {
+    display: flex;
+    gap: 8px;
+}
+
+.textInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 14px;
     outline: none;
-    border-color: var(--clever-blue);
-    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
 }
 
-.input::placeholder {
-    color: var(--gray-400);
+.textInput:focus {
+    border-color: #007bff;
 }
 
 .sendButton {
-    padding: 12px 20px;
-    background: var(--clever-blue);
+    background: #007bff;
     color: white;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all var(--transition-fast);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
 }
 
-.sendButton:hover:not(:disabled) {
-    background: var(--clever-blue-dark);
-}
-
-.sendButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.inputHint {
-    font-size: 11px;
-    color: var(--gray-400);
-    text-align: center;
-    margin-top: 8px;
+.sendButton:hover {
+    background: #0056b3;
 }

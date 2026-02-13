@@ -1,0 +1,71 @@
+.overlayContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* Let clicks pass through */
+    z-index: 9999;
+}
+
+.spotlight {
+    position: absolute;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6); /* Dim everything else */
+    animation: pulse 2s infinite;
+    pointer-events: none;
+}
+
+.tooltip {
+    position: absolute;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    pointer-events: auto; /* Tooltip can be interacted with if needed */
+    animation: slideIn 0.3s ease-out;
+    max-width: 250px;
+}
+
+.icon {
+    font-size: 18px;
+}
+
+.arrow {
+    position: absolute;
+    top: 20px;
+    left: -6px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    transform: rotate(45deg);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
