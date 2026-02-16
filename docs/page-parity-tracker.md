@@ -39,7 +39,7 @@ Track live Clever pages and simulator parity status.
 | Library Controls | https://schools.clever.com/library/overview | library-controls | P2 | Parity (UI) |  | 2026-02-15 | Batch 3 — URL confirmed, parity fixes applied |
 | Custom Data | https://schools.clever.com/custom-data/browse/students | custom-data | P1 | Parity (UI) |  | 2026-02-15 | Batch 4 — URL confirmed, rewritten with pipeline viz + tabs |
 | Profile | https://schools.clever.com/profile | profile | P1 | Parity (UI) |  | 2026-02-15 | Batch 4 — URL confirmed, design tokens applied |
-| IDM | https://schools.clever.com/identity-management | idm | P1 | Parity (UI) |  | 2026-02-15 | Batch 5 — Rewritten from marketing to active management view |
+| IDM | https://schools.clever.com/identity-management | idm | P1 | Parity (Behavior) |  | 2026-02-16 | Batch 5 UI + Deep Workflow: 11 flows implemented (dropdown, modals, pause/resume, sync history table, exports with SFTP toggle, events with expandable rows + modified data modal, pagination, filters) |
 | License Manager | https://schools.clever.com/license-manager | license-manager | P1 | Parity (UI) |  | 2026-02-15 | Batch 5 — URL confirmed, already close to live marketing layout |
 | Troubleshoot Login | https://schools.clever.com/troubleshoot-login | troubleshoot-login | P2 | Parity (UI) |  | 2026-02-15 | Batch 7 — New page: diagnostic form + test summary sidebar + details panel |
 | Troubleshoot Sharing | https://schools.clever.com/troubleshoot-sharing | troubleshoot-sharing | P2 | Parity (UI) |  | 2026-02-15 | Batch 7 — New page: shares same CSS as Troubleshoot Login |

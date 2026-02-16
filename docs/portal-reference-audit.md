@@ -1165,3 +1165,35 @@
 | Recommended tab "Recommend a resource" search functionality | P2 | Empty state is sufficient for training |
 | Applications tab real search filtering | P1 | Would require client-side filter implementation; static table sufficient |
 | Settings tab "Learn more" link destination | P2 | Placeholder `#` link acceptable |
+
+---
+
+## 10. Clever IDM (Identity Management)
+
+**URL**: `https://schools.clever.com/identity-management`
+**Status**: Parity (Behavior)
+**Updated**: 2026-02-16
+
+### Workflow Matrix
+
+| # | Flow | Trigger | Live Behavior | Simulator Status |
+|---|------|---------|---------------|------------------|
+| 1 | Add New Destination dropdown | Click "Add new destination" button | Dropdown with "Microsoft Active Directory", "Microsoft Entra ID" | Implemented |
+| 2 | Add Destination confirmation modal | Click dropdown item | Modal: "Add new destination?" / bold name / [Add destination] [Cancel] | Implemented |
+| 3 | Pause Sync confirmation modal | Click "Pause Google sync" | Modal: "Pause syncs?" / warning text / [Pause syncs] [Cancel] | Implemented |
+| 4 | Resume Sync toggle | Click "Resume Google sync" | Button toggles back to "Pause Google sync" (no modal) | Implemented |
+| 5 | Edit Google Provisioning | Click "Edit Google provisioning" | Multi-step wizard (8 steps) at /identity-management/setup/* | Deferred — stub toast |
+| 6 | Download user emails | Click download link (Tasks tab) | Browser file download | Implemented — toast feedback |
+| 7 | Sync History tab | Click tab | DataTable: Destination, Date/Time, Creates, Matches, Updates, Archives, Issues, Log | Implemented |
+| 8 | Exports tab | Click tab | 3 sections: user emails, recent accounts, SFTP toggle | Implemented |
+| 9 | Events tab | Click tab | Date filters, Add filter, data table + pagination | Implemented |
+| 10 | Events row expansion | Click row chevron | Detail panel: User details, Sync details, Modified data, Additional sync details | Implemented |
+| 11 | Modified data modal | Click "See X more fields" | Modal with full key-value field list + Close button | Implemented |
+
+### Deferred Gaps
+
+| Gap | Severity | Rationale |
+|-----|----------|-----------|
+| Edit Google Provisioning wizard (8-step setup) | P1 | Separate epic — full multi-page wizard with Connect to Google, Select Management Level, Select Users, Set Login Credentials, Organize OUs, Configure Groups, Summary, Preview & Provision. Stub toast shown. |
+| Real file downloads for CSVs | P2 | Toast feedback sufficient for training simulator |
+| Events date filter parsing | P2 | Basic date comparison; edge cases around timezone may differ from live |

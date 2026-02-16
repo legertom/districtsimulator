@@ -256,3 +256,537 @@
     color: var(--gray-500);
     margin: 0;
 }
+
+/* ── Add Destination Dropdown ────────────── */
+
+.destDropdownContainer {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 24px;
+}
+
+.destDropdownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 240px;
+    margin-top: 4px;
+}
+
+.destDropdownItem {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--gray-900);
+    cursor: pointer;
+}
+
+.destDropdownItem:hover {
+    background: var(--gray-50);
+}
+
+.destDropdownItem:first-child {
+    border-radius: 6px 6px 0 0;
+}
+
+.destDropdownItem:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.addDestinationBtn {
+    margin-bottom: 0;
+    border: none;
+}
+
+/* ── Download Link as Button ─────────────── */
+
+.downloadLink {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* ── Log Link ────────────────────────────── */
+
+.logLink {
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+}
+
+.logLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Modal Actions ───────────────────────── */
+
+.modalBody {
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+}
+
+.modalActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.modalPrimaryBtn {
+    background: var(--clever-blue);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.modalPrimaryBtn:hover {
+    background: var(--clever-blue-dark);
+}
+
+.modalCancelBtn {
+    background: white;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modalCancelBtn:hover {
+    background: var(--gray-50);
+}
+
+.modalCancelLink {
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+}
+
+.modalCancelLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Toast ────────────────────────────────── */
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gray-900);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 3000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: toastFadeIn 200ms ease;
+}
+
+@keyframes toastFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Exports Tab ─────────────────────────── */
+
+.exportSection {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.exportSectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 8px 0;
+}
+
+.exportDesc {
+    font-size: 14px;
+    color: var(--gray-600);
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+}
+
+.helpLink {
+    color: var(--clever-blue);
+    text-decoration: none;
+}
+
+.helpLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Toggle Switch ───────────────────────── */
+
+.toggleLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--gray-700);
+}
+
+.toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--gray-300);
+    border-radius: 12px;
+    transition: background 200ms ease;
+    cursor: pointer;
+}
+
+.toggleOn {
+    background: var(--clever-blue);
+}
+
+.toggleThumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 200ms ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggleOn .toggleThumb {
+    transform: translateX(20px);
+}
+
+/* ── Events Tab ──────────────────────────── */
+
+.eventsFilterRow {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.dateFilterLabel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.dateInput {
+    padding: 8px 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--gray-900);
+}
+
+.dateInput:focus {
+    outline: none;
+    border-color: var(--clever-blue);
+    box-shadow: 0 0 0 2px rgba(20, 100, 255, 0.15);
+}
+
+.addFilterContainer {
+    position: relative;
+}
+
+.addFilterBtn {
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+.addFilterBtn:hover {
+    text-decoration: underline;
+}
+
+.filterDropdownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    margin-top: 4px;
+}
+
+.filterDropdownItem {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--gray-900);
+    cursor: pointer;
+}
+
+.filterDropdownItem:hover {
+    background: var(--gray-50);
+}
+
+/* ── Active Filter Chips ─────────────────── */
+
+.activeFilters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.filterChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--clever-blue);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+}
+
+.filterChipRemove {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.8;
+}
+
+.filterChipRemove:hover {
+    opacity: 1;
+}
+
+/* ── Events Table ────────────────────────── */
+
+.eventsTableContainer {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.eventsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.eventsTable thead th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+}
+
+.eventsTable tbody td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--gray-900);
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.eventsRow {
+    cursor: pointer;
+    transition: background 100ms ease;
+}
+
+.eventsRow:hover {
+    background: var(--gray-50);
+}
+
+.eventsRowExpanded {
+    background: var(--gray-50);
+}
+
+.chevronCell {
+    width: 30px;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.eventType {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── Expanded Row Detail Panel ───────────── */
+
+.expandedRow td {
+    padding: 0 !important;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.expandedContent {
+    padding: 20px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    background: white;
+    border-top: 1px solid var(--gray-100);
+}
+
+.detailSection {
+    min-width: 0;
+}
+
+.detailSectionTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.detailGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detailLabel {
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
+.detailValue {
+    font-size: 14px;
+    color: var(--gray-900);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    word-break: break-all;
+}
+
+.detailActions {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.detailActionLink {
+    color: var(--clever-blue);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.detailActionLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Copy Button ─────────────────────────── */
+
+.copyBtn {
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    cursor: pointer;
+    padding: 2px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.copyBtn:hover {
+    opacity: 0.8;
+}
+
+/* ── See More Fields Link ────────────────── */
+
+.seeMoreLink {
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 8px;
+}
+
+.seeMoreLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Modified Data Modal ─────────────────── */
+
+.modifiedDataList {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.modifiedDataItem {
+    padding: 10px 0;
+    font-size: 14px;
+    color: var(--gray-900);
+    border-bottom: 1px solid var(--gray-100);
+    line-height: 1.5;
+    word-break: break-all;
+}
+
+.modifiedDataItem:last-of-type {
+    border-bottom: none;
+}
