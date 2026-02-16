@@ -37,6 +37,8 @@ Track live Clever pages and simulator parity status.
 | Library Controls | https://schools.clever.com/library/overview | library-controls | P2 | Parity (UI) |  | 2026-02-15 | Batch 3 — URL confirmed, parity fixes applied |
 | Custom Data | https://schools.clever.com/custom-data/browse/students | custom-data | P1 | Parity (UI) |  | 2026-02-15 | Batch 4 — URL confirmed, rewritten with pipeline viz + tabs |
 | Profile | https://schools.clever.com/profile | profile | P1 | Parity (UI) |  | 2026-02-15 | Batch 4 — URL confirmed, design tokens applied |
+| IDM | https://schools.clever.com/identity-management | idm | P1 | Parity (UI) |  | 2026-02-15 | Batch 5 — Rewritten from marketing to active management view |
+| License Manager | https://schools.clever.com/license-manager | license-manager | P1 | Parity (UI) |  | 2026-02-15 | Batch 5 — URL confirmed, already close to live marketing layout |
 
 ---
 
@@ -131,6 +133,26 @@ Track live Clever pages and simulator parity status.
 - Build passes
 
 **Result:** Completed — parity fixes applied across all 3 pages, build passing. Key fixes: rewrote Dashboard Home to match live steady-state layout (status cards with SIS Sync/SSO/Awaiting Action, IDM card, Applications section with stats + app cards, PageHeader with subtitle, search bar), rewrote Custom Data with pipeline visualization + Browse/Reports tabs + Students/Teachers/Staff/Sections/Admins sub-tabs + data table, updated Profile to use PageHeader + design tokens replacing all hardcoded colors (#4351e8→var(--clever-blue), #c53030 removed, #111827→var(--gray-900), etc.), updated dashboard data to match live (20 students/10 teachers/10 staff, "Successful" SIS status, ABCya! app).
+
+---
+
+### Batch 5 (2026-02-15)
+
+**Scope pages:**
+- IDM (Clever IDM)
+- License Manager
+
+**Capture links:**
+- https://schools.clever.com/identity-management
+- https://schools.clever.com/license-manager
+
+**Definition of done:**
+- UI parity reached for scoped pages
+- Behavior parity reached for critical interactions
+- Tracker statuses updated
+- Build passes
+
+**Result:** Completed — parity fixes applied across both pages, build passing. Key fixes: rewrote IDM from marketing/purchase page to active management view matching live (Google Workspace card with Active/Issue badges, Create/Update/Archive/Issue stats, sync timestamp, Edit/Pause buttons, Tasks/Sync History/Exports/Events tabs, Notifications + Issues sections). Updated License Manager with PageHeader import. Live URL discovered: /identity-management (not /idm).
 
 ---
 

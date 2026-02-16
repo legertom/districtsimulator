@@ -1,6 +1,6 @@
 "use client";
 
-import { Icons } from "@/components/ui";
+import { Icons, PageHeader } from "@/components/ui";
 import styles from "./LicenseManager.module.css";
 
 export default function LicenseManager() {
