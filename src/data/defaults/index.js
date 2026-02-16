@@ -22,6 +22,7 @@ import { navItems, districtInfo } from './sidebar';
 import { searchPlaceholder, userInfo } from './topNav';
 import { SYNC_STATES, syncMetadata } from './sisSync';
 import { TABS, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA } from './dataBrowser';
+import { portalApps } from './portalLobby';
 
 
 
@@ -100,6 +101,11 @@ export const defaultScenario = {
     sisSync: {
         syncStates: SYNC_STATES,
         metadata: syncMetadata
+    },
+
+    // Portal Lobby — Thread C
+    portalLobby: {
+        apps: portalApps
     },
 
     // Batch C domains (complex/layout pages) - Task 22B

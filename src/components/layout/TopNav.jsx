@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import styles from "./TopNav.module.css";
 import { Icon } from "@/components/ui/Icons";
 
-export default function TopNav({ onNavChange }) {
+export default function TopNav({ onNavChange, onSwitchToPortal }) {
     const { scenario } = useScenario();
     const { data: session } = useSession();
     const { searchPlaceholder, userInfo: defaultUserInfo } = scenario.topNav;
@@ -58,7 +58,7 @@ export default function TopNav({ onNavChange }) {
             {/* Right side */}
             <div className={styles.actions} ref={dropdownRef}>
                 {/* Portal Link */}
-                <button className={styles.portalLink}>
+                <button className={styles.portalLink} onClick={onSwitchToPortal}>
                     <span className={styles.portalIcon}>
                         <Icon name="applicationsGrid" size={16} />
                     </span>

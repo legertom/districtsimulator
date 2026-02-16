@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 import { ScenarioProvider } from "@/context/ScenarioContext";
+import { InstructionalProvider, useInstructional } from "@/context/InstructionalContext";
 import Sidebar from "@/components/layout/Sidebar";
 import TopNav from "@/components/layout/TopNav";
 import ChatPanel from "@/components/chat/ChatPanel";
+import CoachMark from "@/components/guidance/CoachMark";
+import GuidancePanel from "@/components/guidance/GuidancePanel";
+import PortalLobby from "@/components/pages/PortalLobby";
 
 // Pages
 import DashboardHome from "@/components/pages/DashboardHome";
@@ -30,43 +34,34 @@ import Profile from "@/components/pages/Profile";
 
 import styles from "./page.module.css";
 
-// Page configuration - maps nav IDs to components
 const pageComponents = {
-  // Dashboard
-  "dashboard": DashboardHome,
-
-  // Applications
+  dashboard: DashboardHome,
   "my-applications": MyApplications,
   "add-applications": AddApplications,
   "lms-connect": LMSConnect,
   "library-controls": Library,
-
-  // Data Sources
   "sis-sync": SISSync,
   "custom-data": CustomData,
   "data-browser": DataBrowser,
-
-  // User Management
-  "idm": IDM,
+  idm: IDM,
   "license-manager": LicenseManager,
   "admin-team": AdminTeam,
-
-  // Authentication
   "access-logs": AccessLogs,
   "sso-settings": SSOSettings,
-  "badges": Badges,
+  badges: Badges,
   "classroom-mfa": ClassroomMFA,
-
-
-  // Portal
   "portal-settings": PortalSettings,
-
-  // User Profile
-  "profile": Profile,
+  profile: Profile,
 };
 
-export default function Home() {
-  const [activeNav, setActiveNav] = useState("dashboard");
+function AppShell({ onSwitchToPortal, initialNav = "dashboard" }) {
+  const [activeNav, setActiveNav] = useState(initialNav);
+  const { checkNavigationGoal } = useInstructional();
+
+  const handleNavChange = (navId) => {
+    setActiveNav(navId);
+    checkNavigationGoal(navId);
+  };
 
   const renderPage = () => {
     const PageComponent = pageComponents[activeNav];
@@ -75,38 +70,59 @@ export default function Home() {
       return <PageComponent />;
     }
 
-    // For pages without a component, show placeholder
     return (
       <PlaceholderPage
-        title={activeNav.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+        title={activeNav.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
         icon="📄"
       />
     );
   };
 
   return (
-    <ScenarioProvider>
-      <div className={styles.appContainer}>
-        {/* Dashboard Simulation */}
-        <div className={styles.dashboardContainer}>
-          {/* Sidebar now controls the full height left column */}
-          <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
+    <div className={styles.appContainer}>
+      <CoachMark />
+      <div className={styles.dashboardContainer}>
+        <Sidebar activeNav={activeNav} onNavChange={handleNavChange} />
 
-          {/* Content Column: TopNav + Main Content */}
-          <div className={styles.contentColumn}>
-            <TopNav onNavChange={setActiveNav} />
-            <main className={styles.dashboardMain}>
-              {renderPage()}
-            </main>
-          </div>
-        </div>
-
-        {/* Chat Panel */}
-        <div className={styles.chatPanelContainer}>
-          <ChatPanel />
+        <div className={styles.contentColumn}>
+          <TopNav onNavChange={handleNavChange} onSwitchToPortal={onSwitchToPortal} />
+          <main className={styles.dashboardMain}>{renderPage()}</main>
         </div>
       </div>
-    </ScenarioProvider>
+
+      <div className={styles.chatPanelContainer}>
+        <GuidancePanel />
+        <ChatPanel />
+      </div>
+    </div>
   );
 }
 
+export default function Home() {
+  const [appMode, setAppMode] = useState("portal");
+  const [launchNav, setLaunchNav] = useState("dashboard");
+
+  const handleLaunchApp = (navTarget) => {
+    setLaunchNav(navTarget);
+    setAppMode("dashboard");
+  };
+
+  return (
+    <ScenarioProvider>
+      <InstructionalProvider>
+        {appMode === "portal" ? (
+          <PortalLobby
+            onLaunchApp={handleLaunchApp}
+            onEnterDashboard={() => handleLaunchApp("dashboard")}
+          />
+        ) : (
+          <AppShell
+            key={launchNav}
+            initialNav={launchNav}
+            onSwitchToPortal={() => setAppMode("portal")}
+          />
+        )}
+      </InstructionalProvider>
+    </ScenarioProvider>
+  );
+}

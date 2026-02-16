@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useInstructional } from "@/context/InstructionalContext";
 import { useScenario } from "@/context/ScenarioContext";
 import styles from "./ChatPanel.module.css";
 
 export default function ChatPanel() {
     const { scenario } = useScenario();
-    const { initialMessages: scenarioInitialMessages, customerInfo, scenarioContext } = scenario.chat;
+    const { customerInfo } = scenario.chat;
+    const { activeScenario, currentStep, history, handleAction } = useInstructional();
 
-    const [messages, setMessages] = useState(scenarioInitialMessages);
     const [inputValue, setInputValue] = useState("");
     const messagesEndRef = useRef(null);
-
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -19,23 +19,17 @@ export default function ChatPanel() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [history, currentStep]);
 
     const handleSend = () => {
-        if (!inputValue.trim()) return;
+        const text = inputValue.trim();
+        if (!text) return;
 
-        const newMessage = {
-            id: messages.length + 1,
-            sender: "agent",
-            text: inputValue,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-
-        setMessages([...messages, newMessage]);
+        handleAction({ type: "submitted_answer", text });
         setInputValue("");
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
@@ -44,7 +38,6 @@ export default function ChatPanel() {
 
     return (
         <div className={styles.chatPanel}>
-            {/* Header */}
             <div className={styles.header}>
                 <div className={styles.customerInfo}>
                     <div className={styles.avatar}>
@@ -63,20 +56,18 @@ export default function ChatPanel() {
                 </div>
             </div>
 
-            {/* Context Banner */}
             <div className={styles.contextBanner}>
-                <div className={styles.contextIcon}>{scenarioContext.icon}</div>
+                <div className={styles.contextIcon}>📋</div>
                 <div className={styles.contextText}>
-                    <strong>Scenario:</strong> {scenarioContext.text}
+                    <strong>Scenario:</strong> {activeScenario?.description || "Training scenario"}
                 </div>
             </div>
 
-            {/* Messages */}
             <div className={styles.messages}>
-                {messages.map((msg) => (
+                {history.map((msg) => (
                     <div
                         key={msg.id}
-                        className={`${styles.message} ${styles[msg.sender]}`}
+                        className={`${styles.message} ${styles[msg.sender] || styles.customer}`}
                     >
                         {msg.sender === "customer" && (
                             <div className={styles.messageAvatar}>{customerInfo.avatar}</div>
@@ -90,28 +81,42 @@ export default function ChatPanel() {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
             <div className={styles.inputArea}>
-                <div className={styles.inputWrapper}>
-                    <textarea
-                        className={styles.input}
-                        placeholder="Type your response to Principal Jones..."
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        rows={1}
-                    />
-                    <button
-                        className={styles.sendButton}
-                        onClick={handleSend}
-                        disabled={!inputValue.trim()}
-                    >
-                        Send
-                    </button>
-                </div>
-                <div className={styles.inputHint}>
-                    Press Enter to send • Shift+Enter for new line
-                </div>
+                {currentStep?.actions?.length ? (
+                    <div className={styles.actionButtons}>
+                        {currentStep.actions.map((action, idx) => (
+                            <button
+                                key={`${action.label}-${idx}`}
+                                className={styles.actionButton}
+                                onClick={() => handleAction(action)}
+                            >
+                                {action.label}
+                            </button>
+                        ))}
+                    </div>
+                ) : currentStep?.type === "input" ? (
+                    <div className={styles.inputWrapper}>
+                        <textarea
+                            className={styles.input}
+                            placeholder="Type your response"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            rows={1}
+                        />
+                        <button
+                            className={styles.sendButton}
+                            onClick={handleSend}
+                            disabled={!inputValue.trim()}
+                        >
+                            Send
+                        </button>
+                    </div>
+                ) : (
+                    <div className={styles.inputHint}>Waiting for next training step…</div>
+                )}
+
+                <div className={styles.inputHint}>Press Enter to send • Shift+Enter for new line</div>
             </div>
         </div>
     );
