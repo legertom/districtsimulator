@@ -22,10 +22,12 @@ Track live Clever pages and simulator parity status.
 
 | Page Name | Live URL | Simulator Route / Target | Priority | Status | Owner | Last Updated | Notes / Gaps |
 |---|---|---|---|---|---|---|---|
-| Portal (Resources) | https://clever.com/in/mayton/district-admin/portal | portal-lobby | P0 | In progress |  |  | Lobby implemented; continue parity polish |
+| Portal (Resources) | https://clever.com/in/mayton/district-admin/portal | portal-lobby | P0 | Parity (UI) |  | 2026-02-15 | Lobby + Organize District Portal + Communication all built |
 | Dashboard Home | https://schools.clever.com/ | dashboard | P0 | Parity (UI) |  | 2026-02-15 | Batch 4 — Rewritten to match live steady-state layout |
-| My Applications | https://schools.clever.com/applications | my-applications | P0 | In progress |  | 2026-02-15 | Batch 1 — URL confirmed, parity audit done |
-| Add Applications | https://schools.clever.com/applications/add | add-applications | P1 | In progress |  | 2026-02-15 | Batch 1 — URL confirmed, parity audit done |
+| My Applications | https://schools.clever.com/applications | my-applications | P0 | Parity (UI) |  | 2026-02-15 | Batch 6 — Split logins column (Students/Teachers), custom table with rowSpan/colSpan |
+| Add Applications | https://schools.clever.com/applications/add | add-applications | P1 | Parity (UI) |  | 2026-02-15 | Batch 6 — Confirmed matching live layout |
+| Organize District Portal | https://schools.clever.com/portal/customize | organize-district-portal | P1 | Parity (UI) |  | 2026-02-15 | Batch 6 — New page: app cards grid, Add to Portal/Preview buttons, categories panel |
+| Communication | https://schools.clever.com/portal/communication/notifications | communication | P1 | Parity (UI) |  | 2026-02-15 | Batch 6 — New page: Portal Notifications/District Messaging tabs, notification table with empty state |
 | SIS Sync | https://schools.clever.com/sync | sis-sync | P0 | Parity (UI) |  | 2026-02-15 | Batch 2 — URL confirmed, parity fixes applied |
 | Data Browser | https://schools.clever.com/data-browser | data-browser | P1 | Parity (UI) |  | 2026-02-15 | Batch 2 — URL confirmed, parity fixes applied |
 | Admin Team | https://schools.clever.com/team/members | admin-team | P0 | Parity (UI) |  | 2026-02-15 | Batch 1 — URL confirmed, parity audit done |
@@ -153,6 +155,30 @@ Track live Clever pages and simulator parity status.
 - Build passes
 
 **Result:** Completed — parity fixes applied across both pages, build passing. Key fixes: rewrote IDM from marketing/purchase page to active management view matching live (Google Workspace card with Active/Issue badges, Create/Update/Archive/Issue stats, sync timestamp, Edit/Pause buttons, Tasks/Sync History/Exports/Events tabs, Notifications + Issues sections). Updated License Manager with PageHeader import. Live URL discovered: /identity-management (not /idm).
+
+---
+
+### Batch 6 (2026-02-15)
+
+**Scope pages:**
+- My Applications
+- Add Applications
+- Organize District Portal (new)
+- Communication (new)
+
+**Capture links:**
+- https://schools.clever.com/applications
+- https://schools.clever.com/applications/add
+- https://schools.clever.com/portal/customize
+- https://schools.clever.com/portal/communication/notifications
+
+**Definition of done:**
+- UI parity reached for scoped pages
+- Behavior parity reached for critical interactions
+- Tracker statuses updated
+- Build passes
+
+**Result:** Completed — parity fixes applied across all 4 pages, build passing. Key fixes: My Applications rewritten with custom table using rowSpan/colSpan for split "Total logins last 7 days" sub-columns (Students/Teachers), data updated from totalLogins to studentLogins/teacherLogins. Created new Organize District Portal page matching live /portal/customize (app cards grid with drag-and-drop styling, Add to Portal/Preview Portal as outline buttons, categories panel with sort). Created new Communication page matching live /portal/communication/notifications (Portal Notifications/District Messaging Settings tabs, bell icon with badge, notification table with empty state CTA). Added chevronRight and moreVertical icons to Icons component. Wired both new pages into page.js routing.
 
 ---
 

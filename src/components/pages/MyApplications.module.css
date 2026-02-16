@@ -32,6 +32,50 @@
     padding: 24px 32px;
 }
 
+/* Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    font-weight: 600;
+    color: var(--gray-600);
+    font-size: 13px;
+    vertical-align: bottom;
+}
+
+.groupHeader {
+    text-align: center !important;
+    border-bottom: none !important;
+}
+
+.subHeader {
+    font-weight: 500 !important;
+    font-size: 12px !important;
+    color: var(--gray-500) !important;
+}
+
+.table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 /* Name Cell */
 .nameCell {
     display: flex;
@@ -49,6 +93,7 @@
     font-size: 10px;
     font-weight: 600;
     color: white;
+    flex-shrink: 0;
 }
 
 .appName {
@@ -63,6 +108,7 @@
 
 /* Status Badge */
 .statusBadge {
+    display: inline-block;
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 12px;
@@ -70,3 +116,9 @@
     color: #059669;
 }
 
+/* Login Count */
+.loginCount {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-900);
+}

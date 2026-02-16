@@ -3,30 +3,19 @@
  * Extracted from: MyApplications.jsx and AddApplications.jsx
  */
 
-// My Applications (installed apps)
+// My Applications (installed apps) — matched to live (ss_68912xcj5)
 export const myApplications = [
     {
         id: 1,
-        name: "Print Center (Dev)",
-        icon: "Print",
-        iconColor: "#10b981",
+        name: "ABCya!",
+        icon: "ABC",
+        iconColor: "#f59e0b",
         status: "Launched",
         statusColor: "#d1fae5",
         nextStep: "",
-        appType: "SSO",
-        totalLogins: 0,
-        sharing: "Sharing district",
-    },
-    {
-        id: 2,
-        name: "SSO Explorer",
-        icon: "SSO",
-        iconColor: "#6366f1",
-        status: "Launched",
-        statusColor: "#d1fae5",
-        nextStep: "",
-        appType: "SSO",
-        totalLogins: 0,
+        appType: "SSO (Saved Passwords)",
+        studentLogins: 0,
+        teacherLogins: 0,
         sharing: "Sharing district",
     },
 ];

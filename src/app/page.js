@@ -29,6 +29,8 @@ import SSOSettings from "@/components/pages/SSOSettings";
 import Badges from "@/components/pages/Badges";
 import ClassroomMFA from "@/components/pages/ClassroomMFA";
 import PortalSettings from "@/components/pages/PortalSettings";
+import OrganizeDistrictPortal from "@/components/pages/OrganizeDistrictPortal";
+import Communication from "@/components/pages/Communication";
 import DataBrowser from "@/components/pages/DataBrowser";
 import Profile from "@/components/pages/Profile";
 
@@ -51,6 +53,8 @@ const pageComponents = {
   badges: Badges,
   "classroom-mfa": ClassroomMFA,
   "portal-settings": PortalSettings,
+  "organize-district-portal": OrganizeDistrictPortal,
+  communication: Communication,
   profile: Profile,
 };
 

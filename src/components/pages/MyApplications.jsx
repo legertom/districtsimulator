@@ -1,68 +1,12 @@
 "use client";
 
 import { useScenario } from "@/context/ScenarioContext";
-import { PageHeader, InfoBanner, DataTable } from "@/components/ui";
+import { PageHeader, InfoBanner } from "@/components/ui";
 import styles from "./MyApplications.module.css";
 
 export default function MyApplications() {
     const { scenario } = useScenario();
     const applications = scenario.applications.myApplications;
-
-    const columns = [
-        {
-            key: "name",
-            header: "Name",
-            sortable: true,
-            render: (row) => (
-                <div className={styles.nameCell}>
-                    <div
-                        className={styles.appIcon}
-                        style={{ backgroundColor: row.iconColor }}
-                    >
-                        {row.icon}
-                    </div>
-                    <a href="#" className={styles.appName}>{row.name}</a>
-                </div>
-            ),
-        },
-        {
-            key: "status",
-            header: "App Status",
-            sortable: true,
-            render: (row) => (
-                <span
-                    className={styles.statusBadge}
-                    style={{ backgroundColor: row.statusColor }}
-                >
-                    {row.status}
-                </span>
-            ),
-        },
-        {
-            key: "nextStep",
-            header: "Next step",
-        },
-        {
-            key: "appType",
-            header: "App Type",
-            sortable: true,
-        },
-        {
-            key: "totalLogins",
-            header: "Total logins last 7 days",
-            render: (row) => (
-                <span>{row.totalLogins ?? "—"}</span>
-            ),
-        },
-        {
-            key: "sharing",
-            header: "Sharing",
-            sortable: true,
-            render: (row) => (
-                <a href="#" className={styles.link}>{row.sharing}</a>
-            ),
-        },
-    ];
 
     return (
         <div className={styles.page}>
@@ -78,7 +22,54 @@ export default function MyApplications() {
             </InfoBanner>
 
             <div className={styles.tableContainer}>
-                <DataTable columns={columns} data={applications} />
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th rowSpan={2}>Name</th>
+                            <th rowSpan={2}>App Status</th>
+                            <th rowSpan={2}>Next step</th>
+                            <th rowSpan={2}>App Type</th>
+                            <th colSpan={2} className={styles.groupHeader}>Total logins last 7 days</th>
+                            <th rowSpan={2}>Sharing</th>
+                        </tr>
+                        <tr>
+                            <th className={styles.subHeader}>Students</th>
+                            <th className={styles.subHeader}>Teachers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {applications.map((app) => (
+                            <tr key={app.id}>
+                                <td>
+                                    <div className={styles.nameCell}>
+                                        <div
+                                            className={styles.appIcon}
+                                            style={{ backgroundColor: app.iconColor }}
+                                        >
+                                            {app.icon}
+                                        </div>
+                                        <a href="#" className={styles.appName}>{app.name}</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span
+                                        className={styles.statusBadge}
+                                        style={{ backgroundColor: app.statusColor }}
+                                    >
+                                        {app.status}
+                                    </span>
+                                </td>
+                                <td>{app.nextStep || ""}</td>
+                                <td>{app.appType}</td>
+                                <td className={styles.loginCount}>{app.studentLogins ?? 0}</td>
+                                <td className={styles.loginCount}>{app.teacherLogins ?? 0}</td>
+                                <td>
+                                    <a href="#" className={styles.link}>{app.sharing}</a>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

@@ -1,0 +1,130 @@
+.page {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--gray-50);
+}
+
+.content {
+    padding: 0 32px 32px;
+}
+
+/* Notifications Header */
+.notifHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.bellIcon {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bellBadge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #dc2626;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notifHeaderText {
+    flex: 1;
+}
+
+.notifHeaderText p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.5;
+}
+
+.createButton {
+    padding: 10px 20px;
+    background: var(--clever-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 150ms ease;
+}
+
+.createButton:hover {
+    background: var(--clever-blue-dark);
+}
+
+/* Table */
+.tableContainer {
+    margin-top: 16px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    font-weight: 600;
+    color: var(--gray-600);
+    font-size: 13px;
+}
+
+.table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+}
+
+/* Empty State */
+.emptyState {
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.emptyTitle {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--gray-500);
+    margin: 0 0 24px 0;
+}
+
+.emptyText {
+    font-size: 14px;
+    color: var(--gray-500);
+    margin: 0;
+}
+
+/* Messaging Content */
+.messagingContent {
+    padding-top: 24px;
+}
+
+.notificationsContent {
+    padding-top: 0;
+}
