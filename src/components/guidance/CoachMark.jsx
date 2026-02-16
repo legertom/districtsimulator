@@ -1,45 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useInstructional } from "@/context/InstructionalContext";
 import styles from "./CoachMark.module.css";
 
 export default function CoachMark() {
     const { currentStep, showHint } = useInstructional();
-    const [targetRect, setTargetRect] = useState(null);
 
-    // Safety: If no hint key, don't try to calculate or render anything
-    // However, we MUST NOT return before hooks. Handled in effect and render guard.
-
-    useEffect(() => {
-        // Ensure showHint is active and currentStep and its hint property exist
-        if (!showHint || !currentStep?.hint) {
-            setTargetRect(null);
-            return;
+    const targetRect = useMemo(() => {
+        if (!showHint || !currentStep?.hint || typeof document === "undefined") {
+            return null;
         }
 
         const targetId = currentStep.hint.target;
-        if (!targetId) { // If targetId is missing, clear rect and exit
-            setTargetRect(null);
-            return;
-        }
+        if (!targetId) return null;
 
-        // Using a data attribute selector which is more robust than class names
-        // Ideally we add data-instruction-target="nav-item-people" to elements
-        // For now, looking for ID or fallback to data attribute
-        const element = document.getElementById(targetId) ||
-            document.querySelector(`[data-instruction-target="${targetId}"]`) ||
-            document.querySelector(`[data-nav-id="${targetId}"]`);
+        const element = document.getElementById(targetId)
+            || document.querySelector(`[data-instruction-target="${targetId}"]`)
+            || document.querySelector(`[data-nav-id="${targetId}"]`);
 
-        if (element) {
-            const rect = element.getBoundingClientRect();
-            setTargetRect({
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height
-            });
-        }
+        if (!element) return null;
+
+        const rect = element.getBoundingClientRect();
+        return {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+        };
     }, [showHint, currentStep]);
 
     // Render Guard: Must have both rect AND valid hint data

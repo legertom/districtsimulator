@@ -12,16 +12,16 @@ export default function EdtechAnalytics() {
                 <div className={styles.mainLayout}>
                     <div className={styles.leftPanel}>
                         <h2 className={styles.headline}>
-                            Get a holistic view of your district's edtech usage
+                            Get a holistic view of your district&apos;s edtech usage
                         </h2>
                         <p className={styles.description}>
-                            Edtech Analytics shows you all of your district's app usage in one
+                            Edtech Analytics shows you all of your district&apos;s app usage in one
                             place down to the school and grade level—whether or not the
-                            apps are integrated with Clever. And best of all, it's free.
+                            apps are integrated with Clever. And best of all, it&apos;s free.
                         </p>
                         <p className={styles.description}>
                             Set up our secure browser extension in less than 10 minutes. It
-                            won't impact the student and teacher experience in any way.
+                            won&apos;t impact the student and teacher experience in any way.
                         </p>
                         <button className={styles.getStartedButton}>Get started</button>
 

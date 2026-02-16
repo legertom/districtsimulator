@@ -57,7 +57,7 @@ export default function ClassroomMFA() {
                     <div className={styles.featureText}>
                         <h3>Badge MFA</h3>
                         <ul>
-                            <li>An easy, safe method using a device's webcam that doesn't require a phone.</li>
+                            <li>An easy, safe method using a device&apos;s webcam that doesn&apos;t require a phone.</li>
                             <li>Badges <strong>printable</strong> by district admins or teachers for easy distribution.</li>
                         </ul>
                     </div>

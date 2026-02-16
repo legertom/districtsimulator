@@ -16,7 +16,7 @@ export default function OrganizeDistrictPortal() {
             <div className={styles.content}>
                 <p className={styles.description}>
                     Organize and edit the Portal for the users in your district. All resources appear in this view for you,
-                    but an end user's experience is determined by the specific resources scoped to that individual.
+                    but an end user&apos;s experience is determined by the specific resources scoped to that individual.
                 </p>
 
                 <div className={styles.toolbar}>

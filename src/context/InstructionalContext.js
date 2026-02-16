@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import { scenarios } from "@/data/scenarios";
 
 const InstructionalContext = createContext();
@@ -8,7 +8,20 @@ const InstructionalContext = createContext();
 export function InstructionalProvider({ children }) {
     const [activeScenarioId, setActiveScenarioId] = useState("scenario_find_district_id"); // Default for dev
     const [currentStepId, setCurrentStepId] = useState("step_welcome");
-    const [history, setHistory] = useState([]); // Chat history
+    const [history, setHistory] = useState(() => {
+        const initialScenario = scenarios.find((s) => s.id === "scenario_find_district_id");
+        const initialStep = initialScenario?.steps.find((s) => s.id === "step_welcome");
+
+        if (!initialStep?.text) return [];
+
+        return [{
+            id: Date.now(),
+            sender: initialStep.sender || "system",
+            text: initialStep.text,
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            isCurrentStep: true,
+        }];
+    }); // Chat history
     const [showHint, setShowHint] = useState(false);
     const [score, setScore] = useState(0);
 
@@ -16,13 +29,6 @@ export function InstructionalProvider({ children }) {
     const activeScenario = scenarios.find(s => s.id === activeScenarioId);
     const currentStep = activeScenario?.steps.find(s => s.id === currentStepId);
     const scenarioSettings = activeScenario?.settings ?? {};
-
-    // Load initial step message on mount or scenario change
-    useEffect(() => {
-        if (activeScenario && currentStep && history.length === 0) {
-            addMessageToHistory(currentStep);
-        }
-    }, [activeScenarioId]);
 
     const addMessageToHistory = (step) => {
         // If the step has no text (e.g. pure guidance step), don't add to chat history

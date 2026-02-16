@@ -16,7 +16,7 @@ export function SettingsTab() {
         <div className={styles.settingsContainer}>
             <div className={styles.infoBannerBlue}>
                 <span><strong>You can upload roster data securely via SFTP using the instructions below.</strong><br />
-                    To change your district's SFTP credentials, contact <a href="#">Clever support</a>.</span>
+                    To change your district&apos;s SFTP credentials, contact <a href="#">Clever support</a>.</span>
             </div>
 
             {/* SFTP Settings */}
@@ -76,7 +76,7 @@ export function SettingsTab() {
             {/* School Year Dates */}
             <div className={styles.settingsSection}>
                 <h2 className={styles.sectionTitle}>School Year Dates</h2>
-                <p className={styles.sectionDesc}>Let us know when a new school year begins so we can console you on the lost summer. These dates are for informational purposes only, and won't affect your sync formatting / rollover.</p>
+                <p className={styles.sectionDesc}>Let us know when a new school year begins so we can console you on the lost summer. These dates are for informational purposes only, and won&apos;t affect your sync formatting / rollover.</p>
 
                 <div className={styles.dateRow}>
                     <div className={styles.formGroup}>
@@ -125,7 +125,7 @@ export function SettingsTab() {
             {/* Sync Hold Thresholds */}
             <div className={styles.settingsSection}>
                 <h2 className={styles.sectionTitle}>Sync Hold Thresholds</h2>
-                <p className={styles.sectionDesc}>When your district's most recent attempt will change a significant amount of data in Clever, our system initiates an automatic sync hold. This hold prevents the changes from processing... </p>
+                <p className={styles.sectionDesc}>When your district&apos;s most recent attempt will change a significant amount of data in Clever, our system initiates an automatic sync hold. This hold prevents the changes from processing... </p>
 
                 <div className={styles.infoBox}>
                     ⓘ To learn more about sync hold thresholds, see our guide in our <a href="#">Help Center</a>.

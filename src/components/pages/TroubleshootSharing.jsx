@@ -13,7 +13,7 @@ export default function TroubleshootSharing() {
                     <div className={styles.leftPanel}>
                         <h2 className={styles.sectionTitle}>How to use this tool</h2>
                         <p className={styles.sectionDesc}>
-                            Use this tool to check if a user is shared with an app. After you select a user and an app, we'll
+                            Use this tool to check if a user is shared with an app. After you select a user and an app, we&apos;ll
                             show you how they are or are not shared with an app, as well as next steps if needed.
                         </p>
 
