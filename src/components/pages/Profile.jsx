@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useScenario } from "@/context/ScenarioContext";
-import { Tabs, Modal, Icon } from "@/components/ui";
+import { Tabs, Modal, Icon, PageHeader } from "@/components/ui";
 import styles from "./Profile.module.css";
 
 export default function Profile() {
@@ -185,12 +185,7 @@ export default function Profile() {
                 </div>
             </Modal>
 
-            <div className={styles.header}>
-                <div className={styles.titleSection}>
-                    <h1>Profile</h1>
-                </div>
-                <button className={styles.deleteButton}>Delete district account</button>
-            </div>
+            <PageHeader title="Profile" />
 
             <Tabs
                 tabs={["Overview", "Emails"]}

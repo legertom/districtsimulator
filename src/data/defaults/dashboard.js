@@ -1,19 +1,20 @@
 /**
  * Dashboard domain data
  * Extracted from: DashboardHome.jsx
+ * Matched to live Clever dashboard (ss_683559wx0)
  */
 
 export const dashboardStats = {
-    students: 14,
-    teachers: 7,
-    staff: 6
+    students: 20,
+    teachers: 10,
+    staff: 10
 };
 
 export const sisSync = {
-    status: "warning",
-    statusLabel: "Sync out of date",
-    lastSync: "7 months ago",
-    message: "Your authorized applications may have outdated student rosters. Please start another sync to refresh your data."
+    status: "success",
+    statusLabel: "Successful",
+    lastSync: "about 4 hours ago",
+    message: "Your SIS data has been synced successfully."
 };
 
 export const ssoStatus = {
@@ -30,23 +31,16 @@ export const awaitingAction = {
 };
 
 export const applicationStats = {
-    appsWithDataShared: 2,
+    appsWithDataShared: 1,
     pendingAppInvites: 0,
     appsWithNoDataShared: 0
 };
 
 export const pinnedApplications = [
     {
-        name: "Print Center (Dev)",
-        icon: "Print",
+        name: "ABCya!",
+        icon: "ABC",
         iconType: "print",
-        students: "—",
-        teachers: 0
-    },
-    {
-        name: "SSO Explorer",
-        icon: "SSO",
-        iconType: "sso",
         students: 0,
         teachers: 0
     }

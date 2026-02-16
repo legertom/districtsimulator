@@ -4,24 +4,40 @@
     background: var(--gray-50);
 }
 
-/* Header */
-.header {
+/* Header is now handled by PageHeader component */
+
+.content {
     padding: 24px 32px;
+}
+
+/* Search Bar — matches live */
+.searchBar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
     background: white;
-    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 24px;
 }
 
-.title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin: 0 0 4px 0;
+.searchIcon {
+    color: var(--gray-400);
+    display: flex;
 }
 
-.subtitle {
+.searchInput {
+    flex: 1;
+    border: none;
+    outline: none;
     font-size: 14px;
-    color: var(--gray-600);
-    margin: 0;
+    color: var(--gray-700);
+    background: transparent;
+}
+
+.searchInput::placeholder {
+    color: var(--gray-400);
 }
 
 /* Status Row */
@@ -29,7 +45,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
-    padding: 24px 32px;
+    margin-bottom: 16px;
 }
 
 .statusCard {
@@ -37,11 +53,7 @@
     border-radius: 8px;
     padding: 20px;
     border: 1px solid var(--gray-200);
-}
-
-.sisCard {
-    background: #fffbeb;
-    border-color: #fcd34d;
+    position: relative;
 }
 
 .statusHeader {
@@ -49,7 +61,7 @@
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .statusLabel {
@@ -61,13 +73,24 @@
 .statusTime {
     font-size: 12px;
     color: var(--gray-500);
+    display: inline-flex;
+    align-items: center;
 }
 
 .statusBadge {
     font-size: 12px;
     font-weight: 500;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.dot {
+    font-size: 10px;
+    line-height: 1;
 }
 
 .statusBadge.warning {
@@ -80,48 +103,46 @@
     color: #059669;
 }
 
-.statusMessage {
-    font-size: 13px;
-    color: var(--gray-700);
-    margin: 0 0 16px 0;
-    line-height: 1.5;
-}
-
-.configureButton {
-    background: var(--clever-blue);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 150ms ease;
-}
-
-.configureButton:hover {
-    background: var(--clever-blue-dark);
-}
-
-/* SSO Stats */
-.ssoStats {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.ssoStat {
+/* Sync Stats */
+.syncStat {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 13px;
     color: var(--gray-700);
+    margin-bottom: 8px;
+}
+
+.syncStat strong {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.progressTrack {
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    margin-bottom: 12px;
+}
+
+.progressFill {
+    height: 100%;
+    width: 100%;
+    background: var(--clever-blue);
+    border-radius: 2px;
 }
 
 .cardArrow {
-    text-align: right;
-    color: var(--clever-blue);
-    font-size: 18px;
-    margin-top: 12px;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    cursor: pointer;
+}
+
+.ssoStats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 /* Action Card */
@@ -148,24 +169,25 @@
 .actionCount {
     background: #ef4444;
     color: white;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
 }
 
 .actionContent {
     text-align: center;
-    padding: 20px;
+    padding: 12px;
 }
 
 .celebrationIcon {
-    font-size: 48px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
 }
 
 .actionMessage {
@@ -174,9 +196,68 @@
     margin: 0;
 }
 
+/* IDM Card — matches live horizontal row */
+.idmCard {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--gray-200);
+    margin-bottom: 16px;
+}
+
+.idmHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.idmLabel {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.idmBody {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.idmProvider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+.idmTime {
+    font-size: 12px;
+    color: var(--gray-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.idmStat {
+    font-size: 13px;
+    color: var(--gray-600);
+}
+
+.idmStat strong {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.cardArrowInline {
+    margin-left: auto;
+    cursor: pointer;
+}
+
 /* Applications Section */
 .applicationsSection {
-    margin: 0 32px 32px 32px;
     background: white;
     border-radius: 8px;
     border: 1px solid var(--gray-200);
@@ -207,8 +288,7 @@
     color: var(--clever-blue);
     font-size: 14px;
     font-weight: 500;
-    background: none;
-    cursor: pointer;
+    text-decoration: none;
 }
 
 .viewAllBtn:hover {
@@ -217,9 +297,10 @@
 
 .pinBtn {
     background: none;
-    font-size: 16px;
     cursor: pointer;
     padding: 4px;
+    display: flex;
+    align-items: center;
 }
 
 /* App Stats */
@@ -259,15 +340,19 @@
     border: 1px solid var(--gray-200);
     border-radius: 8px;
     padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
     min-width: 200px;
 }
 
+.appCardTop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
 .appCardIcon {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -295,19 +380,17 @@
     font-size: 14px;
     font-weight: 500;
     color: var(--clever-blue);
+    flex: 1;
 }
 
 .appArrow {
-    color: var(--clever-blue);
-    font-size: 14px;
-    align-self: flex-end;
-    margin-top: -20px;
+    cursor: pointer;
+    display: flex;
 }
 
 .appCardStats {
     display: flex;
     gap: 24px;
-    margin-top: 8px;
     padding-top: 12px;
     border-top: 1px solid var(--gray-200);
 }

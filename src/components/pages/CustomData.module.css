@@ -1,87 +1,183 @@
 .page {
-    padding: 2rem;
-    color: #333;
+    flex: 1;
+    overflow-y: auto;
+    background: var(--gray-50);
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
+.content {
+    padding: 0 32px 32px;
+}
+
+/* Add Custom Data button — matches live green CTA */
+.addBtn {
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 1rem;
-}
-
-.title {
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.uploadBtn {
-    background: #2358c2;
+    background: var(--clever-blue);
     color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.description {
-    color: #555;
-    margin-bottom: 3rem;
-    max-width: 600px;
-}
-
-.emptyState {
-    background: #f9f9f9;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 4rem 2rem;
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.icon {
-    font-size: 48px;
-    margin-bottom: 1rem;
-}
-
-.emptyState h3 {
-    font-size: 18px;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.emptyState p {
-    color: #666;
-    margin-bottom: 2rem;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.primaryBtn {
-    background: #2358c2;
-    color: white;
-    border: none;
     padding: 10px 20px;
-    border-radius: 4px;
-    font-weight: 600;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background 150ms ease;
 }
 
-.secondaryBtn {
+.addBtn:hover {
+    background: var(--clever-blue-dark);
+}
+
+/* Pipeline Card — matches live "How custom data works" */
+.pipelineCard {
     background: white;
-    border: 1px solid #ccc;
-    color: #333;
-    padding: 10px 20px;
-    border-radius: 4px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.pipelineTitle {
+    font-size: 14px;
+    color: var(--gray-600);
+    margin: 0 0 24px 0;
+    text-align: center;
+}
+
+.pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.pipelineStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.pipelineIcon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pipelineLabel {
+    font-size: 12px;
+    color: var(--gray-600);
+    line-height: 1.4;
+}
+
+.pipelineArrow {
+    font-size: 20px;
+    color: var(--gray-400);
+    margin-top: -24px;
+}
+
+/* Browse content */
+.browseContent {
+    padding-top: 24px;
+}
+
+.sectionTitle {
+    font-size: 20px;
     font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 12px 0;
+}
+
+.sectionDesc {
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+}
+
+.link {
+    color: var(--clever-blue);
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* Sub-tabs — Students, Teachers, etc. */
+.subTabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--gray-200);
+    margin: 24px 0 0 0;
+}
+
+.subTab {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-600);
+    background: none;
+    border: none;
     cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 150ms ease;
+}
+
+.subTab:hover {
+    color: var(--gray-900);
+}
+
+.subTabActive {
+    color: var(--clever-blue);
+    border-bottom-color: var(--clever-blue);
+}
+
+/* Data Table */
+.tableCard {
+    border: 1px solid var(--gray-200);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.table th {
+    padding: 12px 16px;
+    text-align: left;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    font-weight: 600;
+    color: var(--gray-600);
+    font-size: 13px;
+}
+
+.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+}
+
+.emptyRow {
+    text-align: center;
+    color: var(--gray-400);
+    padding: 32px 16px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+}
+
+/* Empty state */
+.emptyState {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 48px;
+    text-align: center;
+    color: var(--gray-500);
 }

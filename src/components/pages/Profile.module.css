@@ -1,44 +1,20 @@
 .container {
-    padding: 24px 40px;
-    background-color: #ffffff;
-    min-height: 100%;
+    flex: 1;
+    overflow-y: auto;
+    background: var(--gray-50);
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.titleSection h1 {
-    font-size: 28px;
-    font-weight: 600;
-    margin: 0;
-    color: #111827;
-}
-
-.deleteButton {
-    background-color: #c53030;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background 150ms ease;
-}
-
-.deleteButton:hover {
-    background-color: #9b2c2c;
-}
+/* Header now handled by PageHeader */
 
 /* Tabs are now handled by shared Tabs component */
 
+.content {
+    padding: 24px 32px;
+}
+
 .section {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: white;
+    border: 1px solid var(--gray-200);
     border-radius: 8px;
     padding: 32px;
     margin-bottom: 24px;
@@ -54,13 +30,13 @@
 .sectionHeader h2 {
     font-size: 18px;
     font-weight: 600;
-    color: #111827;
+    color: var(--gray-900);
     margin: 0;
 }
 
 .statusBadge {
-    background-color: #f3f4f6;
-    color: #4b5563;
+    background-color: var(--gray-100);
+    color: var(--gray-600);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
@@ -78,23 +54,23 @@
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #374151;
+    color: var(--gray-600);
     margin-bottom: 6px;
 }
 
 .infoValue {
     font-size: 14px;
-    color: #111827;
+    color: var(--gray-900);
 }
 
 .hintText {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 4px 0 0 0;
 }
 
 .hintText a {
-    color: #4351e8;
+    color: var(--clever-blue);
     text-decoration: none;
 }
 
@@ -103,7 +79,7 @@
 }
 
 .editButton {
-    color: #4351e8;
+    color: var(--clever-blue);
     background: none;
     border: none;
     font-size: 14px;
@@ -118,17 +94,17 @@
 
 .sectionDescription {
     font-size: 14px;
-    color: #374151;
+    color: var(--gray-700);
     margin-bottom: 24px;
 }
 
 .sectionDescription a {
-    color: #4351e8;
+    color: var(--clever-blue);
     text-decoration: none;
 }
 
 .primaryButton {
-    background-color: #4351e8;
+    background-color: var(--clever-blue);
     color: white;
     padding: 10px 20px;
     border-radius: 4px;
@@ -139,7 +115,7 @@
 }
 
 .primaryButton:hover {
-    background-color: #3b46d1;
+    background-color: var(--clever-blue-dark);
 }
 
 .emailsContainer {
@@ -153,13 +129,13 @@
 .emailsHeader h2 {
     font-size: 18px;
     font-weight: 700;
-    color: #111827;
+    color: var(--gray-900);
     margin: 0 0 8px 0;
 }
 
 .emailsHeader p {
     font-size: 14px;
-    color: #374151;
+    color: var(--gray-700);
     margin: 0;
 }
 
@@ -178,13 +154,13 @@
 .prefInfo h3 {
     font-size: 14px;
     font-weight: 700;
-    color: #374151;
+    color: var(--gray-700);
     margin: 0 0 4px 0;
 }
 
 .prefInfo p {
     font-size: 13px;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0;
 }
 
@@ -192,7 +168,7 @@
     position: relative;
     width: 36px;
     height: 20px;
-    background-color: #d1d5db;
+    background-color: var(--gray-300);
     border-radius: 10px;
     border: none;
     cursor: pointer;
@@ -256,27 +232,27 @@
 .inputGroup label {
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: var(--gray-700);
 }
 
 .inputGroup input {
     height: 40px;
     padding: 0 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--gray-300);
     border-radius: 4px;
     font-size: 14px;
-    color: #111827;
+    color: var(--gray-900);
     transition: border-color 150ms ease;
 }
 
 .inputGroup input:focus {
     outline: none;
-    border-color: #4351e8;
+    border-color: var(--clever-blue);
 }
 
 .inputGroup input:disabled {
-    background-color: #f3f4f6;
-    color: #6b7280;
+    background-color: var(--gray-100);
+    color: var(--gray-500);
     cursor: not-allowed;
 }
 
@@ -293,7 +269,7 @@
     text-align: left;
     background: none;
     border: none;
-    color: #4351e8;
+    color: var(--clever-blue);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -312,7 +288,7 @@
 }
 
 .updateButton {
-    background-color: #1a6ff3;
+    background-color: var(--clever-blue);
     color: white;
     padding: 10px 24px;
     border-radius: 4px;
@@ -323,20 +299,20 @@
 }
 
 .updateButton:hover {
-    background-color: #165ecf;
+    background-color: var(--clever-blue-dark);
 }
 
 .cancelButton {
-    background-color: #ffffff;
-    color: #1a6ff3;
+    background-color: white;
+    color: var(--clever-blue);
     padding: 10px 24px;
     border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
-    border: 1px solid #1a6ff3;
+    border: 1px solid var(--clever-blue);
     cursor: pointer;
 }
 
 .cancelButton:hover {
-    background-color: #f0f7ff;
+    background-color: var(--clever-blue-light);
 }
