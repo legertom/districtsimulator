@@ -1201,6 +1201,7 @@ The simulator's URL-persistent route model and normalization rules are documente
 | Gap | Severity | Rationale |
 |-----|----------|-----------|
 | ~~Edit Google Provisioning wizard (8-step setup)~~ | ~~P1~~ | **RESOLVED** — Full wizard implemented in Batch 8. All 8 steps: Connect to Google, Select Management Level, Select Users, Set Login Credentials (with sub-step editing), Organize OUs, Configure Groups, Summary, Preview & Provision. |
+| ~~Organize OUs edit workflows (Step 5)~~ | ~~P1~~ | **RESOLVED** — OU Parity Remediation (Batch 9). All 5 OU edit workflows: Student, Teacher, Staff (Google Org Unit tree + user preview + OU preview sidebar), Archive (tree + 3 archive action radios), Ignored (checkbox multi-select + skip). Stateful edits propagate to Summary/Preview + survive page reload. 45 unit tests, E2E test for OU edit persistence. |
 | Real file downloads for CSVs | P2 | Toast feedback sufficient for training simulator |
 | Events date filter parsing | P2 | Basic date comparison; edge cases around timezone may differ from live |
 
@@ -1233,7 +1234,7 @@ The simulator's URL-persistent route model and normalization rules are documente
 | Management Level | Radio buttons (Full IDM / Password Only), transition checkbox | `managementLevel`, `transitionMode` | Always valid (one radio always selected) | "Clever recommendation" badge on Full IDM |
 | Select Users | Checkboxes (Students/Teachers/Staff) | `provisionStudents/Teachers/Staff` | Next disabled if none selected | Shows count per type (20/10/10) |
 | Set Credentials | Edit buttons → sub-step views | `credentials.{type}.completed/email/password` | Progress bar (N of M steps) | Sub-step: user preview, matching emails, create format with tokens |
-| Organize OUs | Edit buttons per OU type | `ous.{type}.completed/path` | Progress bar (N of M steps) | Student/Teacher/Staff/Archive/Ignored OUs |
+| Organize OUs | Edit buttons → sub-step views per OU type | `ous.{type}.completed/path/selectedOU` + `archive.archiveAction` + `ignored.ignoredOUs[]` | Progress bar (N of M steps); OU selection required for user types | Student/Teacher/Staff OUs: user preview + Google Org Unit tree + OU preview sidebar. Archive OU: OU tree + archive action radios. Ignored OUs: checkbox multi-select + skip option. |
 | Configure Groups | Configure buttons per type | `groups.{type}.rulesConfigured` | Optional step (always valid) | "Optional" badge shown |
 | Summary | Edit buttons → navigate to step | Read-only summary of all steps | N/A | Cards show all configured values |
 | Preview & Provision | Download/Check/Refresh/Provision buttons | Triggers exit on provision | N/A | Stats row, details table, red Provision button |
@@ -1245,3 +1246,23 @@ The simulator's URL-persistent route model and normalization rules are documente
 | Students | /credentials/students-credentials | User preview + email matching + create format | CredentialEditView component |
 | Teachers | /credentials/teachers-credentials | Same structure as students | CredentialEditView component |
 | Staff | /credentials/staff-credentials | Same structure as students | CredentialEditView component |
+
+### OU Sub-Step Flow (Step 5)
+
+> **Added**: 2026-02-16 (OU Parity Remediation)
+
+| Sub-Step | Route in Live | Content | Simulator |
+|----------|---------------|---------|-----------|
+| Student OUs | /ous/students-ous | Section 1: Preview student (name dropdown, Clever Data: School, Grade, Graduation Year). Section 2: Select parent OU (radio tree with Refresh). Right sidebar: OU Preview (folder hierarchy) + Clever Tip. Button: "Next step" | UserTypeOUEditView component |
+| Teacher OUs | /ous/teachers-ous | Same as students; Clever Data: School, Title | UserTypeOUEditView component |
+| Staff OUs | /ous/staff-ous | Same as students; Clever Data: Title | UserTypeOUEditView component |
+| Archive OU | /ous/archive-ou | Section 1: Select parent OU for removed users (radio tree, sub-text about /Students /Teachers /Staff sub-OUs). Archive OU Preview panel. Section 2: Archive action radios (move+suspend+archive / move+suspend / move only). Right sidebar: Clever Tip (SIS ID reactivation). Button: "Save" | ArchiveOUEditView component |
+| Ignored OUs | /ous/ignored-ous | Section 1: Checkbox multi-select (not radio); explanatory text about manual management use case. Ignored OU Preview. Right sidebar: Clever Tip (can't ignore OUs used for Clever users). Buttons: "Skip" + "Next step" | IgnoredOUsEditView component |
+
+#### Shared Components (Step 5)
+
+| Component | Purpose | Modes |
+|-----------|---------|-------|
+| GoogleOrgUnitTree | Expandable tree of Google Org Units with select inputs | `radio` (single-select for user types + archive) / `checkbox` (multi-select for ignored) |
+| OUPreviewPanel | Right sidebar showing folder path hierarchy to selected OU + sample user | Renders tree segments from root to selected node |
+| CleverTipPanel | Right sidebar informational tip | Per-type tips: user types (create OU in Admin Console), archive (SIS reactivation), ignored (can't ignore user OUs) |
