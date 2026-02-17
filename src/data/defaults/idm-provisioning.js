@@ -58,11 +58,11 @@ export const DEFAULT_PROVISIONING_STATE = {
 
     /* Step 5 — Organize OUs */
     ous: {
-        students: { completed: true, path: "/Students/{{school_name}}/{{student.grade}}" },
-        teachers: { completed: true, path: "/Users/Staff/Teachers" },
-        staff:    { completed: true, path: "/Users/Staff/{{staff.department}}" },
-        archive:  { completed: true, path: "/" },
-        ignored:  { completed: true, path: "/" },
+        students: { completed: true, path: "/Students/{{school_name}}/{{student.grade}}", selectedOU: "students" },
+        teachers: { completed: true, path: "/Users/Staff/Teachers", selectedOU: "users-staff-teachers" },
+        staff:    { completed: true, path: "/Users/Staff/{{staff.department}}", selectedOU: "users-staff" },
+        archive:  { completed: true, path: "/", selectedOU: "root", archiveAction: "move-suspend" },
+        ignored:  { completed: true, path: "/", ignoredOUs: ["root"] },
     },
 
     /* Step 6 — Configure Groups */
@@ -90,7 +90,58 @@ export const DEFAULT_PROVISIONING_STATE = {
     },
 };
 
-/** Sample student for credential preview */
+/** Google Org Unit tree — deterministic mock matching live Clever structure */
+export const GOOGLE_ORG_UNITS = [
+    {
+        id: "root",
+        name: "Fort Virgilfield Elementary School",
+        path: "/",
+        children: [
+            { id: "devices", name: "Devices", path: "/Devices", children: [] },
+            {
+                id: "students",
+                name: "Students",
+                path: "/Students",
+                children: [
+                    {
+                        id: "students-treutelside",
+                        name: "Treutelside Middle School",
+                        path: "/Students/Treutelside Middle School",
+                        children: [
+                            { id: "students-treutelside-7", name: "7", path: "/Students/Treutelside Middle School/7", children: [] },
+                            { id: "students-treutelside-8", name: "8", path: "/Students/Treutelside Middle School/8", children: [] },
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "users",
+                name: "Users",
+                path: "/Users",
+                children: [
+                    {
+                        id: "users-staff",
+                        name: "Staff",
+                        path: "/Users/Staff",
+                        children: [
+                            { id: "users-staff-teachers", name: "Teachers", path: "/Users/Staff/Teachers", children: [] },
+                            { id: "users-staff-operations", name: "Operations", path: "/Users/Staff/Operations", children: [] },
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
+];
+
+/** Archive action options — matches live Clever */
+export const ARCHIVE_ACTIONS = [
+    { id: "move-suspend-archive", label: "Move to archive OU, suspend, and archive.", learnMore: true },
+    { id: "move-suspend", label: "Move to archive OU and suspend" },
+    { id: "move", label: "Move to archive OU" },
+];
+
+/** Sample student for credential + OU preview */
 export const SAMPLE_STUDENT = {
     name: "Rogelio Waelchi",
     sisEmail: "rogelio_waelchi63@maytonlyceum.com",
@@ -102,20 +153,24 @@ export const SAMPLE_STUDENT = {
     stateId: "XVLLJSDS8AUP",
     studentNumber: "000001",
     exampleEmail: "rogeliowaelchi@maytonlyceum.com",
+    school: "Treutelside Middle School",
+    grade: "7th Grade",
 };
 
 export const SAMPLE_TEACHER = {
-    name: "Sarah Johnson",
-    sisEmail: "sarah.johnson@maytonlyceum.com",
+    name: "Betty Bauch",
+    sisEmail: "betty.bauch@maytonlyceum.com",
     sisId: "a1234567-89ab-cdef-0123-456789abcdef",
     teacherNumber: "T001",
-    exampleEmail: "sarah.johnson@maytonlyceum.com",
+    exampleEmail: "betty.bauch@maytonlyceum.com",
+    school: "Treutelside Middle School",
+    title: "Ms.",
 };
 
 export const SAMPLE_STAFF = {
-    name: "Michael Brown",
-    sisEmail: "michael.brown@maytonlyceum.com",
+    name: "Oswaldo Pouros",
+    sisEmail: "oswaldo.pouros@maytonlyceum.com",
     sisId: "b2345678-90ab-cdef-1234-567890abcdef",
-    title: "Counselor",
-    exampleEmail: "michael.brown@maytonlyceum.com",
+    title: "Librarian",
+    exampleEmail: "oswaldo.pouros@maytonlyceum.com",
 };
