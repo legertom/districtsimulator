@@ -79,7 +79,16 @@ export const DEFAULT_PROVISIONING_STATE = {
             ],
         },
         archive:  { completed: true, path: "/", selectedOU: "root", archiveAction: "move-suspend" },
-        ignored:  { completed: true, path: "/", ignoredOUs: ["root"] },
+        ignored:  {
+            completed: true,
+            path: "/",
+            ignoredOUs: ["root"],
+            handling: {
+                students: "auto-suspend",
+                teachers: "auto-suspend",
+                staff: "auto-suspend",
+            },
+        },
     },
 
     /* Step 6 — Configure Groups */

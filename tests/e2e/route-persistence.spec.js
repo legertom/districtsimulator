@@ -135,3 +135,30 @@ test("Section 3 expansion: Teacher OUs shows Build your format", async ({ page }
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.getByRole("heading", { name: "Organize OUs" })).toBeVisible();
 });
+
+test("Ignored OUs Next step reveals handling sections and Save returns to overview", async ({ page }) => {
+    await page.goto("/dashboard/idm/provisioning/ous");
+    await expect(page.getByRole("heading", { name: "Organize OUs" })).toBeVisible();
+
+    // Ignored OUs is the 5th card in current flow ordering
+    const editBtns = page.getByRole("button", { name: "Edit" });
+    await editBtns.nth(4).click();
+
+    await expect(page.getByRole("heading", { name: "Ignored OUs (optional)" })).toBeVisible();
+
+    // Pre-expansion button
+    await expect(page.getByRole("button", { name: "Next step" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Next step" }).click();
+
+    // Section 2-4 should now be present
+    await expect(page.getByText("For STUDENTS, How do you want Clever IDM to handle these accounts in ignored OUs?")).toBeVisible();
+    await expect(page.getByText("For TEACHERS, How do you want Clever IDM to handle these accounts in ignored OUs?")).toBeVisible();
+    await expect(page.getByText("For STAFF, How do you want Clever IDM to handle these accounts in ignored OUs?")).toBeVisible();
+
+    // CTA should transition to Save
+    await expect(page.getByRole("button", { name: "Save" })).toBeVisible();
+    await page.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("heading", { name: "Organize OUs" })).toBeVisible();
+});

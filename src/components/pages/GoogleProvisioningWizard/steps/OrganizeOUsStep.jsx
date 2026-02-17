@@ -648,29 +648,71 @@ function ArchiveOUEditView({ state, updateState, onBack, setToast }) {
 
 /* ── Ignored OUs Edit View ────────────────────── */
 
-function IgnoredOUsEditView({ state, updateState, onBack, goNext, setToast }) {
+function IgnoredOUsEditView({ state, updateState, onBack, setToast }) {
     const ou = state.ous.ignored;
     const [selectedIds, setSelectedIds] = useState(ou.ignoredOUs || []);
+    const [section2Visible, setSection2Visible] = useState(false);
+    const [handling, setHandling] = useState({
+        students: ou.handling?.students || "auto-suspend",
+        teachers: ou.handling?.teachers || "auto-suspend",
+        staff: ou.handling?.staff || "auto-suspend",
+    });
+
+    const ignoredHandlingOptions = [
+        {
+            id: "auto-suspend",
+            label: "Automatically suspend user accounts in ignored OUs when they're removed from Clever.",
+        },
+        {
+            id: "manual-suspend",
+            label: "Don't automatically suspend user accounts in ignored OUs when they're removed from Clever. I will suspend these user accounts myself.",
+        },
+        {
+            id: "do-nothing",
+            label: "Don't match, update, or suspend users in ignored OUs. I will handle these user accounts myself.",
+        },
+    ];
+
+    const persistIgnoredState = (nextIgnoredIds, nextHandling = handling) => {
+        const paths = nextIgnoredIds.map((nid) => findOUById(GOOGLE_ORG_UNITS, nid)?.path || "/").join(", ") || "/";
+        updateState({
+            ous: {
+                ...state.ous,
+                ignored: {
+                    ...ou,
+                    ignoredOUs: nextIgnoredIds,
+                    path: paths,
+                    handling: nextHandling,
+                    completed: true,
+                },
+            },
+        });
+    };
 
     const handleSelect = (id) => {
         setSelectedIds((prev) => {
             const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-            const paths = next.map((nid) => findOUById(GOOGLE_ORG_UNITS, nid)?.path || "/").join(", ") || "/";
-            updateState({
-                ous: {
-                    ...state.ous,
-                    ignored: { ...ou, ignoredOUs: next, path: paths, completed: true },
-                },
-            });
+            persistIgnoredState(next);
             return next;
         });
     };
 
-    const handleSkip = () => {
-        onBack();
+    const handleHandlingChange = (userType, optionId) => {
+        const nextHandling = {
+            ...handling,
+            [userType]: optionId,
+        };
+        setHandling(nextHandling);
+        persistIgnoredState(selectedIds, nextHandling);
     };
 
     const handleNextStep = () => {
+        if (!section2Visible) {
+            setSection2Visible(true);
+            return;
+        }
+
+        setToast("Ignored OUs configuration saved.");
         onBack();
     };
 
@@ -695,25 +737,61 @@ function IgnoredOUsEditView({ state, updateState, onBack, goNext, setToast }) {
                         onSelect={handleSelect}
                         setToast={setToast}
                     />
+
+                    {/* Ignored OU Preview */}
+                    <div className={styles.ouPlacementPreview}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
+                            <EyeIcon /> Ignored OU Preview
+                        </div>
+                        <div style={{ fontSize: 13, color: "var(--gray-700)" }}>
+                            {selectedIds.length > 0
+                                ? selectedIds.map((id) => (
+                                    <div key={id}>{findOUById(GOOGLE_ORG_UNITS, id)?.path || "/"}</div>
+                                ))
+                                : <div>/</div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
-                {/* Ignored OU Preview */}
-                <div style={{
-                    border: "1px solid var(--gray-200)", borderRadius: 8, padding: 16,
-                    background: "var(--gray-50)", marginBottom: 16,
-                }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
-                        <EyeIcon /> Ignored OU Preview
-                    </div>
-                    <div style={{ fontSize: 13, color: "var(--gray-700)" }}>
-                        {selectedIds.length > 0
-                            ? selectedIds.map((id) => (
-                                <div key={id}>{findOUById(GOOGLE_ORG_UNITS, id)?.path || "/"}</div>
-                            ))
-                            : <div>/</div>
-                        }
-                    </div>
-                </div>
+                {section2Visible && (
+                    <>
+                        {[
+                            { key: "students", step: 2, label: "STUDENTS" },
+                            { key: "teachers", step: 3, label: "TEACHERS" },
+                            { key: "staff", step: 4, label: "STAFF" },
+                        ].map((section) => (
+                            <div key={section.key} className={`${styles.card} ${styles.section3Container}`}>
+                                <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 12px 0" }}>
+                                    {section.step}. For {section.label}, How do you want Clever IDM to handle these accounts in ignored OUs?
+                                </h3>
+                                {ignoredHandlingOptions.map((option) => (
+                                    <label
+                                        key={`${section.key}-${option.id}`}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "flex-start",
+                                            gap: 10,
+                                            padding: "8px 0",
+                                            cursor: "pointer",
+                                            fontSize: 14,
+                                            color: "var(--gray-900)",
+                                        }}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name={`ignored-${section.key}-handling`}
+                                            checked={handling[section.key] === option.id}
+                                            onChange={() => handleHandlingChange(section.key, option.id)}
+                                            style={{ accentColor: "var(--clever-blue)", width: 18, height: 18, marginTop: 2, flexShrink: 0 }}
+                                        />
+                                        <span style={{ lineHeight: 1.35 }}>{option.label}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        ))}
+                    </>
+                )}
 
                 <div className={styles.helpBanner}>
                     <span className={styles.helpBannerIcon}>⚙️</span>
@@ -726,18 +804,9 @@ function IgnoredOUsEditView({ state, updateState, onBack, goNext, setToast }) {
                     </span>
                 </div>
 
-                <div className={styles.nextBtnRow} style={{ gap: 12, display: "flex", justifyContent: "flex-end" }}>
-                    <button
-                        onClick={handleSkip}
-                        style={{
-                            background: "white", color: "var(--gray-700)", border: "none",
-                            padding: "12px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer",
-                        }}
-                    >
-                        Skip
-                    </button>
+                <div className={styles.nextBtnRow}>
                     <button className={styles.nextBtn} onClick={handleNextStep}>
-                        Next step
+                        {section2Visible ? "Save" : "Next step"}
                     </button>
                 </div>
             </div>
@@ -808,7 +877,6 @@ export default function OrganizeOUsStep({ state, updateState, goNext, setToast }
                 state={state}
                 updateState={updateState}
                 onBack={() => setEditingType(null)}
-                goNext={goNext}
                 setToast={setToast}
             />
         );

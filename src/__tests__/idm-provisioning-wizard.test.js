@@ -428,6 +428,14 @@ describe("OU edit state mutations", () => {
     it("default ignored OUs has ignoredOUs array", () => {
         expect(Array.isArray(DEFAULT_PROVISIONING_STATE.ous.ignored.ignoredOUs)).toBe(true);
     });
+
+    it("default ignored OUs has per-user handling policy", () => {
+        expect(DEFAULT_PROVISIONING_STATE.ous.ignored.handling).toEqual({
+            students: "auto-suspend",
+            teachers: "auto-suspend",
+            staff: "auto-suspend",
+        });
+    });
 });
 
 /* ── Sub-OU Format (Section 3) Data ───────────── */
