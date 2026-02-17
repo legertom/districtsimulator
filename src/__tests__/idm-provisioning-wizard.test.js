@@ -14,6 +14,7 @@ import {
     SAMPLE_TEACHER,
     SAMPLE_STAFF,
     SIS_VARIABLES,
+    EMAIL_SIS_VARIABLES,
     FORMAT_FUNCTIONS,
 } from "@/data/defaults/idm-provisioning";
 
@@ -577,5 +578,210 @@ describe("SAMPLE_STAFF department field", () => {
     it("department is a non-empty string", () => {
         expect(typeof SAMPLE_STAFF.department).toBe("string");
         expect(SAMPLE_STAFF.department.length).toBeGreaterThan(0);
+    });
+});
+
+/* ── Credential Email Format Defaults ──────────── */
+
+describe("Credential emailFormat defaults", () => {
+    it("all user types have emailFormat array", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            const cred = DEFAULT_PROVISIONING_STATE.credentials[key];
+            expect(cred).toHaveProperty("emailFormat");
+            expect(Array.isArray(cred.emailFormat)).toBe(true);
+            expect(cred.emailFormat.length).toBeGreaterThan(0);
+        }
+    });
+
+    it("emailFormat segments have valid types", () => {
+        const validTypes = ["text", "variable", "function"];
+        for (const key of ["students", "teachers", "staff"]) {
+            for (const seg of DEFAULT_PROVISIONING_STATE.credentials[key].emailFormat) {
+                expect(validTypes).toContain(seg.type);
+            }
+        }
+    });
+
+    it("emailFormat variable segments have variable and label", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            const varSegs = DEFAULT_PROVISIONING_STATE.credentials[key].emailFormat.filter(
+                (s) => s.type === "variable"
+            );
+            for (const seg of varSegs) {
+                expect(seg).toHaveProperty("variable");
+                expect(seg).toHaveProperty("label");
+            }
+        }
+    });
+
+    it("default emailFormat contains name.first and name.last", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            const vars = DEFAULT_PROVISIONING_STATE.credentials[key].emailFormat
+                .filter((s) => s.type === "variable")
+                .map((s) => s.variable);
+            expect(vars).toContain("name.first");
+            expect(vars).toContain("name.last");
+        }
+    });
+});
+
+/* ── Credential Fallback Defaults ──────────────── */
+
+describe("Credential fallback defaults", () => {
+    it("all user types have fallbackEnabled flag", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            const cred = DEFAULT_PROVISIONING_STATE.credentials[key];
+            expect(cred).toHaveProperty("fallbackEnabled");
+            expect(typeof cred.fallbackEnabled).toBe("boolean");
+        }
+    });
+
+    it("fallbackEnabled defaults to false", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            expect(DEFAULT_PROVISIONING_STATE.credentials[key].fallbackEnabled).toBe(false);
+        }
+    });
+
+    it("all user types have fallbackFormat array", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            const cred = DEFAULT_PROVISIONING_STATE.credentials[key];
+            expect(cred).toHaveProperty("fallbackFormat");
+            expect(Array.isArray(cred.fallbackFormat)).toBe(true);
+        }
+    });
+
+    it("fallbackFormat defaults to empty array", () => {
+        for (const key of ["students", "teachers", "staff"]) {
+            expect(DEFAULT_PROVISIONING_STATE.credentials[key].fallbackFormat).toHaveLength(0);
+        }
+    });
+});
+
+/* ── Credential State Mutations ────────────────── */
+
+describe("Credential format state mutations", () => {
+    it("can update primary emailFormat immutably", () => {
+        const original = DEFAULT_PROVISIONING_STATE.credentials.students;
+        const newFormat = [
+            { type: "variable", variable: "name.first", label: "First Name" },
+            { type: "text", value: "." },
+            { type: "variable", variable: "name.last", label: "Last Name" },
+        ];
+        const updated = {
+            ...DEFAULT_PROVISIONING_STATE,
+            credentials: {
+                ...DEFAULT_PROVISIONING_STATE.credentials,
+                students: {
+                    ...original,
+                    emailFormat: newFormat,
+                    email: "{{name.first}}.{{name.last}}@maytonlyceum.com",
+                    emailTokens: ["{{name.first}}", "{{name.last}}"],
+                },
+            },
+        };
+        expect(updated.credentials.students.emailFormat).toHaveLength(3);
+        expect(updated.credentials.students.emailFormat[1].type).toBe("text");
+        expect(updated.credentials.students.emailFormat[1].value).toBe(".");
+        // Original unchanged
+        expect(original.emailFormat).toHaveLength(2);
+    });
+
+    it("can enable fallback with format segments", () => {
+        const original = DEFAULT_PROVISIONING_STATE.credentials.teachers;
+        const fallbackFormat = [
+            { type: "variable", variable: "name.first", label: "First Name" },
+            { type: "text", value: "." },
+            { type: "variable", variable: "name.last", label: "Last Name" },
+        ];
+        const updated = {
+            ...DEFAULT_PROVISIONING_STATE,
+            credentials: {
+                ...DEFAULT_PROVISIONING_STATE.credentials,
+                teachers: {
+                    ...original,
+                    fallbackEnabled: true,
+                    fallbackFormat,
+                },
+            },
+        };
+        expect(updated.credentials.teachers.fallbackEnabled).toBe(true);
+        expect(updated.credentials.teachers.fallbackFormat).toHaveLength(3);
+        // Original unchanged
+        expect(original.fallbackEnabled).toBe(false);
+        expect(original.fallbackFormat).toHaveLength(0);
+    });
+
+    it("can disable fallback and clear format", () => {
+        // Start with fallback enabled
+        const withFallback = {
+            ...DEFAULT_PROVISIONING_STATE.credentials.staff,
+            fallbackEnabled: true,
+            fallbackFormat: [
+                { type: "variable", variable: "name.first", label: "First Name" },
+            ],
+        };
+        const updated = {
+            ...DEFAULT_PROVISIONING_STATE,
+            credentials: {
+                ...DEFAULT_PROVISIONING_STATE.credentials,
+                staff: {
+                    ...withFallback,
+                    fallbackEnabled: false,
+                    fallbackFormat: [],
+                },
+            },
+        };
+        expect(updated.credentials.staff.fallbackEnabled).toBe(false);
+        expect(updated.credentials.staff.fallbackFormat).toHaveLength(0);
+    });
+
+    it("credential edits keep step completion status", () => {
+        const updated = {
+            ...DEFAULT_PROVISIONING_STATE,
+            credentials: {
+                ...DEFAULT_PROVISIONING_STATE.credentials,
+                students: {
+                    ...DEFAULT_PROVISIONING_STATE.credentials.students,
+                    emailFormat: [
+                        { type: "variable", variable: "name.last", label: "Last Name" },
+                    ],
+                    completed: true,
+                },
+            },
+        };
+        expect(isStepCompleted("credentials", updated)).toBe(true);
+    });
+});
+
+/* ── EMAIL_SIS_VARIABLES ──────────────────────── */
+
+describe("EMAIL_SIS_VARIABLES", () => {
+    it("has entries for students, teachers, and staff", () => {
+        expect(EMAIL_SIS_VARIABLES).toHaveProperty("students");
+        expect(EMAIL_SIS_VARIABLES).toHaveProperty("teachers");
+        expect(EMAIL_SIS_VARIABLES).toHaveProperty("staff");
+    });
+
+    it("all user types include name.first and name.last", () => {
+        for (const key of Object.keys(EMAIL_SIS_VARIABLES)) {
+            const vars = EMAIL_SIS_VARIABLES[key].map((v) => v.variable);
+            expect(vars).toContain("name.first");
+            expect(vars).toContain("name.last");
+        }
+    });
+
+    it("each entry has variable and label", () => {
+        for (const key of Object.keys(EMAIL_SIS_VARIABLES)) {
+            for (const v of EMAIL_SIS_VARIABLES[key]) {
+                expect(v).toHaveProperty("variable");
+                expect(v).toHaveProperty("label");
+                expect(typeof v.variable).toBe("string");
+                expect(typeof v.label).toBe("string");
+            }
+        }
+    });
+
+    it("students have at least 6 email SIS variables", () => {
+        expect(EMAIL_SIS_VARIABLES.students.length).toBeGreaterThanOrEqual(6);
     });
 });

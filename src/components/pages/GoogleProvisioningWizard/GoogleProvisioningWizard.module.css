@@ -1196,3 +1196,12 @@
     line-height: 1.5;
     margin-top: 16px;
 }
+
+/* ── Credential Fallback Section ───────────── */
+
+.credentialFallbackSection {
+    border-top: 1px dashed var(--gray-300);
+    padding-top: 12px;
+    margin-top: 12px;
+    animation: section3SlideIn 300ms ease;
+}
