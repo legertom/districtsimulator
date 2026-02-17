@@ -1,13 +1,623 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import {
+    GOOGLE_ORG_UNITS,
+    ARCHIVE_ACTIONS,
+    SAMPLE_STUDENT,
+    SAMPLE_TEACHER,
+    SAMPLE_STAFF,
+} from "@/data/defaults/idm-provisioning";
 import styles from "../GoogleProvisioningWizard.module.css";
+
+/* ── Shared Icons ─────────────────────────────── */
 
 const CheckIcon = () => (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
         <path d="M3 6l2.5 2.5L9 4" stroke="white" strokeWidth="2" strokeLinecap="round" />
     </svg>
 );
+
+const FolderIcon = ({ size = 14 }) => (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+        <path d="M2 4a1 1 0 011-1h3.586a1 1 0 01.707.293L8.707 4.7A1 1 0 009.414 5H13a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" fill="#6b7280" />
+    </svg>
+);
+
+const UserIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="5" r="3" fill="#6b7280" />
+        <path d="M3 14c0-2.761 2.239-5 5-5s5 2.239 5 5" fill="#6b7280" />
+    </svg>
+);
+
+const RefreshIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M13.5 2.5v4h-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M2.5 8A5.5 5.5 0 0112.12 4.12L13.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M2.5 13.5v-4h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13.5 8A5.5 5.5 0 013.88 11.88L2.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+const EyeIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+);
+
+/* ── Helpers ───────────────────────────────────── */
+
+function findOUById(nodes, id) {
+    for (const node of nodes) {
+        if (node.id === id) return node;
+        if (node.children?.length) {
+            const found = findOUById(node.children, id);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+function flattenOUTree(nodes) {
+    const result = [];
+    function walk(nodes) {
+        for (const n of nodes) {
+            result.push(n);
+            if (n.children?.length) walk(n.children);
+        }
+    }
+    walk(nodes);
+    return result;
+}
+
+/* ── Google Org Unit Tree ─────────────────────── */
+
+function OrgUnitNode({ node, depth, mode, selectedId, selectedIds, onSelect, expanded, onToggle }) {
+    const isRadio = mode === "radio";
+    const isChecked = isRadio ? selectedId === node.id : selectedIds?.includes(node.id);
+    const hasChildren = node.children && node.children.length > 0;
+    const isExpanded = expanded[node.id];
+
+    return (
+        <>
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 16px",
+                    paddingLeft: 16 + depth * 24,
+                    borderBottom: "1px solid var(--gray-100)",
+                    cursor: "pointer",
+                }}
+                onClick={() => onSelect(node.id)}
+            >
+                <input
+                    type={isRadio ? "radio" : "checkbox"}
+                    checked={isChecked}
+                    onChange={() => onSelect(node.id)}
+                    style={{ accentColor: "var(--clever-blue)", width: 18, height: 18, cursor: "pointer" }}
+                />
+                {hasChildren && (
+                    <span
+                        onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
+                        style={{ cursor: "pointer", fontSize: 12, color: "var(--gray-500)", userSelect: "none" }}
+                    >
+                        {isExpanded ? "▾" : "▸"}
+                    </span>
+                )}
+                <span style={{ fontSize: 14, color: "var(--gray-900)" }}>{node.name}</span>
+            </div>
+            {hasChildren && isExpanded && node.children.map((child) => (
+                <OrgUnitNode
+                    key={child.id}
+                    node={child}
+                    depth={depth + 1}
+                    mode={mode}
+                    selectedId={selectedId}
+                    selectedIds={selectedIds}
+                    onSelect={onSelect}
+                    expanded={expanded}
+                    onToggle={onToggle}
+                />
+            ))}
+        </>
+    );
+}
+
+function GoogleOrgUnitTree({ mode, selectedId, selectedIds, onSelect, setToast }) {
+    const [expanded, setExpanded] = useState({ root: true, students: true, users: true, "users-staff": true });
+
+    const onToggle = (id) => {
+        setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    return (
+        <div style={{ border: "1px solid var(--gray-200)", borderRadius: 8, overflow: "hidden" }}>
+            <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "12px 16px", borderBottom: "1px solid var(--gray-200)", background: "white",
+            }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "var(--gray-900)" }}>Your Google Org Units</span>
+                <button
+                    onClick={() => setToast("Refreshing Google Org Units...")}
+                    style={{
+                        display: "inline-flex", alignItems: "center", gap: 4,
+                        background: "none", border: "none", color: "var(--clever-blue)",
+                        fontSize: 14, fontWeight: 500, cursor: "pointer",
+                    }}
+                >
+                    <RefreshIcon /> Refresh
+                </button>
+            </div>
+            {GOOGLE_ORG_UNITS.map((node) => (
+                <OrgUnitNode
+                    key={node.id}
+                    node={node}
+                    depth={0}
+                    mode={mode}
+                    selectedId={selectedId}
+                    selectedIds={selectedIds}
+                    onSelect={onSelect}
+                    expanded={expanded}
+                    onToggle={onToggle}
+                />
+            ))}
+        </div>
+    );
+}
+
+/* ── Preview Panel (right sidebar) ────────────── */
+
+function OUPreviewPanel({ selectedOU, sampleUser, userType }) {
+    const ou = findOUById(GOOGLE_ORG_UNITS, selectedOU);
+    if (!ou) return null;
+
+    // Build path segments from root to selected OU
+    const segments = [];
+    function buildPath(nodes, targetId, path) {
+        for (const n of nodes) {
+            const newPath = [...path, n];
+            if (n.id === targetId) { segments.push(...newPath); return true; }
+            if (n.children?.length && buildPath(n.children, targetId, newPath)) return true;
+        }
+        return false;
+    }
+    buildPath(GOOGLE_ORG_UNITS, selectedOU, []);
+
+    return (
+        <div style={{
+            border: "1px solid var(--gray-200)", borderRadius: 8, padding: 16,
+            background: "white", marginBottom: 16,
+        }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, fontSize: 14, fontWeight: 600 }}>
+                <EyeIcon /> Preview
+            </div>
+            <div style={{ fontSize: 13 }}>
+                {segments.map((seg, i) => (
+                    <div key={seg.id} style={{ paddingLeft: i * 16, display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
+                        {i < segments.length - 1 ? "▸" : "▸"} <FolderIcon size={12} /> {seg.name}
+                    </div>
+                ))}
+                {sampleUser && (
+                    <>
+                        {userType === "students" && sampleUser.school && (
+                            <div style={{ paddingLeft: segments.length * 16, display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
+                                ▸ <FolderIcon size={12} /> {sampleUser.school}
+                                <div style={{ paddingLeft: 16, display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                                    ▸ <FolderIcon size={12} /> {sampleUser.grade?.replace(/\D+$/, "").replace(/\D+/, "") || "7"}
+                                </div>
+                            </div>
+                        )}
+                        <div style={{
+                            paddingLeft: (segments.length + (userType === "students" ? 2 : 0)) * 16,
+                            display: "flex", alignItems: "center", gap: 4, marginTop: 4,
+                        }}>
+                            <UserIcon /> {sampleUser.name}
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function CleverTipPanel({ userType }) {
+    const tips = {
+        students: "Don\u2019t see a parent OU to place students? Create a new OU in your Google Admin Console and it will appear in the table.",
+        teachers: "Don\u2019t see a parent OU to place teachers? Create a new OU in your Google Admin Console and it will appear in the table.",
+        staff: "Don\u2019t see a parent OU to place staff? Create a new OU in your Google Admin Console and it will appear in the table.",
+        archive: "Clever uses SIS ID to reactivate user accounts if they return to the district in less than a year.",
+        ignored: "OUs you selected in previous steps to place Clever users cannot be ignored.",
+    };
+
+    return (
+        <div style={{
+            border: "1px solid var(--gray-200)", borderRadius: 8, padding: 16,
+            background: "white",
+        }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
+                ℹ️ Clever Tip
+            </div>
+            <p style={{ fontSize: 13, color: "var(--gray-600)", lineHeight: 1.5, margin: 0 }}>
+                {tips[userType]}
+            </p>
+        </div>
+    );
+}
+
+/* ── User Type OU Edit View (Student/Teacher/Staff) ── */
+
+function UserTypeOUEditView({ userType, title, state, updateState, onBack, setToast }) {
+    const samples = { students: SAMPLE_STUDENT, teachers: SAMPLE_TEACHER, staff: SAMPLE_STAFF };
+    const sample = samples[userType];
+    const ou = state.ous[userType];
+    const [selectedOU, setSelectedOU] = useState(ou.selectedOU || "");
+
+    const cleverDataFields = {
+        students: [
+            { label: "School", value: sample.school || "—" },
+            { label: "Grade", value: sample.grade || "—" },
+            { label: "Graduation Year", value: `Class of ${sample.graduationYear}` },
+        ],
+        teachers: [
+            { label: "School", value: sample.school || "—" },
+            { label: "Title", value: sample.title || "—" },
+        ],
+        staff: [
+            { label: "Title", value: sample.title || "—" },
+        ],
+    };
+
+    const handleSelect = (id) => {
+        setSelectedOU(id);
+        const ouNode = findOUById(GOOGLE_ORG_UNITS, id);
+        if (ouNode) {
+            updateState({
+                ous: {
+                    ...state.ous,
+                    [userType]: { ...ou, selectedOU: id, path: ouNode.path, completed: true },
+                },
+            });
+        }
+    };
+
+    const handleNextStep = () => {
+        onBack();
+    };
+
+    return (
+        <div style={{ display: "flex", gap: 24 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <h1 className={styles.stepTitle}>{title}</h1>
+                <p className={styles.stepDescription}>
+                    Organize {userType} into your existing Google OU structure and create optional sub-OUs based on Clever {userType.slice(0, -1)} data.{" "}
+                    <a href="#" className={styles.helpLink} onClick={(e) => e.preventDefault()}>
+                        Learn more about sub-OUs.
+                    </a>
+                </p>
+
+                {/* Section 1: Preview user */}
+                <div className={styles.card}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 12px 0" }}>
+                        1. Preview any {userType.slice(0, -1)} with an existing Clever account.
+                    </h3>
+                    <div style={{ marginBottom: 12 }}>
+                        <div className={styles.cardLabel}>USER NAME</div>
+                        <select
+                            style={{
+                                width: "100%", padding: "8px 12px", border: "1px solid var(--gray-300)",
+                                borderRadius: 6, fontSize: 14, color: "var(--gray-900)", background: "white",
+                            }}
+                            defaultValue={sample.name}
+                        >
+                            <option>{sample.name}</option>
+                        </select>
+                    </div>
+                    <div className={styles.card} style={{ background: "var(--gray-50)" }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--gray-900)", marginBottom: 12 }}>
+                            🔵 {sample.name}&apos;s Clever Data
+                        </div>
+                        <div style={{ fontSize: 13 }}>
+                            {cleverDataFields[userType].map((field) => (
+                                <div key={field.label} style={{ marginBottom: 4 }}>
+                                    <strong>{field.label}</strong> {field.value}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 2: Select parent OU */}
+                <div className={styles.card}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 12px 0" }}>
+                        2. Select a parent OU to place all {userType}
+                    </h3>
+                    <GoogleOrgUnitTree
+                        mode="radio"
+                        selectedId={selectedOU}
+                        onSelect={handleSelect}
+                        setToast={setToast}
+                    />
+                </div>
+
+                <div className={styles.helpBanner}>
+                    <span className={styles.helpBannerIcon}>⚙️</span>
+                    <span className={styles.helpBannerText}>
+                        For additional information please see the{" "}
+                        <a href="#" className={styles.helpLink} onClick={(e) => e.preventDefault()}>
+                            Organize OUs section
+                        </a>{" "}
+                        of our Clever IDM course in Clever Academy.
+                    </span>
+                </div>
+
+                <div className={styles.nextBtnRow}>
+                    <button className={styles.nextBtn} onClick={handleNextStep}>
+                        Next step
+                    </button>
+                </div>
+            </div>
+
+            {/* Right sidebar */}
+            <div style={{ width: 220, flexShrink: 0 }}>
+                {selectedOU && (
+                    <OUPreviewPanel selectedOU={selectedOU} sampleUser={sample} userType={userType} />
+                )}
+                <CleverTipPanel userType={userType} />
+            </div>
+        </div>
+    );
+}
+
+/* ── Archive OU Edit View ─────────────────────── */
+
+function ArchiveOUEditView({ state, updateState, onBack, setToast }) {
+    const ou = state.ous.archive;
+    const [selectedOU, setSelectedOU] = useState(ou.selectedOU || "");
+    const [archiveAction, setArchiveAction] = useState(ou.archiveAction || "move-suspend");
+
+    const handleSelect = (id) => {
+        setSelectedOU(id);
+        const ouNode = findOUById(GOOGLE_ORG_UNITS, id);
+        if (ouNode) {
+            updateState({
+                ous: {
+                    ...state.ous,
+                    archive: { ...ou, selectedOU: id, path: ouNode.path, completed: true, archiveAction },
+                },
+            });
+        }
+    };
+
+    const handleActionChange = (actionId) => {
+        setArchiveAction(actionId);
+        updateState({
+            ous: {
+                ...state.ous,
+                archive: { ...ou, archiveAction: actionId },
+            },
+        });
+    };
+
+    const handleSave = () => {
+        setToast("Archive OU configuration saved.");
+        onBack();
+    };
+
+    return (
+        <div style={{ display: "flex", gap: 24 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <h1 className={styles.stepTitle}>Archive OU</h1>
+
+                {/* Section 1: Select parent OU */}
+                <div className={styles.card}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 8px 0" }}>
+                        1. Select a parent OU to place users that are removed from Clever.
+                    </h3>
+                    <p style={{ fontSize: 14, color: "var(--gray-600)", lineHeight: 1.5, margin: "0 0 12px 0" }}>
+                        Users will be placed in the corresponding sub-OU for their type: /Students, /Teachers, or /Staff.
+                    </p>
+                    <GoogleOrgUnitTree
+                        mode="radio"
+                        selectedId={selectedOU}
+                        onSelect={handleSelect}
+                        setToast={setToast}
+                    />
+                </div>
+
+                {/* Archive OU Preview */}
+                <div style={{
+                    border: "1px solid var(--gray-200)", borderRadius: 8, padding: 16,
+                    background: "var(--gray-50)", marginBottom: 16,
+                }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
+                        <EyeIcon /> Archive OU Preview
+                    </div>
+                    <div style={{ fontSize: 13, color: "var(--gray-700)" }}>
+                        {selectedOU ? (
+                            <>
+                                <div>{findOUById(GOOGLE_ORG_UNITS, selectedOU)?.path || "/"}/Students</div>
+                                <div>{findOUById(GOOGLE_ORG_UNITS, selectedOU)?.path || "/"}/Teachers</div>
+                                <div>{findOUById(GOOGLE_ORG_UNITS, selectedOU)?.path || "/"}/Staff</div>
+                            </>
+                        ) : (
+                            <>
+                                <div>{"//Students"}</div>
+                                <div>{"//Teachers"}</div>
+                                <div>{"//Staff"}</div>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <div className={styles.helpBanner}>
+                    <span className={styles.helpBannerIcon}>⚙️</span>
+                    <span className={styles.helpBannerText}>
+                        For additional information please see the{" "}
+                        <a href="#" className={styles.helpLink} onClick={(e) => e.preventDefault()}>
+                            Organize OUs section
+                        </a>{" "}
+                        of our Clever IDM course in Clever Academy.
+                    </span>
+                </div>
+
+                {/* Section 2: Archive action */}
+                <div className={styles.card}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 12px 0" }}>
+                        2. Select an action to take for users removed from Clever.
+                    </h3>
+                    {ARCHIVE_ACTIONS.map((action) => (
+                        <label
+                            key={action.id}
+                            style={{
+                                display: "flex", alignItems: "center", gap: 10,
+                                padding: "8px 0", cursor: "pointer", fontSize: 14, color: "var(--gray-900)",
+                            }}
+                        >
+                            <input
+                                type="radio"
+                                name="archiveAction"
+                                checked={archiveAction === action.id}
+                                onChange={() => handleActionChange(action.id)}
+                                style={{ accentColor: "var(--clever-blue)", width: 18, height: 18 }}
+                            />
+                            {action.label}
+                            {action.learnMore && (
+                                <>
+                                    {" ("}
+                                    <a href="#" className={styles.helpLink} onClick={(e) => e.preventDefault()}>
+                                        Learn more about archives in Google
+                                    </a>
+                                    {")"}
+                                </>
+                            )}
+                        </label>
+                    ))}
+                </div>
+
+                <div className={styles.nextBtnRow}>
+                    <button className={styles.nextBtn} onClick={handleSave}>
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            {/* Right sidebar */}
+            <div style={{ width: 220, flexShrink: 0 }}>
+                <CleverTipPanel userType="archive" />
+            </div>
+        </div>
+    );
+}
+
+/* ── Ignored OUs Edit View ────────────────────── */
+
+function IgnoredOUsEditView({ state, updateState, onBack, goNext, setToast }) {
+    const ou = state.ous.ignored;
+    const [selectedIds, setSelectedIds] = useState(ou.ignoredOUs || []);
+
+    const handleSelect = (id) => {
+        setSelectedIds((prev) => {
+            const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+            const paths = next.map((nid) => findOUById(GOOGLE_ORG_UNITS, nid)?.path || "/").join(", ") || "/";
+            updateState({
+                ous: {
+                    ...state.ous,
+                    ignored: { ...ou, ignoredOUs: next, path: paths, completed: true },
+                },
+            });
+            return next;
+        });
+    };
+
+    const handleSkip = () => {
+        onBack();
+    };
+
+    const handleNextStep = () => {
+        onBack();
+    };
+
+    return (
+        <div style={{ display: "flex", gap: 24 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <h1 className={styles.stepTitle}>Ignored OUs (optional)</h1>
+
+                <div className={styles.card}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 8px 0" }}>
+                        1. Select OUs you want Clever to ignore. Users will not be moved out of these OUs when Clever runs an IDM sync.
+                    </h3>
+                    <p style={{ fontSize: 14, color: "var(--gray-700)", lineHeight: 1.5, margin: "0 0 4px 0" }}>
+                        <strong>You don&apos;t need to select OUs as ignored</strong> if they aren&apos;t related to users managed by Clever.
+                    </p>
+                    <p style={{ fontSize: 14, color: "var(--gray-700)", lineHeight: 1.5, margin: "0 0 12px 0" }}>
+                        <strong>You may consider selecting an OU as ignored</strong> if you have a particular group of users you would like to manage manually, but they are in a parent OU that would otherwise be managed by Clever (e.g. a group of students who you want to have YouTube access restricted).
+                    </p>
+                    <GoogleOrgUnitTree
+                        mode="checkbox"
+                        selectedIds={selectedIds}
+                        onSelect={handleSelect}
+                        setToast={setToast}
+                    />
+                </div>
+
+                {/* Ignored OU Preview */}
+                <div style={{
+                    border: "1px solid var(--gray-200)", borderRadius: 8, padding: 16,
+                    background: "var(--gray-50)", marginBottom: 16,
+                }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
+                        <EyeIcon /> Ignored OU Preview
+                    </div>
+                    <div style={{ fontSize: 13, color: "var(--gray-700)" }}>
+                        {selectedIds.length > 0
+                            ? selectedIds.map((id) => (
+                                <div key={id}>{findOUById(GOOGLE_ORG_UNITS, id)?.path || "/"}</div>
+                            ))
+                            : <div>/</div>
+                        }
+                    </div>
+                </div>
+
+                <div className={styles.helpBanner}>
+                    <span className={styles.helpBannerIcon}>⚙️</span>
+                    <span className={styles.helpBannerText}>
+                        For additional information please see the{" "}
+                        <a href="#" className={styles.helpLink} onClick={(e) => e.preventDefault()}>
+                            Organize OUs section
+                        </a>{" "}
+                        of our Clever IDM course in Clever Academy.
+                    </span>
+                </div>
+
+                <div className={styles.nextBtnRow} style={{ gap: 12, display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                        onClick={handleSkip}
+                        style={{
+                            background: "white", color: "var(--gray-700)", border: "none",
+                            padding: "12px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer",
+                        }}
+                    >
+                        Skip
+                    </button>
+                    <button className={styles.nextBtn} onClick={handleNextStep}>
+                        Next step
+                    </button>
+                </div>
+            </div>
+
+            {/* Right sidebar */}
+            <div style={{ width: 220, flexShrink: 0 }}>
+                <CleverTipPanel userType="ignored" />
+            </div>
+        </div>
+    );
+}
+
+/* ── OUs Overview Card ────────────────────────── */
 
 function OUCard({ title, ou, label, onEdit }) {
     return (
@@ -31,7 +641,11 @@ function OUCard({ title, ou, label, onEdit }) {
     );
 }
 
-export default function OrganizeOUsStep({ state, goNext, setToast }) {
+/* ── Main Export ───────────────────────────────── */
+
+export default function OrganizeOUsStep({ state, updateState, goNext, setToast }) {
+    const [editingType, setEditingType] = useState(null);
+
     const ouTypes = [];
     if (state.provisionStudents) ouTypes.push({ key: "students", title: "Student OUs", label: "OUS CREATED" });
     if (state.provisionTeachers) ouTypes.push({ key: "teachers", title: "Teacher OUs", label: "OUS CREATED" });
@@ -41,10 +655,46 @@ export default function OrganizeOUsStep({ state, goNext, setToast }) {
 
     const completedCount = ouTypes.filter((t) => state.ous[t.key]?.completed).length;
 
-    const handleEdit = (key) => {
-        setToast(`Editing ${key} OU configuration...`);
-    };
+    const titles = { students: "Student OUs", teachers: "Teacher OUs", staff: "Staff OUs" };
 
+    // Edit views
+    if (editingType === "archive") {
+        return (
+            <ArchiveOUEditView
+                state={state}
+                updateState={updateState}
+                onBack={() => setEditingType(null)}
+                setToast={setToast}
+            />
+        );
+    }
+
+    if (editingType === "ignored") {
+        return (
+            <IgnoredOUsEditView
+                state={state}
+                updateState={updateState}
+                onBack={() => setEditingType(null)}
+                goNext={goNext}
+                setToast={setToast}
+            />
+        );
+    }
+
+    if (editingType && ["students", "teachers", "staff"].includes(editingType)) {
+        return (
+            <UserTypeOUEditView
+                userType={editingType}
+                title={titles[editingType]}
+                state={state}
+                updateState={updateState}
+                onBack={() => setEditingType(null)}
+                setToast={setToast}
+            />
+        );
+    }
+
+    // Overview
     return (
         <>
             <div className={styles.infoBanner}>
@@ -84,7 +734,7 @@ export default function OrganizeOUsStep({ state, goNext, setToast }) {
                         title={t.title}
                         ou={state.ous[t.key]}
                         label={t.label}
-                        onEdit={() => handleEdit(t.key)}
+                        onEdit={() => setEditingType(t.key)}
                     />
                 ))}
             </div>
