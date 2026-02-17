@@ -67,3 +67,38 @@ test("browser back and forward keeps portal/dashboard route history", async ({ p
     await page.goForward();
     await expect(page).toHaveURL(/\/$/);
 });
+
+test("OU edit persists through page reload", async ({ page }) => {
+    // Navigate to provisioning wizard OUs step
+    await page.goto("/dashboard/idm/provisioning/ous");
+
+    await expect(page.getByRole("heading", { name: "Organize OUs" })).toBeVisible();
+
+    // Click Edit on Student OUs card
+    const studentCard = page.locator("text=Student OUs").first();
+    await expect(studentCard).toBeVisible();
+    const editBtn = page.getByRole("button", { name: "Edit" }).first();
+    await editBtn.click();
+
+    // Should show Student OUs edit view
+    await expect(page.getByRole("heading", { name: "Student OUs" })).toBeVisible();
+
+    // Click on a different OU in the tree (e.g. "Devices")
+    await page.getByText("Devices").click();
+
+    // Click Next step to return to overview
+    await page.getByRole("button", { name: "Next step" }).click();
+
+    // Verify we're back on the overview
+    await expect(page.getByRole("heading", { name: "Organize OUs" })).toBeVisible();
+
+    // Verify the Student OU card now shows /Devices
+    await expect(page.getByText("/Devices")).toBeVisible();
+
+    // Reload the page
+    await page.reload();
+
+    // Verify the OU path persisted through reload
+    await expect(page).toHaveURL(/\/dashboard\/idm\/provisioning\/ous$/);
+    await expect(page.getByText("/Devices")).toBeVisible();
+});
