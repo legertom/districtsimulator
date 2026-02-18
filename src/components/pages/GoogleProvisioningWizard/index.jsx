@@ -37,25 +37,33 @@ const STEP_COMPONENTS = {
 
 export default function GoogleProvisioningWizard({ currentStep, onStepChange, onExit }) {
     const [localStep, setLocalStep] = useState(WIZARD_STEPS[0].id);
-    const [wizardState, setWizardState] = useState(() => {
+    const [wizardState, setWizardState] = useState(() => ({ ...DEFAULT_PROVISIONING_STATE }));
+    const [hydrated, setHydrated] = useState(false);
+    const [toast, setToast] = useState(null);
+
+    // Load saved state on client only to avoid hydration mismatch
+    useEffect(() => {
         try {
             const saved = localStorage.getItem("idm-provisioning-state");
-            if (saved) return JSON.parse(saved);
+            if (saved) {
+                setWizardState(JSON.parse(saved));
+            }
         } catch {
             // ignore
+        } finally {
+            setHydrated(true);
         }
-        return { ...DEFAULT_PROVISIONING_STATE };
-    });
-    const [toast, setToast] = useState(null);
+    }, []);
 
     // Persist wizard state to localStorage
     useEffect(() => {
+        if (!hydrated) return;
         try {
             localStorage.setItem("idm-provisioning-state", JSON.stringify(wizardState));
         } catch {
             // ignore
         }
-    }, [wizardState]);
+    }, [wizardState, hydrated]);
 
     // Toast auto-dismiss
     useEffect(() => {
@@ -110,6 +118,10 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
     };
 
     const StepComponent = STEP_COMPONENTS[activeStep];
+
+    if (!hydrated) {
+        return null;
+    }
 
     return (
         <div className={styles.wizardOverlay}>

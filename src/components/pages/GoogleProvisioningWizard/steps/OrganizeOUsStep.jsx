@@ -85,6 +85,7 @@ function renderFormatPreview(format, sampleUser) {
                 "student.student_number": sampleUser.studentNumber || "",
                 "student.graduation_year": sampleUser.graduationYear || "",
                 "staff.department": sampleUser.department || "",
+                "staff.job_code": sampleUser.jobCode || "",
                 "staff.title": sampleUser.title || "",
                 "teacher.title": sampleUser.title || "",
             };
@@ -120,7 +121,11 @@ function OrgUnitNode({ node, depth, mode, selectedId, selectedIds, onSelect, exp
                 <input
                     type={isRadio ? "radio" : "checkbox"}
                     checked={isChecked}
-                    onChange={() => onSelect(node.id)}
+                    onChange={(e) => {
+                        e.stopPropagation();
+                        onSelect(node.id);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                     style={{ accentColor: "var(--clever-blue)", width: 18, height: 18, cursor: "pointer" }}
                 />
                 {hasChildren && (
@@ -384,6 +389,10 @@ function UserTypeOUEditView({ userType, title, state, updateState, onBack, setTo
                     <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 12px 0" }}>
                         2. Select a parent OU to place all {userType}
                     </h3>
+                    <p style={{ fontSize: 14, color: "var(--gray-600)", lineHeight: 1.5, margin: "0 0 12px 0" }}>
+                        Select the primary OU where all {userType} should reside. You can create optional sub-OUs in
+                        the next step.
+                    </p>
                     <GoogleOrgUnitTree
                         mode="radio"
                         selectedId={selectedOU}
@@ -431,6 +440,14 @@ function UserTypeOUEditView({ userType, title, state, updateState, onBack, setTo
                                 {selectedOUPath}{renderFormatPreview(currentFormat, sample)}
                             </div>
                         </div>
+
+                        {userType === "students" && (
+                            <div className={styles.formatEditorNote} style={{ marginTop: 16 }}>
+                                Graduation Year is calculated from SIS data. For K-12, Clever uses grade when
+                                graduation year isn&apos;t provided. Preschool/PreK/Transitional Kindergarten are treated
+                                as grade -1; Kindergarten is treated as 0.
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -631,6 +648,12 @@ function ArchiveOUEditView({ state, updateState, onBack, setToast }) {
                     ))}
                 </div>
 
+                <div className={styles.formatEditorNote}>
+                    If a user returns within one year and is still in an Archive OU, Clever restores their account and
+                    moves them to the appropriate active OU. If they return after one year, a new account is created.
+                    For Google accounts with paid licenses, manage archiving in the Google License Manager.
+                </div>
+
                 <div className={styles.nextBtnRow}>
                     <button className={styles.nextBtn} onClick={handleSave}>
                         Save
@@ -657,6 +680,7 @@ function IgnoredOUsEditView({ state, updateState, onBack, setToast }) {
         teachers: ou.handling?.teachers || "auto-suspend",
         staff: ou.handling?.staff || "auto-suspend",
     });
+    const didInit = React.useRef(false);
 
     const ignoredHandlingOptions = [
         {
@@ -673,26 +697,9 @@ function IgnoredOUsEditView({ state, updateState, onBack, setToast }) {
         },
     ];
 
-    const persistIgnoredState = (nextIgnoredIds, nextHandling = handling) => {
-        const paths = nextIgnoredIds.map((nid) => findOUById(GOOGLE_ORG_UNITS, nid)?.path || "/").join(", ") || "/";
-        updateState({
-            ous: {
-                ...state.ous,
-                ignored: {
-                    ...ou,
-                    ignoredOUs: nextIgnoredIds,
-                    path: paths,
-                    handling: nextHandling,
-                    completed: true,
-                },
-            },
-        });
-    };
-
     const handleSelect = (id) => {
         setSelectedIds((prev) => {
             const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-            persistIgnoredState(next);
             return next;
         });
     };
@@ -703,8 +710,27 @@ function IgnoredOUsEditView({ state, updateState, onBack, setToast }) {
             [userType]: optionId,
         };
         setHandling(nextHandling);
-        persistIgnoredState(selectedIds, nextHandling);
     };
+
+    React.useEffect(() => {
+        if (!didInit.current) {
+            didInit.current = true;
+            return;
+        }
+        const paths = selectedIds.map((nid) => findOUById(GOOGLE_ORG_UNITS, nid)?.path || "/").join(", ") || "/";
+        updateState({
+            ous: {
+                ...state.ous,
+                ignored: {
+                    ...ou,
+                    ignoredOUs: selectedIds,
+                    path: paths,
+                    handling,
+                    completed: true,
+                },
+            },
+        });
+    }, [selectedIds, handling, state.ous, ou, updateState]);
 
     const handleNextStep = () => {
         if (!section2Visible) {
@@ -822,6 +848,33 @@ function IgnoredOUsEditView({ state, updateState, onBack, setToast }) {
 /* ── OUs Overview Card ────────────────────────── */
 
 function OUCard({ title, ou, label, onEdit }) {
+    const buildTemplate = (format) => {
+        if (!format?.length) return "";
+        return format
+            .map((seg) => {
+                if (seg.type === "text") return seg.value;
+                if (seg.type === "variable") return `{{${seg.variable}}}`;
+                if (seg.type === "function") return `{{fn:${seg.fn}}}`;
+                return "";
+            })
+            .join("");
+    };
+
+    const isUserOU = ["students", "teachers", "staff"].includes(ou.type);
+    const basePath = isUserOU
+        ? (findOUById(GOOGLE_ORG_UNITS, ou.selectedOU)?.path || ou.path || "/")
+        : (ou.path || "/");
+    const templateSuffix = isUserOU ? buildTemplate(ou.subOUFormat) : "";
+    const displayPath = `${basePath}${templateSuffix}`;
+    const multiLinePaths = [];
+    if (ou.type === "ignored" && Array.isArray(ou.ignoredOUs)) {
+        multiLinePaths.push(
+            ...ou.ignoredOUs.map((id) => findOUById(GOOGLE_ORG_UNITS, id)?.path || "/")
+        );
+    } else {
+        multiLinePaths.push(displayPath);
+    }
+
     return (
         <div className={styles.card}>
             <div className={styles.cardHeader}>
@@ -837,7 +890,9 @@ function OUCard({ title, ou, label, onEdit }) {
             </div>
             <div>
                 <div className={styles.cardLabel}>{label}</div>
-                <div className={styles.cardValue}>{ou.path}</div>
+                <div className={styles.cardValue} style={{ whiteSpace: "pre-line" }}>
+                    {multiLinePaths.join("\n")}
+                </div>
             </div>
         </div>
     );
@@ -933,7 +988,7 @@ export default function OrganizeOUsStep({ state, updateState, goNext, setToast }
                     <OUCard
                         key={t.key}
                         title={t.title}
-                        ou={state.ous[t.key]}
+                        ou={{ ...state.ous[t.key], type: t.key }}
                         label={t.label}
                         onEdit={() => setEditingType(t.key)}
                     />

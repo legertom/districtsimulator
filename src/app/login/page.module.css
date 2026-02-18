@@ -96,6 +96,17 @@
     font-size: 14px;
 }
 
+.demoHint {
+    background: #f5f7fb;
+    border: 1px solid #e5e9f2;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
 .divider::before,
 .divider::after {
     content: "";
@@ -130,6 +141,16 @@
 
 .googleButton:hover {
     background-color: #f9f9f9;
+}
+
+.googleDisabled {
+    width: 100%;
+    border: 1px dashed #d1d5db;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
 }
 
 .error {

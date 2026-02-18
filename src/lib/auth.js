@@ -2,12 +2,18 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 
-export const authOptions = {
-    providers: [
+const providers = [];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID || 'placeholder',
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'placeholder',
-        }),
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        })
+    );
+}
+
+providers.push(
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
@@ -32,7 +38,10 @@ export const authOptions = {
                 return null;
             }
         })
-    ],
+);
+
+export const authOptions = {
+    providers,
     session: {
         strategy: "jwt",
     },
