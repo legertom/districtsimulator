@@ -1,7 +1,7 @@
 # District Admin Roleplay Simulator
 
 ## Working Product Definition
-This simulator trains users to act as a **District Admin (DA / Clever Admin)** in realistic day-to-day operations.
+This simulator trains **Clever Support Agents** to roleplay as a **District Admin (DA / Clever Admin)** in realistic day-to-day operations.
 
 The DA is the central operator for district identity + roster + app access workflows. They receive requests from:
 - School leadership (principal, superintendent, IT director)
@@ -9,6 +9,15 @@ The DA is the central operator for district identity + roster + app access workf
 - Teachers/staff support channels
 
 In product terms, these requests become **tickets/scenarios** the learner must handle inside the simulator.
+
+### Primary Audience (Now)
+- **Tier 2 Clever Support Agents** (initial launch focus)
+- Goal: build practical IDM troubleshooting and configuration fluency by simulating real DA workflows
+
+### Secondary Audience (Later)
+- New support hires
+- Cross-functional support roles
+- Team leads running skill drills and assessments
 
 ---
 
@@ -72,12 +81,16 @@ Each ticket should include structured metadata:
 ---
 
 ## Skill Domains to Train
-1. **SIS Data & Sync Fundamentals**
-2. **Provisioning & Login Credential Logic**
-3. **OU/Group Organization**
-4. **Access/Roster Troubleshooting**
-5. **Security + Identity hygiene**
-6. **Stakeholder communication under pressure**
+### Phase 1 Focus (Now): IDM
+1. **Provisioning & Login Credential Logic**
+2. **OU/Group Organization**
+3. **IDM troubleshooting and recovery workflows**
+4. **Stakeholder communication under pressure**
+
+### Phase 2 Expansion: broader Clever 101
+5. **SIS Data & Sync Fundamentals**
+6. **Access/Roster Troubleshooting**
+7. **Security + Identity hygiene**
 
 ---
 
@@ -89,6 +102,23 @@ Each ticket should include structured metadata:
 - **Communication (10%)**: clear, concise update to requestor?
 
 Pass criteria can be scenario-specific but should map back to this common rubric.
+
+## Gamification Layer (v1 → v2)
+### v1 (basic, immediate)
+- Points per ticket completion
+- Bonus for first-pass correctness
+- Time bonus for efficient resolution
+- Streak bonus for consecutive successful tickets
+- Visible learner level/badge progression (e.g., IDM Apprentice → IDM Specialist)
+
+### v2 (team competition)
+- Leaderboards by cohort/team
+- Weekly challenge playlists
+- Timed puzzle tickets with tie-breaker by quality score
+- **"IDM Olympics" mode** with event rounds:
+  - Sprint (speed + accuracy)
+  - Deep Dive (complex troubleshooting)
+  - Communication Relay (best stakeholder response)
 
 ---
 
@@ -126,12 +156,13 @@ Every scenario should specify a required data template to avoid non-deterministi
 ---
 
 ## MVP Scope Recommendation
-For first launch, focus on:
-- 8–12 high-value scenarios
+For first launch (Tier 2 IDM enablement), focus on:
+- 8–12 high-value **IDM** scenarios
 - 3 difficulty bands (guided, assisted, independent)
 - Basic scoring + debrief
 - Ticket inbox + scenario runner
 - Deterministic datasets (prebuilt templates)
+- Basic gamification (points + streaks + badges)
 
 Avoid overbuilding dynamic AI generation until baseline learning loop is solid.
 
