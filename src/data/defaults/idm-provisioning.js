@@ -39,6 +39,12 @@ export const DEFAULT_PROVISIONING_STATE = {
             password: "{{student.student_number}}{{student.grade}}{{school.sis_id}}",
             domain: "maytonlyceum.com",
             emailTokens: ["{{name.first}}", "{{name.last}}"],
+            emailFormat: [
+                { type: "variable", variable: "name.first", label: "First Name" },
+                { type: "variable", variable: "name.last", label: "Last Name" },
+            ],
+            fallbackEnabled: false,
+            fallbackFormat: [],
         },
         teachers: {
             completed: true,
@@ -46,6 +52,12 @@ export const DEFAULT_PROVISIONING_STATE = {
             password: "{{teacher.teacher_number}}0420",
             domain: "maytonlyceum.com",
             emailTokens: ["{{name.first}}", "{{name.last}}"],
+            emailFormat: [
+                { type: "variable", variable: "name.first", label: "First Name" },
+                { type: "variable", variable: "name.last", label: "Last Name" },
+            ],
+            fallbackEnabled: false,
+            fallbackFormat: [],
         },
         staff: {
             completed: true,
@@ -53,6 +65,12 @@ export const DEFAULT_PROVISIONING_STATE = {
             password: "{{staff.title}}{{school.sis_id}}",
             domain: "maytonlyceum.com",
             emailTokens: ["{{name.first}}", "{{name.last}}"],
+            emailFormat: [
+                { type: "variable", variable: "name.first", label: "First Name" },
+                { type: "variable", variable: "name.last", label: "Last Name" },
+            ],
+            fallbackEnabled: false,
+            fallbackFormat: [],
         },
     },
 
@@ -220,6 +238,30 @@ export const SIS_VARIABLES = {
         { variable: "school_name", label: "School Name" },
         { variable: "staff.title", label: "Title" },
         { variable: "staff.department", label: "Department" },
+    ],
+};
+
+/** Email-specific SIS variables — includes name fields for credential format building */
+export const EMAIL_SIS_VARIABLES = {
+    students: [
+        { variable: "name.first", label: "First Name" },
+        { variable: "name.last", label: "Last Name" },
+        { variable: "student.sis_id", label: "SIS ID" },
+        { variable: "student.student_number", label: "Student Number" },
+        { variable: "student.state_id", label: "State ID" },
+        { variable: "student.district_username", label: "District Username" },
+    ],
+    teachers: [
+        { variable: "name.first", label: "First Name" },
+        { variable: "name.last", label: "Last Name" },
+        { variable: "teacher.sis_id", label: "SIS ID" },
+        { variable: "teacher.teacher_number", label: "Teacher Number" },
+    ],
+    staff: [
+        { variable: "name.first", label: "First Name" },
+        { variable: "name.last", label: "Last Name" },
+        { variable: "staff.sis_id", label: "SIS ID" },
+        { variable: "staff.title", label: "Title" },
     ],
 };
 
