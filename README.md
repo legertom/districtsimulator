@@ -23,6 +23,8 @@ This application adheres to strict security standards suitable for enterprise de
 -   **Provider**: NextAuth.js handles all authentication flows.
 -   **Methods**:
     -   **Google OAuth 2.0**: Primary production authentication method.
+        -   **Restriction**: **Strictly limited to `@clever.com` email domains**. Any other Google account will be denied access.
+        -   **Infrastructure**: OAuth application is hosted on the Google Cloud Platform account `tom.leger@clever.com` (Engineering/IT controlled).
     -   **Credentials**: Restricted development-only access for internal testing.
 -   **Session Management**: Secure, encrypted JWT (JSON Web Tokens) strategy. No sensitive session data is exposed to the client-side JavaScript.
 -   **RBAC (Role-Based Access Control)**: Internal role management (Admin/Member) verifies permissions for sensitive dashboard actions.

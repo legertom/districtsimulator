@@ -37,6 +37,12 @@ export const authOptions = {
         strategy: "jwt",
     },
     callbacks: {
+        async signIn({ user, account }) {
+            if (account?.provider === "google") {
+                return user?.email?.endsWith("@clever.com");
+            }
+            return true; // Allow Credentials provider (dev)
+        },
         async jwt({ token, user }) {
             if (user) {
                 token.role = user.role;
