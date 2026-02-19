@@ -8,7 +8,7 @@ import TopNav from "@/components/layout/TopNav";
 import ChatPanel from "@/components/chat/ChatPanel";
 import CoachMark from "@/components/guidance/CoachMark";
 import GuidancePanel from "@/components/guidance/GuidancePanel";
-import { buildDashboardRoute } from "@/lib/routing";
+import { buildApplicationDetailsRoute, buildDashboardRoute } from "@/lib/routing";
 import styles from "./DashboardShell.module.css";
 
 function DashboardShellContent({ activeNav, children, showChatPanel }) {
@@ -18,16 +18,15 @@ function DashboardShellContent({ activeNav, children, showChatPanel }) {
     const handleNavChange = useCallback((navId, options = {}) => {
         checkNavigationGoal(navId);
 
-        const route = buildDashboardRoute(navId);
-        const searchParams = new URLSearchParams();
+        let targetRoute = buildDashboardRoute(navId);
 
-        if (options.appId !== undefined && options.appId !== null) {
+        if (options.applicationId !== undefined && options.applicationId !== null) {
+            targetRoute = buildApplicationDetailsRoute(options.applicationId);
+        } else if (options.appId !== undefined && options.appId !== null) {
+            const searchParams = new URLSearchParams();
             searchParams.set("appId", String(options.appId));
+            targetRoute = `${targetRoute}?${searchParams.toString()}`;
         }
-
-        const targetRoute = searchParams.toString()
-            ? `${route}?${searchParams.toString()}`
-            : route;
 
         router.push(targetRoute);
     }, [checkNavigationGoal, router]);

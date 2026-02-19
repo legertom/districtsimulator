@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useScenario } from "@/context/ScenarioContext";
 import { PageHeader, InfoBanner } from "@/components/ui";
+import { buildApplicationDetailsRoute } from "@/lib/routing";
 import styles from "./MyApplications.module.css";
 
 export default function MyApplications() {
@@ -79,12 +81,12 @@ export default function MyApplications() {
                                         >
                                             {app.icon}
                                         </div>
-                                        <a
-                                            href="#"
+                                        <Link
+                                            href={buildApplicationDetailsRoute(app.id)}
                                             className={`${styles.appName} ${app.id === highlightedAppId ? styles.selectedAppName : ""}`}
                                         >
                                             {app.name}
-                                        </a>
+                                        </Link>
                                     </div>
                                 </td>
                                 <td>

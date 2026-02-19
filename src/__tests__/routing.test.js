@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
     DEFAULT_DASHBOARD_PAGE,
     DEFAULT_PROVISIONING_STEP,
+    buildApplicationDetailsRoute,
     buildDashboardRoute,
     buildProvisioningRoute,
     isValidDashboardPage,
     isValidProvisioningStep,
+    parseApplicationId,
     parseDashboardPage,
     parseProvisioningStep,
 } from "@/lib/routing";
@@ -46,5 +48,25 @@ describe("provisioning step route parsing", () => {
     it("always builds canonical provisioning URLs", () => {
         expect(buildProvisioningRoute("4")).toBe("/dashboard/idm/provisioning/credentials");
         expect(buildProvisioningRoute("preview")).toBe("/dashboard/idm/provisioning/preview");
+    });
+});
+
+describe("application detail route parsing", () => {
+    it("accepts positive integer app ids", () => {
+        expect(parseApplicationId("7")).toBe(7);
+        expect(parseApplicationId("0009")).toBe(9);
+    });
+
+    it("returns null for invalid app ids", () => {
+        expect(parseApplicationId("0")).toBeNull();
+        expect(parseApplicationId("-2")).toBeNull();
+        expect(parseApplicationId("abc")).toBeNull();
+        expect(parseApplicationId("9abc")).toBeNull();
+    });
+
+    it("builds canonical application detail URLs", () => {
+        expect(buildApplicationDetailsRoute("5")).toBe("/dashboard/my-applications/5");
+        expect(buildApplicationDetailsRoute("0008")).toBe("/dashboard/my-applications/8");
+        expect(buildApplicationDetailsRoute("not-valid")).toBe("/dashboard/my-applications");
     });
 });

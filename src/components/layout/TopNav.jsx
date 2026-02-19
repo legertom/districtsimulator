@@ -76,7 +76,7 @@ export default function TopNav({ onNavChange, onSwitchToPortal }) {
     };
 
     const handleSelectApplication = (application) => {
-        onNavChange?.("my-applications", { appId: application.id });
+        onNavChange?.("my-applications", { applicationId: application.id });
         clearSearch();
     };
 

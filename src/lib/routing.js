@@ -102,8 +102,33 @@ export function parseProvisioningStep(step) {
     return DEFAULT_PROVISIONING_STEP;
 }
 
+export function parseApplicationId(appId) {
+    const normalizedAppId = getRouteParamValue(appId).trim();
+
+    if (!normalizedAppId || !/^\d+$/.test(normalizedAppId)) {
+        return null;
+    }
+
+    const parsedAppId = Number.parseInt(normalizedAppId, 10);
+    if (!Number.isInteger(parsedAppId) || parsedAppId < 1) {
+        return null;
+    }
+
+    return parsedAppId;
+}
+
 export function buildDashboardRoute(page) {
     return `/dashboard/${parseDashboardPage(page)}`;
+}
+
+export function buildApplicationDetailsRoute(appId) {
+    const parsedAppId = parseApplicationId(appId);
+
+    if (parsedAppId === null) {
+        return buildDashboardRoute("my-applications");
+    }
+
+    return `/dashboard/my-applications/${parsedAppId}`;
 }
 
 export function buildProvisioningRoute(step) {

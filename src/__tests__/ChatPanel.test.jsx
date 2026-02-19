@@ -37,6 +37,12 @@ describe("ChatPanel Component", () => {
             currentStep: { type: "input", actions: [] },
             history: mockHistory,
             handleAction: mockHandleAction,
+            completedScenarios: new Set(),
+            coachMarksEnabled: false,
+            acceptTicket: vi.fn(),
+            skipTicket: vi.fn(),
+            toggleCoachMarks: vi.fn(),
+            waitingForTicket: false,
             ...overrideContext
         };
 
