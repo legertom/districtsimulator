@@ -1238,3 +1238,416 @@
     margin-top: 12px;
     animation: section3SlideIn 300ms ease;
 }
+
+/* ── Configure Groups Detail ─────────────── */
+
+.pendingChangesBanner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #f8f0cf;
+    border: 1px solid #f3e3a3;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+}
+
+.pendingChangesIcon {
+    color: #111827;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.pendingChangesText {
+    margin: 0;
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.groupConfigPanel {
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 22px 32px 16px;
+    background: white;
+}
+
+.groupConfigBackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 18px;
+}
+
+.groupConfigBackBtn:hover {
+    text-decoration: underline;
+}
+
+.groupConfigTitle {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 12px 0;
+    line-height: 1.1;
+}
+
+.groupConfigDescription {
+    margin: 0 0 28px 0;
+    color: var(--gray-700);
+    font-size: 20px;
+    line-height: 1.45;
+    max-width: 1280px;
+}
+
+.groupConfigToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.groupConfigToolbarLeft {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.groupConfigTableTitle {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gray-700);
+}
+
+.groupRefreshBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--clever-blue);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.groupRefreshBtn:hover {
+    text-decoration: underline;
+}
+
+.groupSearchInput {
+    width: 500px;
+    max-width: 100%;
+    height: 54px;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    padding: 0 16px;
+    font-size: 32px;
+    color: var(--gray-900);
+}
+
+.groupSearchInput::placeholder {
+    color: var(--gray-400);
+}
+
+.groupSearchInput:focus {
+    outline: 2px solid #bfdbfe;
+    border-color: var(--clever-blue);
+}
+
+.groupTable {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--gray-200);
+    border-left: none;
+    border-right: none;
+}
+
+.groupTable thead th {
+    text-align: left;
+    padding: 14px 12px;
+    background: #f8fafc;
+    color: var(--gray-700);
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.groupTable tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-900);
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+.groupTableCheckboxCol {
+    width: 52px;
+    text-align: center;
+}
+
+.groupTableCheckboxCol input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--clever-blue);
+    cursor: pointer;
+}
+
+.groupNameCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.willBeManagedPill {
+    background: #b9ead7;
+    color: #064e3b;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.groupTableEmpty {
+    text-align: center;
+    color: var(--gray-500);
+    padding: 18px 12px;
+}
+
+.groupConfigActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 24px;
+    margin-top: 18px;
+    margin-bottom: 2px;
+}
+
+.groupCancelBtn {
+    border: none;
+    background: none;
+    color: var(--clever-blue);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.groupCancelBtn:hover {
+    text-decoration: underline;
+}
+
+.groupSetupBtn {
+    background: var(--clever-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    height: 52px;
+    padding: 0 26px;
+    font-size: 30px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.groupSetupBtn:hover {
+    background: var(--clever-blue-dark);
+}
+
+.groupSetupBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.groupRulesTitle {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 12px 0;
+    line-height: 1.1;
+}
+
+.groupRulesDescription {
+    margin: 0 0 28px 0;
+    color: var(--gray-700);
+    font-size: 20px;
+    line-height: 1.45;
+    max-width: 1320px;
+}
+
+.groupRulesTable {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--gray-200);
+    border-left: none;
+    border-right: none;
+    margin-bottom: 18px;
+}
+
+.groupRulesTable thead th {
+    text-align: left;
+    padding: 14px 16px;
+    background: #f8fafc;
+    color: var(--gray-700);
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.groupRulesTable tbody td {
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-900);
+    font-size: 16px;
+}
+
+.groupRulesActionHeader {
+    width: 180px;
+    text-align: right;
+}
+
+.groupRulesEmpty {
+    text-align: center;
+    color: var(--gray-600);
+    padding: 40px 16px;
+}
+
+.groupRulesEmpty p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.groupRulesEmpty p + p {
+    margin-top: 10px;
+}
+
+.groupRulesActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+}
+
+.groupAddRuleBtn {
+    height: 44px;
+    padding: 0 22px;
+    border: 2px solid var(--clever-blue);
+    border-radius: 6px;
+    background: white;
+    color: var(--clever-blue);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.groupAddRuleBtn:hover {
+    background: #eff6ff;
+}
+
+.groupRuleActionBtn {
+    border: none;
+    background: none;
+    color: var(--clever-blue);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.groupRuleActionBtn:hover {
+    text-decoration: underline;
+}
+
+.groupSaveBtn {
+    background: var(--clever-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    height: 52px;
+    min-width: 112px;
+    padding: 0 26px;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.groupSaveBtn:hover {
+    background: var(--clever-blue-dark);
+}
+
+@media (max-width: 1100px) {
+    .groupConfigPanel {
+        padding: 18px;
+    }
+
+    .groupConfigTitle {
+        font-size: 28px;
+    }
+
+    .groupConfigDescription {
+        font-size: 15px;
+    }
+
+    .groupRulesTitle {
+        font-size: 28px;
+    }
+
+    .groupRulesDescription {
+        font-size: 15px;
+    }
+
+    .groupConfigToolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .groupSearchInput {
+        width: 100%;
+        font-size: 16px;
+        height: 44px;
+    }
+
+    .groupTable thead th {
+        font-size: 14px;
+    }
+
+    .groupTable tbody td {
+        font-size: 13px;
+    }
+
+    .groupSetupBtn {
+        font-size: 14px;
+        height: 42px;
+    }
+
+    .groupSaveBtn {
+        font-size: 14px;
+        height: 42px;
+        min-width: 92px;
+    }
+
+    .groupAddRuleBtn {
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .groupRulesTable thead th {
+        font-size: 14px;
+    }
+
+    .groupRulesTable tbody td {
+        font-size: 13px;
+    }
+
+    .groupCancelBtn {
+        font-size: 15px;
+    }
+}
