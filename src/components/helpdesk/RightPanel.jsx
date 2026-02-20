@@ -4,6 +4,7 @@ import { useInstructional } from "@/context/InstructionalContext";
 import GuidancePanel from "@/components/guidance/GuidancePanel";
 import TicketInbox from "./TicketInbox";
 import ConversationView from "./ConversationView";
+import InvestigationView from "./InvestigationView";
 import styles from "./RightPanel.module.css";
 
 export default function RightPanel() {
@@ -12,7 +13,9 @@ export default function RightPanel() {
     return (
         <div className={styles.panel}>
             {rightPanelView === "conversation" && <GuidancePanel />}
-            {rightPanelView === "inbox" ? <TicketInbox /> : <ConversationView />}
+            {rightPanelView === "inbox" && <TicketInbox />}
+            {rightPanelView === "conversation" && <ConversationView />}
+            {rightPanelView === "investigation" && <InvestigationView />}
         </div>
     );
 }

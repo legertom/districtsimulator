@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════
+   TicketCard — Static coworker request (email-style)
+   Pinned at top of InvestigationView.
+   Uses design tokens from globals.css only.
+   ═══════════════════════════════════════════════ */
+
+.ticketCard {
+    margin: 12px;
+    padding: 14px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.ticketHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ticketAvatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.ticketMeta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ticketName {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.ticketRole {
+    font-size: 11px;
+    color: var(--gray-600);
+}
+
+.ticketNumber {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    flex-shrink: 0;
+}
+
+.ticketBody {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    padding-left: 44px; /* align with text after avatar */
+}

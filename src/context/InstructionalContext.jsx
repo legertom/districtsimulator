@@ -39,6 +39,52 @@ function clearPersistedState() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  Step normalizer — backward-compatible old/new schema bridge
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Maps all step type names (old + new) to internal processing categories.
+ * - "choice"   → render choices/actions, advance on click
+ * - "freetext" → validate typed answer
+ * - "goal"     → wait for nav/action goal completion
+ */
+export const STEP_TYPE_MAP = {
+    message:    "choice",    // legacy
+    action:     "choice",    // legacy
+    input:      "freetext",  // legacy
+    task:       "goal",      // legacy (unchanged)
+    observe:    "freetext",  // new: alias for input
+    checkpoint: "choice",    // new: alias for message
+    resolution: "choice",    // new: alias for message (terminal)
+};
+
+function defaultChecklistLabel(step) {
+    const proc = STEP_TYPE_MAP[step.type];
+    if (proc === "goal") return step.guideMessage ?? "Complete this step";
+    if (proc === "freetext") return "Answer a question";
+    return "Continue";
+}
+
+/**
+ * Normalize a step to support both old and new schema fields.
+ * Old scenarios use: text, actions, sender
+ * New scenarios use: question, choices (no sender)
+ * The normalizer resolves both via ?? fallback.
+ */
+export function normalizeStep(step) {
+    if (!step) return null;
+    return {
+        ...step,
+        // "question" is preferred, "text" is legacy fallback
+        question:       step.question       ?? step.text    ?? null,
+        // "choices" is preferred, "actions" is legacy fallback
+        choices:        step.choices        ?? step.actions  ?? null,
+        // checklistLabel defaults to a type-based generic if absent
+        checklistLabel: step.checklistLabel ?? defaultChecklistLabel(step),
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  Answer matching
 // ═══════════════════════════════════════════════════════════════
 
@@ -76,6 +122,8 @@ function checkAnswer(userAnswer, correctAnswer, matchMode = "exact") {
 function validateScenarios() {
     if (process.env.NODE_ENV !== "development") return;
 
+    const validTypes = new Set(Object.keys(STEP_TYPE_MAP));
+
     scenarios.forEach((scenario) => {
         const stepIds = new Set(scenario.steps.map(s => s.id));
         const prefix = `[Scenario "${scenario.id}"]`;
@@ -86,6 +134,12 @@ function validateScenarios() {
 
         scenario.steps.forEach((step) => {
             const sp = `${prefix} Step "${step.id}"`;
+            const norm = normalizeStep(step);
+
+            // Validate step type
+            if (step.type && !validTypes.has(step.type)) {
+                console.warn(`${sp} → unknown step type "${step.type}"`);
+            }
 
             if (step.nextStep && !stepIds.has(step.nextStep)) {
                 console.warn(`${sp} → nextStep "${step.nextStep}" does not exist`);
@@ -94,22 +148,31 @@ function validateScenarios() {
                 console.warn(`${sp} → successStep "${step.successStep}" does not exist`);
             }
 
-            if (step.actions) {
-                step.actions.forEach((action, i) => {
-                    if (action.nextStep && !stepIds.has(action.nextStep)) {
-                        console.warn(`${sp} → action[${i}].nextStep "${action.nextStep}" does not exist`);
+            // Validate choices/actions (supports both old and new field names)
+            const choices = norm.choices;
+            if (choices) {
+                choices.forEach((choice, i) => {
+                    if (choice.nextStep && !stepIds.has(choice.nextStep)) {
+                        console.warn(`${sp} → choices[${i}].nextStep "${choice.nextStep}" does not exist`);
+                    }
+                    if (choice.unguidedNextStep && !stepIds.has(choice.unguidedNextStep)) {
+                        console.warn(`${sp} → choices[${i}].unguidedNextStep "${choice.unguidedNextStep}" does not exist`);
                     }
                 });
             }
 
-            if (step.type === "task" && !step.goalRoute && !step.goalAction) {
-                console.warn(`${sp} → task step needs goalRoute or goalAction`);
+            // Validate goal steps (task type)
+            const proc = STEP_TYPE_MAP[step.type];
+            if (proc === "goal" && !step.goalRoute && !step.goalAction) {
+                console.warn(`${sp} → goal step needs goalRoute or goalAction`);
             }
-            if (step.type === "input" && !step.correctAnswer) {
-                console.warn(`${sp} → input step missing correctAnswer`);
+
+            // Validate freetext steps (input/observe type)
+            if (proc === "freetext" && !step.correctAnswer) {
+                console.warn(`${sp} → freetext step missing correctAnswer`);
             }
-            if (step.type === "input" && !step.successStep) {
-                console.warn(`${sp} → input step missing successStep`);
+            if (proc === "freetext" && !step.successStep) {
+                console.warn(`${sp} → freetext step missing successStep`);
             }
         });
 
@@ -209,6 +272,7 @@ export function InstructionalProvider({ children }) {
     const currentStep = currentStepId
         ? activeScenario?.steps.find(s => s.id === currentStepId)
         : null;
+    const normalizedCurrentStep = normalizeStep(currentStep);
     const scenarioSettings = activeScenario?.settings ?? {};
     const waitingForTicket = !currentStepId;
 
@@ -276,11 +340,15 @@ export function InstructionalProvider({ children }) {
         const firstStep = scenario.steps[0];
         if (!firstStep) return;
 
+        // Choose panel view: new investigation format if ticketMessage exists,
+        // otherwise fall back to legacy conversation view
+        const panelView = scenario.ticketMessage ? "investigation" : "conversation";
+
         setCoachMarksEnabled(guided);
         setActiveScenarioId(scenarioId);
         setCurrentStepId(firstStep.id);
         setShowHint(guided && !!firstStep.autoShowHint);
-        setRightPanelView("conversation");
+        setRightPanelView(panelView);
         setConversationHistory([]);
         setScenarioJustCompleted(null);
 
@@ -290,20 +358,23 @@ export function InstructionalProvider({ children }) {
             [scenarioId]: { correct: 0, total: 0, startTime: Date.now() }
         }));
 
-        setTimeout(() => {
-            if (firstStep.text) {
-                setConversationHistory(prev => [
-                    ...prev,
-                    {
-                        id: Date.now(),
-                        sender: firstStep.sender || "system",
-                        text: firstStep.text,
-                        timestamp: timestamp(),
-                        isCurrentStep: true
-                    }
-                ]);
-            }
-        }, 400);
+        // Legacy conversation view: push the first message into the chat
+        if (panelView === "conversation") {
+            setTimeout(() => {
+                if (firstStep.text) {
+                    setConversationHistory(prev => [
+                        ...prev,
+                        {
+                            id: Date.now(),
+                            sender: firstStep.sender || "system",
+                            text: firstStep.text,
+                            timestamp: timestamp(),
+                            isCurrentStep: true
+                        }
+                    ]);
+                }
+            }, 400);
+        }
     }, []);
 
     const skipTicket = useCallback(() => {
@@ -444,7 +515,7 @@ export function InstructionalProvider({ children }) {
             return;
         }
 
-        // Standard button action
+        // Standard button action (choice click)
         setConversationHistory(prev => [
             ...prev,
             {
@@ -454,6 +525,21 @@ export function InstructionalProvider({ children }) {
                 timestamp: timestamp()
             }
         ]);
+
+        // Score choices that have explicit correct flag (Phase 1: Score on Write)
+        if (typeof action.correct === "boolean") {
+            setScores(prev => {
+                const s = prev[scenarioId] ?? { correct: 0, total: 0, startTime: Date.now() };
+                return {
+                    ...prev,
+                    [scenarioId]: {
+                        ...s,
+                        total: s.total + 1,
+                        correct: s.correct + (action.correct ? 1 : 0),
+                    }
+                };
+            });
+        }
 
         if (action.nextStep) {
             setTimeout(() => advanceStep(action.nextStep), 600);
@@ -592,6 +678,7 @@ export function InstructionalProvider({ children }) {
         replayScenario,
         completedModules,
         resetAllProgress,
+        normalizedCurrentStep,
     };
 
     return (
