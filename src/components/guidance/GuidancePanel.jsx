@@ -3,10 +3,10 @@
 import { useInstructional } from "@/context/InstructionalContext";
 import styles from "./GuidancePanel.module.css";
 import { Icon } from "@/components/ui/Icons";
-import { demoCustomer } from "@/data/demoIdentity";
+import { getCharacterDisplayName } from "@/data/characters";
 
 export default function GuidancePanel() {
-    const { currentStep, showHint, coachMarksEnabled, toggleHint, advanceStep } = useInstructional();
+    const { activeScenario, currentStep, showHint, coachMarksEnabled, toggleHint, advanceStep } = useInstructional();
 
     if (!coachMarksEnabled) return null;
     if (!currentStep || (currentStep.type !== "task" && currentStep.type !== "input")) {
@@ -24,7 +24,7 @@ export default function GuidancePanel() {
 
             <div className={styles.content}>
                 <p className={styles.objective}>
-                    {currentStep.guideMessage || (currentStep.type === "task" ? "Navigate to the correct page." : `Find the answer and reply to ${demoCustomer.lastName}.`)}
+                    {currentStep.guideMessage || (currentStep.type === "task" ? "Navigate to the correct page." : `Find the answer and reply to ${activeScenario?.customerId ? getCharacterDisplayName(activeScenario.customerId) : "the customer"}.`)}
                 </p>
 
                 <div className={styles.actions}>

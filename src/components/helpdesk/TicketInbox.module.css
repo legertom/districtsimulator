@@ -1,0 +1,514 @@
+/* ═══════════════════════════════════════════════
+   TicketInbox — Help desk ticket queue
+   Uses design tokens from globals.css only.
+   ═══════════════════════════════════════════════ */
+
+.inbox {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ── Header ── */
+
+.header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--gray-50);
+    flex-shrink: 0;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+.headerIcon {
+    font-size: 18px;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scoreBadge {
+    background: var(--warning-bg);
+    color: #856404;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.resetButton {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--gray-300);
+    background: var(--gray-100);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    transition: all 0.2s;
+}
+
+.resetButton:hover {
+    background: var(--gray-200);
+    color: var(--error);
+}
+
+/* ── Reset confirmation ── */
+
+.resetConfirm {
+    padding: 12px 16px;
+    background: var(--error-bg);
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 13px;
+    color: var(--text-primary);
+    animation: slideIn 0.2s ease-out;
+}
+
+.resetConfirm p {
+    margin: 0 0 8px 0;
+}
+
+.resetActions {
+    display: flex;
+    gap: 8px;
+}
+
+.resetConfirmBtn {
+    background: var(--error);
+    color: white;
+    border: none;
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.resetConfirmBtn:hover {
+    opacity: 0.9;
+}
+
+.resetCancelBtn {
+    background: white;
+    color: var(--text-secondary);
+    border: 1px solid var(--gray-300);
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* ── Progress bar ── */
+
+.progressBar {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gray-200);
+    background: white;
+    flex-shrink: 0;
+}
+
+.progressLabel {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-600);
+    margin-bottom: 8px;
+}
+
+.progressDots {
+    display: flex;
+    gap: 6px;
+}
+
+.progressDot {
+    width: 20px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--gray-300);
+    transition: background 0.3s;
+}
+
+.dotComplete {
+    background: var(--success);
+}
+
+.dotActive {
+    background: var(--clever-blue);
+}
+
+.dotLocked {
+    background: var(--gray-300);
+}
+
+/* ── Ticket list ── */
+
+.ticketList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+}
+
+/* ── Module group ── */
+
+.moduleGroup {
+    margin-bottom: 4px;
+}
+
+.moduleHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    border-top: 1px solid var(--gray-200);
+}
+
+.moduleLocked {
+    opacity: 0.5;
+}
+
+.moduleNumber {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--gray-600);
+    font-size: 10px;
+}
+
+.moduleTitle {
+    font-weight: 500;
+}
+
+.lockIcon {
+    margin-left: auto;
+    font-size: 12px;
+}
+
+.checkIcon {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--success);
+    font-weight: 700;
+}
+
+/* ── Ticket card ── */
+
+.ticketCard {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    border-left: 3px solid transparent;
+    transition: background 0.15s;
+}
+
+.priority_low {
+    border-left-color: var(--gray-400);
+}
+
+.priority_normal {
+    border-left-color: var(--clever-blue);
+}
+
+.priority_high {
+    border-left-color: var(--error);
+}
+
+.ticketClickable {
+    cursor: pointer;
+}
+
+.ticketClickable:hover {
+    background: var(--clever-blue-light);
+}
+
+.ticketDone {
+    opacity: 0.65;
+}
+
+.ticketLocked {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.ticketAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.ticketContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.ticketTop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.ticketNumber {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-600);
+}
+
+.ticketCustomer {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ticketSubject {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ticketMeta {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.ticketScore {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.ticketLockedLabel {
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.ticketOpen {
+    color: var(--clever-blue);
+    font-weight: 600;
+}
+
+/* ── Mode picker ── */
+
+.modePicker {
+    padding: 12px 16px;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    animation: slideIn 0.2s ease-out;
+}
+
+.modePickerLabel {
+    font-size: 12px;
+    color: var(--gray-700);
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.modeButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.modeButton {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.modeButton:hover {
+    border-color: var(--clever-blue);
+    background: var(--clever-blue-light);
+}
+
+.modeButtonAlt:hover {
+    border-color: var(--gray-500);
+    background: var(--gray-100);
+}
+
+.modeButtonIcon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.modeButtonText {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.modeButtonText strong {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.modeButtonText small {
+    font-size: 11px;
+    color: var(--gray-700);
+}
+
+.cancelPicker {
+    display: block;
+    margin: 8px auto 0;
+    background: none;
+    border: none;
+    color: var(--gray-600);
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.cancelPicker:hover {
+    color: var(--text-primary);
+}
+
+/* ── Boss message ── */
+
+.bossMessage {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--clever-blue-light);
+    border-bottom: 1px solid var(--gray-200);
+    animation: slideIn 0.3s ease-out;
+    flex-shrink: 0;
+}
+
+.bossAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.bossContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.bossName {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.bossRole {
+    font-weight: 400;
+    color: var(--gray-600);
+    margin-left: 6px;
+    font-size: 11px;
+}
+
+.bossText {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    margin: 0 0 8px 0;
+}
+
+.bossDismiss {
+    background: white;
+    border: 1px solid var(--gray-300);
+    padding: 4px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}
+
+.bossDismiss:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+/* ── Boss completion inline ── */
+
+.bossCompletion {
+    display: flex;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--success-bg);
+    border-bottom: 1px solid var(--gray-200);
+    align-items: flex-start;
+}
+
+.bossCompletionAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.bossCompletionText {
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--success);
+    margin: 0;
+    font-style: italic;
+}
+
+/* ── Animation ── */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

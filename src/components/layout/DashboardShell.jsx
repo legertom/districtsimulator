@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { InstructionalProvider, useInstructional } from "@/context/InstructionalContext";
 import Sidebar from "@/components/layout/Sidebar";
 import TopNav from "@/components/layout/TopNav";
-import ChatPanel from "@/components/chat/ChatPanel";
 import CoachMark from "@/components/guidance/CoachMark";
-import GuidancePanel from "@/components/guidance/GuidancePanel";
+import RightPanel from "@/components/helpdesk/RightPanel";
 import { buildApplicationDetailsRoute, buildDashboardRoute } from "@/lib/routing";
 import styles from "./DashboardShell.module.css";
 
@@ -49,8 +48,7 @@ function DashboardShellContent({ activeNav, children, showChatPanel }) {
 
             {showChatPanel ? (
                 <div className={styles.chatPanelContainer}>
-                    <GuidancePanel />
-                    <ChatPanel />
+                    <RightPanel />
                 </div>
             ) : null}
         </div>

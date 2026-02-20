@@ -1,0 +1,9 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: white;
+    position: relative;
+    z-index: 10000;
+    /* Match ChatPanel z-index: above hint overlay (z-index: 9999) */
+}

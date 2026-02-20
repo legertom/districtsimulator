@@ -167,7 +167,8 @@ export function InstructionalProvider({ children }) {
     // ── Core state ──
     const [activeScenarioId, setActiveScenarioId] = useState(null);
     const [currentStepId, setCurrentStepId] = useState(null);
-    const [history, setHistory] = useState(getInitialHistory);
+    const [ticketHistory, setTicketHistory] = useState(getInitialHistory);
+    const [conversationHistory, setConversationHistory] = useState([]);
     const [showHint, setShowHint] = useState(false);
     const [coachMarksEnabled, setCoachMarksEnabled] = useState(saved?.coachMarksEnabled ?? true);
     const [currentNavId, setCurrentNavId] = useState(null);
@@ -185,6 +186,9 @@ export function InstructionalProvider({ children }) {
 
     // ── Right panel view ──
     const [rightPanelView, setRightPanelView] = useState("inbox");
+
+    // ── Explicit completion state (Fix 2 — no message-variant inference) ──
+    const [scenarioJustCompleted, setScenarioJustCompleted] = useState(null);
 
     // ── Refs to avoid stale closures in setTimeout callbacks ──
     const activeScenarioIdRef = useRef(activeScenarioId);
@@ -213,6 +217,13 @@ export function InstructionalProvider({ children }) {
         [scores]
     );
     const score = globalScore; // backward-compatible alias
+
+    // Backward-compatible computed history — concatenates both arrays so
+    // ChatPanel (which reads `history`) keeps working during transition.
+    const history = useMemo(
+        () => [...ticketHistory, ...conversationHistory],
+        [ticketHistory, conversationHistory]
+    );
 
     const timestamp = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -244,7 +255,7 @@ export function InstructionalProvider({ children }) {
     // ═══ Message helpers ═══
     const addMessageToHistory = useCallback((step) => {
         if (!step.text) return;
-        setHistory(prev => [
+        setConversationHistory(prev => [
             ...prev,
             {
                 id: Date.now(),
@@ -270,6 +281,8 @@ export function InstructionalProvider({ children }) {
         setCurrentStepId(firstStep.id);
         setShowHint(guided && !!firstStep.autoShowHint);
         setRightPanelView("conversation");
+        setConversationHistory([]);
+        setScenarioJustCompleted(null);
 
         // Initialize per-scenario scoring
         setScores(prev => ({
@@ -279,7 +292,7 @@ export function InstructionalProvider({ children }) {
 
         setTimeout(() => {
             if (firstStep.text) {
-                setHistory(prev => [
+                setConversationHistory(prev => [
                     ...prev,
                     {
                         id: Date.now(),
@@ -298,7 +311,7 @@ export function InstructionalProvider({ children }) {
         if (!scenarioId) return;
 
         setCompletedScenarios(prev => new Set([...prev, scenarioId]));
-        setHistory(prev => [...prev, {
+        setConversationHistory(prev => [...prev, {
             id: Date.now(),
             sender: "system",
             text: "Ticket skipped.",
@@ -308,6 +321,8 @@ export function InstructionalProvider({ children }) {
         setActiveScenarioId(null);
         setCurrentStepId(null);
         setShowHint(false);
+        setRightPanelView("inbox");
+        setScenarioJustCompleted(null);
     }, []);
 
     // ═══ Step progression ═══
@@ -318,7 +333,7 @@ export function InstructionalProvider({ children }) {
         if (!nextStepId) {
             // End of scenario
             setCompletedScenarios(prev => new Set([...prev, scenarioId]));
-            setHistory(prev => [...prev, {
+            setConversationHistory(prev => [...prev, {
                 id: Date.now(),
                 sender: "system",
                 text: "Scenario completed!",
@@ -326,16 +341,23 @@ export function InstructionalProvider({ children }) {
                 variant: "success"
             }]);
 
-            // Finalize score timing
+            // Finalize score timing and set explicit completion state
             setScores(prev => {
                 const s = prev[scenarioId];
-                return {
-                    ...prev,
-                    [scenarioId]: {
-                        ...s,
-                        timeMs: Date.now() - (s?.startTime ?? Date.now()),
-                    }
+                const finalScore = {
+                    ...s,
+                    timeMs: Date.now() - (s?.startTime ?? Date.now()),
                 };
+                // Set explicit completion state for ConversationView (Fix 2)
+                setScenarioJustCompleted({
+                    scenarioId,
+                    scores: {
+                        correct: finalScore.correct ?? 0,
+                        total: finalScore.total ?? 0,
+                        timeMs: finalScore.timeMs,
+                    }
+                });
+                return { ...prev, [scenarioId]: finalScore };
             });
 
             checkModuleCompletion(scenarioId);
@@ -382,7 +404,7 @@ export function InstructionalProvider({ children }) {
                 step.matchMode
             );
 
-            setHistory(prev => [
+            setConversationHistory(prev => [
                 ...prev,
                 {
                     id: Date.now(),
@@ -408,7 +430,7 @@ export function InstructionalProvider({ children }) {
             if (isCorrect) {
                 setTimeout(() => advanceStep(step.successStep), 600);
             } else {
-                setHistory(prev => [
+                setConversationHistory(prev => [
                     ...prev,
                     {
                         id: Date.now() + 1,
@@ -423,7 +445,7 @@ export function InstructionalProvider({ children }) {
         }
 
         // Standard button action
-        setHistory(prev => [
+        setConversationHistory(prev => [
             ...prev,
             {
                 id: Date.now(),
@@ -515,6 +537,8 @@ export function InstructionalProvider({ children }) {
         setActiveScenarioId(null);
         setCurrentStepId(null);
         setShowHint(false);
+        setConversationHistory([]);
+        setScenarioJustCompleted(null);
     }, []);
 
     // ═══ Reset all progress ═══
@@ -529,7 +553,9 @@ export function InstructionalProvider({ children }) {
         setShowHint(false);
         setCoachMarksEnabled(true);
         setRightPanelView("inbox");
-        setHistory(getInitialHistory());
+        setTicketHistory(getInitialHistory());
+        setConversationHistory([]);
+        setScenarioJustCompleted(null);
     }, []);
 
     // ═══ Context value ═══
@@ -539,7 +565,7 @@ export function InstructionalProvider({ children }) {
         activeScenario,
         scenarioSettings,
         currentStep,
-        history,
+        history,            // computed: [...ticketHistory, ...conversationHistory]
         showHint,
         coachMarksEnabled,
         score,              // deprecated → globalScore
@@ -555,6 +581,9 @@ export function InstructionalProvider({ children }) {
         advanceStep,
 
         // New API
+        ticketHistory,
+        conversationHistory,
+        scenarioJustCompleted,
         scores,
         globalScore,
         rightPanelView,
