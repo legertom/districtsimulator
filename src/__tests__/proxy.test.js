@@ -16,7 +16,7 @@ describe('Proxy Configuration (Next.js 16+)', () => {
 
         it('should contain the specific regex for excluding public assets and auth endpoints', () => {
             const matcherRegexStr = config.matcher[0];
-            expect(matcherRegexStr).toBe('/((?!login|api/auth|_next/static|_next/image|favicon.ico).*)');
+            expect(matcherRegexStr).toBe('/((?!login|api/auth|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)');
         });
     });
 });
