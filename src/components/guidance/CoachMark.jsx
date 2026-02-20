@@ -32,22 +32,23 @@ export default function CoachMark() {
     }, [coachMarksEnabled, showHint, currentStep]);
 
     useEffect(() => {
-        // Attempt to find the target immediately
-        const rect = findTarget();
-        if (rect) {
-            setTargetRect(rect);
-            return;
-        }
+        let timer;
+        const updateRect = () => {
+            const rect = findTarget();
+            if (rect) {
+                setTargetRect(rect);
+            } else if (coachMarksEnabled && showHint && currentStep?.hint?.target) {
+                // If not found (e.g., sidebar still expanding), retry after a short delay
+                timer = setTimeout(updateRect, 150);
+            } else {
+                setTargetRect(null);
+            }
+        };
 
-        // If not found (e.g., sidebar still expanding), retry after a short delay
-        if (coachMarksEnabled && showHint && currentStep?.hint?.target) {
-            const timer = setTimeout(() => {
-                setTargetRect(findTarget());
-            }, 150);
-            return () => clearTimeout(timer);
-        }
+        // Delay the initial check slightly to allow DOM to render and avoid synchronous setState in effect
+        timer = setTimeout(updateRect, 0);
 
-        setTargetRect(null);
+        return () => clearTimeout(timer);
     }, [findTarget, coachMarksEnabled, showHint, currentStep]);
 
     // Render Guard: Must have both rect AND valid hint data

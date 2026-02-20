@@ -35,14 +35,16 @@ export default function Sidebar({ activeNav, onNavChange }) {
         const hintTarget = currentStep.hint.target;
         const parentId = parentByChild.get(hintTarget);
         if (parentId) {
-            setExpandedItem(parentId);
+            const timer = setTimeout(() => setExpandedItem(parentId), 0);
+            return () => clearTimeout(timer);
         }
     }, [currentStep, showHint, coachMarksEnabled, parentByChild]);
 
     useEffect(() => {
         const parentId = parentByChild.get(activeNav);
         if (parentId) {
-            setExpandedItem(parentId);
+            const timer = setTimeout(() => setExpandedItem(parentId), 0);
+            return () => clearTimeout(timer);
         }
     }, [activeNav, parentByChild]);
 
