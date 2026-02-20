@@ -39,8 +39,14 @@ export default function Sidebar({ activeNav, onNavChange }) {
         }
     }, [currentStep, showHint, coachMarksEnabled, parentByChild]);
 
-    const activeParentId = parentByChild.get(activeNav);
-    const openItemId = activeParentId ?? expandedItem;
+    useEffect(() => {
+        const parentId = parentByChild.get(activeNav);
+        if (parentId) {
+            setExpandedItem(parentId);
+        }
+    }, [activeNav, parentByChild]);
+
+    const openItemId = expandedItem;
 
     const toggleExpand = (itemId) => {
         setExpandedItem((prev) => (prev === itemId ? "" : itemId));
