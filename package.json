@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "mkdir -p test-results && eslint",
     "test": "vitest run --config vitest.config.mjs",
     "test:watch": "vitest",
     "e2e": "playwright test",

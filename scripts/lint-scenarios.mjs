@@ -123,12 +123,16 @@ scenarios.forEach((scenario) => {
         // Validate checkpoint choices[]
         if (step.choices) {
             step.choices.forEach((choice, idx) => {
-                // Must have a navigation ref
-                if (!choice.nextStep && !choice.unguidedNextStep) {
+                const isTerminalResolution = step.type === 'resolution';
+
+                // null is a valid terminal reference. Only error when
+                // both references are absent, unless this is a resolution step.
+                const hasNavRef = choice.nextStep !== undefined || choice.unguidedNextStep !== undefined;
+                if (!hasNavRef && !isTerminalResolution) {
                     reportError(scenario.id, `Step "${step.id}" choice[${idx}] is missing a navigation reference (nextStep or unguidedNextStep).`);
                 } else {
-                    if (choice.nextStep) references.push({ key: `choices[${idx}].nextStep`, val: choice.nextStep });
-                    if (choice.unguidedNextStep) references.push({ key: `choices[${idx}].unguidedNextStep`, val: choice.unguidedNextStep });
+                    if (choice.nextStep != null) references.push({ key: `choices[${idx}].nextStep`, val: choice.nextStep });
+                    if (choice.unguidedNextStep != null) references.push({ key: `choices[${idx}].unguidedNextStep`, val: choice.unguidedNextStep });
                 }
 
                 // Must have boolean correct unless scored: false
