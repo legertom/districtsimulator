@@ -17,6 +17,8 @@ The application is built on a modern, secure stack designed for performance and 
 
 ## Security
 
+For a detailed overview of the application's security architecture and data handling policies, please refer to the [Security Brief](./SECURITY_BRIEF.md).
+
 This application adheres to strict security standards suitable for enterprise deployment reviews.
 
 ### Authentication & Authorization
