@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { WIZARD_STEPS, DEFAULT_PROVISIONING_STATE } from "@/data/defaults/idm-provisioning";
+import { useInstructional } from "@/context/InstructionalContext";
 import ConnectStep from "./steps/ConnectStep";
 import ManagementLevelStep from "./steps/ManagementLevelStep";
 import SelectUsersStep from "./steps/SelectUsersStep";
@@ -47,6 +48,7 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
         return { ...DEFAULT_PROVISIONING_STATE };
     });
     const [toast, setToast] = useState(null);
+    const { checkActionGoal } = useInstructional();
 
     // Persist wizard state to localStorage
     useEffect(() => {
@@ -78,7 +80,11 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
     const currentStepIndex = WIZARD_STEPS.findIndex((s) => s.id === activeStep);
     const currentStepDef = WIZARD_STEPS[currentStepIndex];
 
-    const goToStep = (stepId) => setStep(stepId);
+    const goToStep = (stepId) => {
+        if (stepId === activeStep) return;
+        checkActionGoal(`wizard-step-${stepId}`);
+        setStep(stepId);
+    };
 
     const goNext = () => {
         if (currentStepIndex < WIZARD_STEPS.length - 1) {

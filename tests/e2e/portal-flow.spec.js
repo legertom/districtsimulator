@@ -1,37 +1,30 @@
-import { test, expect } from '@playwright/test';
+const { test, expect } = require("@playwright/test");
+const { loginAsAdmin } = require("./helpers/auth");
 
-test.describe('Portal and dashboard smoke flows', () => {
-  test('credentials login lands on portal, can enter dashboard, and return', async ({ page }) => {
-    await page.goto('/login');
+test.describe("Portal and dashboard smoke flows", () => {
+    test("credentials login lands on portal, can enter dashboard, and return", async ({ page }) => {
+        await loginAsAdmin(page);
 
-    await page.getByLabel('Email Address').fill('principal@example.com');
-    await page.getByLabel('Password').fill('password');
-    await page.getByRole('button', { name: 'Log in' }).click();
+        await expect(page.getByRole("heading", { name: "Resources" })).toBeVisible();
+        await expect(page.getByRole("button", { name: "Dashboard" })).toBeVisible();
 
-    const portalHeaderDashboardButton = page.getByRole('button', { name: 'Admin Dashboard', exact: true });
-    await expect(portalHeaderDashboardButton).toBeVisible();
+        await page.getByRole("button", { name: "Dashboard" }).click();
+        await expect(page).toHaveURL(/\/dashboard\/dashboard$/);
+        await expect(page.getByRole("heading", { name: "Dashboard Home" })).toBeVisible();
 
-    await portalHeaderDashboardButton.click();
+        await page.locator('button[class*="portalLink"]').click();
+        await expect(page).toHaveURL(/\/$/);
+        await expect(page.getByRole("heading", { name: "Resources" })).toBeVisible();
+    });
 
-    const topNavPortalButton = page.getByRole('banner').getByRole('button', { name: 'Portal' });
-    await expect(topNavPortalButton).toBeVisible();
+    test("portal app launches into mapped dashboard page", async ({ page }) => {
+        await loginAsAdmin(page);
 
-    await topNavPortalButton.click();
+        const appTile = page.getByRole("button", { name: /Waffle Wizard Academy/i });
+        await expect(appTile).toBeVisible();
+        await appTile.click();
 
-    await expect(page.getByRole('button', { name: 'Admin Dashboard', exact: true })).toBeVisible();
-  });
-
-  test('portal app launches into mapped dashboard page', async ({ page }) => {
-    await page.goto('/login');
-
-    await page.getByLabel('Email Address').fill('principal@example.com');
-    await page.getByLabel('Password').fill('password');
-    await page.getByRole('button', { name: 'Log in' }).click();
-
-    const sisSyncTile = page.getByRole('button', { name: /SIS Sync/i });
-    await expect(sisSyncTile).toBeVisible();
-    await sisSyncTile.click();
-
-    await expect(page.getByRole('heading', { name: 'Sync' })).toBeVisible();
-  });
+        await expect(page).toHaveURL(/\/dashboard\/my-applications\/\d+$/);
+        await expect(page.getByRole("heading", { name: "Waffle Wizard Academy", exact: true })).toBeVisible();
+    });
 });

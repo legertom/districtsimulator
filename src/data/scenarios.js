@@ -305,6 +305,334 @@ export const scenarios = [
     },
 
     // ═══════════════════════════════════════════════════════════════
+    //  MODULE 2 — Provisioning Wizard Basics
+    //  Two scenarios: wizard navigation + wizard concepts
+    // ═══════════════════════════════════════════════════════════════
+
+    // ── Scenario 2A: Wizard Navigation ───────────────────────────
+    {
+        id: "scenario_wizard_navigation",
+        title: "Provisioning Wizard Navigation",
+        description: "Help Principal Jones find and explore the 8-step provisioning wizard.",
+        customerId: "principalJones",
+        moduleId: "mod_provisioning_basics",
+        ticketSubject: "How do I set up Google provisioning?",
+        ticketPriority: "normal",
+        ticketNumber: 1003,
+        nextScenario: null,
+        settings: {},
+
+        steps: [
+            // ── 1. Customer opens the ticket ──────────────────────
+            {
+                id: "step_wn_intro",
+                type: "message",
+                text: "I need to understand the Google provisioning wizard. Can you show me where it is and walk me through the steps?",
+                sender: "customer",
+                actions: [
+                    { label: "Sure! Let me navigate to the IDM page first.", nextStep: "step_wn_nav_idm" },
+                ],
+            },
+            // ── 2. Navigate to IDM ───────────────────────────────
+            {
+                id: "step_wn_nav_idm",
+                type: "task",
+                text: "Great, I'll wait while you get to the IDM page.",
+                sender: "customer",
+                goalRoute: "idm",
+                nextStep: "step_wn_open_wizard",
+                guideMessage: "Navigate to the IDM page under User management.",
+                hint: {
+                    target: "idm",
+                    message: "Click 'IDM' in the sidebar under User management.",
+                },
+                autoShowHint: true,
+            },
+            // ── 3. Open the wizard ───────────────────────────────
+            {
+                id: "step_wn_open_wizard",
+                type: "task",
+                text: "Now open the provisioning wizard so we can look at the steps.",
+                sender: "customer",
+                goalAction: "edit-provisioning",
+                nextStep: "step_wn_count_steps",
+                guideMessage: "Click the 'Edit Google provisioning' button.",
+                hint: {
+                    target: "edit-provisioning",
+                    message: "Click the 'Edit Google provisioning' button.",
+                },
+                autoShowHint: true,
+            },
+            // ── 4. Count the wizard steps ────────────────────────
+            {
+                id: "step_wn_count_steps",
+                type: "input",
+                text: "I can see the wizard sidebar. How many steps are there in total?",
+                sender: "customer",
+                guideMessage: "Count the numbered steps in the wizard sidebar.",
+                correctAnswer: "8",
+                matchMode: "exact",
+                successStep: "step_wn_first_step",
+                hint: {
+                    target: "wizard-step-connect",
+                    message: "Count all the numbered steps listed in the wizard sidebar.",
+                },
+                autoShowHint: false,
+            },
+            // ── 5. First step name ───────────────────────────────
+            {
+                id: "step_wn_first_step",
+                type: "input",
+                text: "What's the first step called?",
+                sender: "customer",
+                guideMessage: "Read the label of step 1 in the wizard sidebar.",
+                correctAnswer: ["connect to google", "connect"],
+                matchMode: "oneOf",
+                successStep: "step_wn_last_step",
+                hint: {
+                    target: "wizard-step-connect",
+                    message: "Look at the first step in the sidebar — what's its label?",
+                },
+                autoShowHint: false,
+            },
+            // ── 6. Last step name ────────────────────────────────
+            {
+                id: "step_wn_last_step",
+                type: "input",
+                text: "And what's the last step?",
+                sender: "customer",
+                guideMessage: "Read the label of step 8 in the wizard sidebar.",
+                correctAnswer: ["preview and provision", "preview"],
+                matchMode: "oneOf",
+                successStep: "step_wn_connected",
+                hint: {
+                    target: "wizard-step-preview",
+                    message: "Look at the last step in the sidebar — what's its label?",
+                },
+                autoShowHint: false,
+            },
+            // ── 7. Google connection status ──────────────────────
+            {
+                id: "step_wn_connected",
+                type: "message",
+                text: "Is Google already connected for this district?",
+                sender: "customer",
+                actions: [
+                    { label: "Yes, the Connect step shows Google is already connected.", nextStep: "step_wn_mgmt_level" },
+                    { label: "No, it still needs to be set up.", nextStep: "step_wn_connected_wrong" },
+                ],
+            },
+            // ── 7a. Wrong connection answer ──────────────────────
+            {
+                id: "step_wn_connected_wrong",
+                type: "message",
+                text: "Check again — the Connect step should show a status. Is there a green checkmark or connected indicator?",
+                sender: "customer",
+                actions: [
+                    { label: "You're right, Google is already connected.", nextStep: "step_wn_mgmt_level" },
+                ],
+            },
+            // ── 8. Click Management Level step ───────────────────
+            {
+                id: "step_wn_mgmt_level",
+                type: "task",
+                text: "Click on the Management Level step so we can check what's configured.",
+                sender: "customer",
+                goalAction: "wizard-step-management-level",
+                nextStep: "step_wn_check_level",
+                guideMessage: "Click the 'Select your IDM Management Level' step in the wizard sidebar.",
+                hint: {
+                    target: "wizard-step-management-level",
+                    message: "Click 'Select your IDM Management Level' in the sidebar.",
+                },
+                autoShowHint: true,
+            },
+            // ── 9. Read management level ─────────────────────────
+            {
+                id: "step_wn_check_level",
+                type: "input",
+                text: "What management level is currently selected?",
+                sender: "customer",
+                guideMessage: "Read the selected management level on this step.",
+                correctAnswer: ["full", "full provisioning"],
+                matchMode: "oneOf",
+                successStep: "step_wn_done",
+                hint: {
+                    message: "Look at the management level options — which one is selected?",
+                },
+                autoShowHint: false,
+            },
+            // ── 10. Done ─────────────────────────────────────────
+            {
+                id: "step_wn_done",
+                type: "message",
+                text: "Now I understand the wizard layout. 8 steps, Google connected, full provisioning mode. Thanks for the walkthrough!",
+                sender: "customer",
+                actions: [
+                    { label: "You're welcome! The wizard is where all provisioning settings live.", nextStep: null },
+                ],
+            },
+        ],
+    },
+
+    // ── Scenario 2B: Wizard Concepts ─────────────────────────────
+    {
+        id: "scenario_wizard_concepts",
+        title: "Understanding Provisioning Steps",
+        description: "Help Marcus Thompson understand what each wizard step does before making changes.",
+        customerId: "marcusThompson",
+        moduleId: "mod_provisioning_basics",
+        ticketSubject: "Explain the provisioning steps before we change anything",
+        ticketPriority: "normal",
+        ticketNumber: 1004,
+        nextScenario: null,
+        settings: {},
+
+        steps: [
+            // ── 1. Customer opens the ticket ──────────────────────
+            {
+                id: "step_wc_intro",
+                type: "message",
+                text: "Before we make any changes to our provisioning setup, I want to make sure we both understand what each step does. Can you walk me through the 8-step wizard?",
+                sender: "customer",
+                actions: [
+                    { label: "Absolutely. Let's go through them one by one.", nextStep: "step_wc_connect" },
+                ],
+            },
+            // ── 2. Connect to Google ─────────────────────────────
+            {
+                id: "step_wc_connect",
+                type: "message",
+                text: "Starting with step 1 — what does 'Connect to Google' do?",
+                sender: "customer",
+                actions: [
+                    { label: "It links Clever to your Google Workspace domain via OAuth so Clever can manage accounts.", nextStep: "step_wc_mgmt" },
+                    { label: "It imports all Google users into Clever.", nextStep: "step_wc_connect_wrong" },
+                ],
+            },
+            // ── 2a. Wrong answer ─────────────────────────────────
+            {
+                id: "step_wc_connect_wrong",
+                type: "message",
+                text: "That's not quite right — connecting is about authorization, not importing. What does it actually authorize?",
+                sender: "customer",
+                actions: [
+                    { label: "It authorizes Clever to manage accounts in Google Workspace via OAuth.", nextStep: "step_wc_mgmt" },
+                ],
+            },
+            // ── 3. Management Level ──────────────────────────────
+            {
+                id: "step_wc_mgmt",
+                type: "message",
+                text: "What's the difference between Full and Password-Only management?",
+                sender: "customer",
+                actions: [
+                    { label: "Full manages accounts, OUs, and groups. Password-Only just sets passwords for existing accounts.", nextStep: "step_wc_users" },
+                    { label: "Full is for admin accounts, Password-Only is for students.", nextStep: "step_wc_mgmt_wrong" },
+                ],
+            },
+            // ── 3a. Wrong answer ─────────────────────────────────
+            {
+                id: "step_wc_mgmt_wrong",
+                type: "message",
+                text: "Not exactly. The difference is about what Clever controls in Google, not who it applies to.",
+                sender: "customer",
+                actions: [
+                    { label: "Full provisioning manages accounts, OUs, and groups. Password-Only just manages passwords.", nextStep: "step_wc_users" },
+                ],
+            },
+            // ── 4. User Types ────────────────────────────────────
+            {
+                id: "step_wc_users",
+                type: "message",
+                text: "Which user types can be provisioned through the wizard?",
+                sender: "customer",
+                actions: [
+                    { label: "Students, Teachers, and Staff.", nextStep: "step_wc_credentials" },
+                    { label: "Only Students.", nextStep: "step_wc_users_wrong" },
+                ],
+            },
+            // ── 4a. Wrong answer ─────────────────────────────────
+            {
+                id: "step_wc_users_wrong",
+                type: "message",
+                text: "IDM can provision more than just students. What other user types does a school district have?",
+                sender: "customer",
+                actions: [
+                    { label: "Students, Teachers, and Staff.", nextStep: "step_wc_credentials" },
+                ],
+            },
+            // ── 5. Credentials step number ───────────────────────
+            {
+                id: "step_wc_credentials",
+                type: "input",
+                text: "'Set login credentials' is one of the most important steps. What step number is it?",
+                sender: "customer",
+                guideMessage: "Recall the wizard step list — which number is 'Set login credentials'?",
+                correctAnswer: "4",
+                matchMode: "exact",
+                successStep: "step_wc_ous",
+                hint: {
+                    message: "The wizard steps are: 1-Connect, 2-Management Level, 3-Select Users, 4-?",
+                },
+                autoShowHint: false,
+            },
+            // ── 6. OUs ───────────────────────────────────────────
+            {
+                id: "step_wc_ous",
+                type: "message",
+                text: "What are OUs used for in Google Workspace?",
+                sender: "customer",
+                actions: [
+                    { label: "Organizing user accounts into a folder structure for applying policies and management.", nextStep: "step_wc_preview" },
+                    { label: "Tracking student attendance.", nextStep: "step_wc_ous_wrong" },
+                ],
+            },
+            // ── 6a. Wrong answer ─────────────────────────────────
+            {
+                id: "step_wc_ous_wrong",
+                type: "message",
+                text: "OUs are a Google concept, not an attendance feature. Think about how Google organizes user accounts.",
+                sender: "customer",
+                actions: [
+                    { label: "OUs organize accounts into a folder structure for applying policies.", nextStep: "step_wc_preview" },
+                ],
+            },
+            // ── 7. Preview and Provision ─────────────────────────
+            {
+                id: "step_wc_preview",
+                type: "message",
+                text: "Last question — what happens at 'Preview and Provision'?",
+                sender: "customer",
+                actions: [
+                    { label: "You see a preview of all changes before they're applied to Google.", nextStep: "step_wc_done" },
+                    { label: "It automatically syncs everything immediately.", nextStep: "step_wc_preview_wrong" },
+                ],
+            },
+            // ── 7a. Wrong answer ─────────────────────────────────
+            {
+                id: "step_wc_preview_wrong",
+                type: "message",
+                text: "Not automatic — the preview step lets you review before committing any changes.",
+                sender: "customer",
+                actions: [
+                    { label: "It shows you what will be created, updated, or archived before you apply changes.", nextStep: "step_wc_done" },
+                ],
+            },
+            // ── 8. Done ──────────────────────────────────────────
+            {
+                id: "step_wc_done",
+                type: "message",
+                text: "Good overview. So the pipeline is: connect, set management level, choose users, configure credentials, organize OUs, set up groups, review the summary, then preview and provision. I feel much more confident now.",
+                sender: "customer",
+                actions: [
+                    { label: "Exactly! You've got the full picture. Let us know when you're ready to make changes.", nextStep: null },
+                ],
+            },
+        ],
+    },
+
+    // ═══════════════════════════════════════════════════════════════
     //  MODULE 3 — Credential Configuration
     //  (legacy scenario, promoted from the original scenario chain)
     // ═══════════════════════════════════════════════════════════════
