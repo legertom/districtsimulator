@@ -28,6 +28,9 @@ describe("TicketInbox", () => {
         expect(screen.getByText("IDM Overview & Navigation")).toBeInTheDocument();
         expect(screen.getByText("Provisioning Wizard Basics")).toBeInTheDocument();
         expect(screen.getByText("Credential Configuration")).toBeInTheDocument();
+        expect(screen.getByText("OU Organization")).toBeInTheDocument();
+        expect(screen.getByText("Group Configuration")).toBeInTheDocument();
+        expect(screen.getByText("Review & Provisioning")).toBeInTheDocument();
     });
 
     it("renders ticket cards for authored scenarios", () => {
@@ -41,6 +44,14 @@ describe("TicketInbox", () => {
         // Module 3 tickets
         expect(screen.getByText("Change student email format to first initial + last name")).toBeInTheDocument();
         expect(screen.getByText("Need to understand credential formats before making changes")).toBeInTheDocument();
+        // Module 4 tickets
+        expect(screen.getByText("I need help understanding how our Google OUs are organized")).toBeInTheDocument();
+        expect(screen.getByText("Need to review archive and ignored OU policies for board presentation")).toBeInTheDocument();
+        // Module 5 ticket
+        expect(screen.getByText("What are Google Groups in the provisioning wizard?")).toBeInTheDocument();
+        // Module 6 tickets
+        expect(screen.getByText("Need to review provisioning setup before we go live")).toBeInTheDocument();
+        expect(screen.getByText("Walk me through the entire provisioning process from start to finish")).toBeInTheDocument();
     });
 
     it("downstream modules are locked when prerequisites are not completed", () => {
@@ -59,10 +70,11 @@ describe("TicketInbox", () => {
             ]),
             completedModules: new Set(["mod_overview", "mod_provisioning_basics"]),
         });
-        // Both Module 3 tickets should render unlocked
-        expect(screen.getByText("Change student email format to first initial + last name")).toBeInTheDocument();
-        expect(screen.getByText("Need to understand credential formats before making changes")).toBeInTheDocument();
-        expect(screen.queryByText("Complete previous modules to unlock")).not.toBeInTheDocument();
+        // Module 3 tickets should render and be clickable (not locked)
+        const ticket3a = screen.getByText("Change student email format to first initial + last name");
+        expect(ticket3a.closest("[role='button']")).toBeInTheDocument();
+        const ticket3b = screen.getByText("Need to understand credential formats before making changes");
+        expect(ticket3b.closest("[role='button']")).toBeInTheDocument();
     });
 
     it("completed ticket shows score", () => {
@@ -89,6 +101,28 @@ describe("TicketInbox", () => {
         expect(screen.getByText("How would you like to proceed?")).toBeInTheDocument();
         expect(screen.getByText("Guided")).toBeInTheDocument();
         expect(screen.getByText("Unguided")).toBeInTheDocument();
+    });
+
+    it("full curriculum unlocks when all modules are completed", () => {
+        renderInbox({
+            completedScenarios: new Set([
+                "scenario_idm_orientation", "scenario_idm_tab_exploration",
+                "scenario_wizard_navigation", "scenario_wizard_concepts",
+                "scenario_idm_credentials", "scenario_credential_building",
+                "scenario_ou_navigation", "scenario_ou_configuration",
+                "scenario_group_setup",
+                "scenario_review_provision", "scenario_sync_management",
+            ]),
+            completedModules: new Set([
+                "mod_overview", "mod_provisioning_basics", "mod_credentials",
+                "mod_ou_management", "mod_groups", "mod_review_provision",
+            ]),
+        });
+        // All 11 ticket subjects should be visible
+        expect(screen.getByText("Where do I find the Google sync settings?")).toBeInTheDocument();
+        expect(screen.getByText("Walk me through the entire provisioning process from start to finish")).toBeInTheDocument();
+        // No locked labels should appear
+        expect(screen.queryByText("Complete previous modules to unlock")).not.toBeInTheDocument();
     });
 
     it("mode picker calls acceptTicket with correct args", () => {
