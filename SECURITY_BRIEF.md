@@ -27,13 +27,16 @@ Access to the application is strictly controlled via **NextAuth.js**:
     -   A hardcoded credentials provider is permitted for specific training scenarios where OAuth is not feasible. This account has no administrative access outside the simulator context.
 
 ### B. Route Protection
--   **Global Middleware**: A strict `middleware.js` layer intercepts all requests.
+-   **Global Middleware**: A strict `proxy.js` layer intercepts all requests.
 -   **Deny-by-Default**: Unknown users are blocked from all routes and immediately redirected to the login screen.
+-   **Safe Redirects**: Authentication redirects strictly validate URLs to allow only relative paths or same-origin absolute paths, preventing open redirect vulnerabilities.
+-   **Brute-Force Protection**: Credentials authentication utilizes an in-memory sliding window rate limiter (e.g., max 5 attempts per 15 mins) keyed by email and IP.
 
 ## 5. Security Controls
 -   **Session Security**: Uses `HttpOnly`, `SameSite=Lax`, and `Secure` cookies to prevent session hijacking and XSS.
 -   **CSRF Protection**: Double Submit Cookie pattern enforcement on all state-changing requests.
 -   **XSS Mitigation**: React 19 auto-escaping logic is utilized throughout the UI layer.
+-   **Security Headers**: Next.js is configured with conservative baseline headers, enforcing `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, and an restrictive `Content-Security-Policy`.
 
 ## 6. How to Login (For Reviewers)
 To verify access controls:

@@ -32,9 +32,9 @@ This application adheres to strict security standards suitable for enterprise de
 -   **RBAC (Role-Based Access Control)**: Internal role management (Admin/Member) verifies permissions for sensitive dashboard actions.
 
 ### Route Protection
--   **Middleware Enforcement**: A global `middleware.js` acts as a security gatekeeper for the entire application.
+-   **Middleware Enforcement**: A global `proxy.js` (formerly `middleware.js`) acts as a security gatekeeper for the entire application.
     -   **Allowlist Approach**: All routes are denied by default.
-    -   **Exceptions**: Only `/login`, `/api/auth/*` (auth handshake), and static assets (`/_next`, `/favicon.ico`) are publicly accessible.
+    -   **Exceptions**: Only `/login`, `/api/auth/*` (auth handshake), and static assets (`/_next`, `/favicon.ico`, images) are publicly accessible.
     -   **Automatic Redirection**: Unauthenticated requests to protected resources are instantly redirected to the login flow.
 
 ### Data Privacy
