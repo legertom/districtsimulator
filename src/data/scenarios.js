@@ -810,5 +810,208 @@ export const scenarios = [
                 ]
             }
         ]
-    }
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //  MODULE 3B — Credential Configuration (Deeper Knowledge)
+    // ═══════════════════════════════════════════════════════════════
+
+    // ── Scenario 3B: Understanding Credential Formats ──────────────
+    {
+        id: "scenario_credential_building",
+        title: "Understanding Credential Formats",
+        description: "Help Sarah Chen understand how credential formats work across user types before configuring changes.",
+
+        customerId: "sarahChen",
+        moduleId: "mod_credentials",
+        ticketSubject: "Need to understand credential formats before making changes",
+        ticketPriority: "normal",
+        ticketNumber: 1006,
+
+        nextScenario: null,
+        settings: {},
+
+        steps: [
+            // ── 1. Customer opens the ticket ──────────────────────
+            {
+                id: "step_cb_intro",
+                type: "message",
+                text: "Hi! Before I make any changes to our credential setup, I want to make sure I fully understand how the format system works. I've seen the credential cards but I have a bunch of questions. Can you help me work through them?",
+                sender: "customer",
+                actions: [
+                    { label: "Of course! I'd be happy to walk through the credential system with you.", nextStep: "step_cb_user_types" },
+                ],
+            },
+            // ── 2. How many user types have credentials? ──────────
+            {
+                id: "step_cb_user_types",
+                type: "input",
+                text: "Great, let's start basic. How many user types have credential configurations in the provisioning wizard? I want to make sure I'm not missing any.",
+                sender: "customer",
+                guideMessage: "Count the user types (students, teachers, staff) that have credential cards configured in the wizard.",
+                correctAnswer: ["3", "three"],
+                matchMode: "oneOf",
+                successStep: "step_cb_shared_domain",
+                hint: {
+                    message: "Think about the different roles in a school district — students, teachers, and staff each have their own credential card.",
+                },
+                autoShowHint: false,
+            },
+            // ── 3. Shared domain question ─────────────────────────
+            {
+                id: "step_cb_shared_domain",
+                type: "input",
+                text: "Good — students, teachers, and staff. Do they all use the same email domain, or does each type have its own? What domain is it?",
+                sender: "customer",
+                guideMessage: "Check the email format on any credential card — what comes after the @ sign?",
+                correctAnswer: "maytonlyceum.com",
+                matchMode: "includes",
+                successStep: "step_cb_sis_variables",
+                hint: {
+                    message: "Look at the email format on the credential cards — the domain after the @ symbol is shared across all three user types.",
+                },
+                autoShowHint: false,
+            },
+            // ── 4. SIS variables differ by type ───────────────────
+            {
+                id: "step_cb_sis_variables",
+                type: "message",
+                text: "Here's what I'm confused about — are the same SIS variables available for all user types when building email formats, or are they different?",
+                sender: "customer",
+                actions: [
+                    { label: "They're different. Each user type has its own set of SIS variables, plus shared ones like First Name and Last Name.", nextStep: "step_cb_student_variable" },
+                    { label: "They're all the same — every user type uses the same variables.", nextStep: "step_cb_sis_variables_wrong" },
+                ],
+            },
+            // ── 4a. Wrong SIS variables answer ────────────────────
+            {
+                id: "step_cb_sis_variables_wrong",
+                type: "message",
+                text: "That doesn't sound right. I thought students had a Student Number variable but teachers don't? Aren't the type-specific variables different?",
+                sender: "customer",
+                actions: [
+                    { label: "You're right — each user type has unique variables. Students have Student Number, teachers have Teacher Number, and staff have Title and Department.", nextStep: "step_cb_student_variable" },
+                ],
+            },
+            // ── 5. Student-specific variable count ────────────────
+            {
+                id: "step_cb_student_variable",
+                type: "input",
+                text: "OK so students have their own variables. Besides First Name and Last Name, how many additional SIS variables are available specifically for student email formats?",
+                sender: "customer",
+                guideMessage: "Count the student-specific email SIS variables (excluding name.first and name.last). Check the EMAIL_SIS_VARIABLES reference.",
+                correctAnswer: "4",
+                matchMode: "exact",
+                successStep: "step_cb_password_format",
+                hint: {
+                    message: "Student email variables include: First Name, Last Name, SIS ID, Student Number, State ID, and District Username. That's 6 total — minus 2 name fields = 4 unique student variables.",
+                },
+                autoShowHint: false,
+            },
+            // ── 6. Student password format ────────────────────────
+            {
+                id: "step_cb_password_format",
+                type: "message",
+                text: "Now I'm curious about passwords. The student password format looks like a bunch of variables strung together. What does the student password format actually combine?",
+                sender: "customer",
+                actions: [
+                    { label: "It combines the student number, grade, and school SIS ID — three variables concatenated together.", nextStep: "step_cb_teacher_password" },
+                    { label: "It uses the student's first name and birthday.", nextStep: "step_cb_password_format_wrong" },
+                ],
+            },
+            // ── 6a. Wrong password format ─────────────────────────
+            {
+                id: "step_cb_password_format_wrong",
+                type: "message",
+                text: "Hmm, I don't think that's right. I saw variables like student_number and grade in the password field. Can you look at it again?",
+                sender: "customer",
+                actions: [
+                    { label: "Sorry about that — the student password format is student number + grade + school SIS ID.", nextStep: "step_cb_teacher_password" },
+                ],
+            },
+            // ── 7. Teacher password computation ───────────────────
+            {
+                id: "step_cb_teacher_password",
+                type: "input",
+                text: "Let me test my understanding with a real example. Our sample teacher is Betty Bauch with teacher number T001. The teacher password format uses the teacher number plus a fixed string '0420'. What would Betty's actual password be?",
+                sender: "customer",
+                guideMessage: "The teacher password template is {{teacher.teacher_number}}0420. Substitute Betty Bauch's teacher number (T001) to compute her password.",
+                correctAnswer: "t0010420",
+                matchMode: "exact",
+                successStep: "step_cb_fallback",
+                hint: {
+                    message: "The teacher password format is {{teacher.teacher_number}}0420. Betty's teacher number is T001, so her password is T0010420.",
+                },
+                autoShowHint: false,
+            },
+            // ── 8. Fallback format concept ────────────────────────
+            {
+                id: "step_cb_fallback",
+                type: "message",
+                text: "One more concept I've been wondering about — what's a fallback email format? I see there's an option to add one but none of our user types have it enabled right now.",
+                sender: "customer",
+                actions: [
+                    { label: "A fallback format is used when the primary email format produces a conflict — for example, if two users would get the same email address.", nextStep: "step_cb_matching" },
+                    { label: "A fallback format is the email used when users forget their password.", nextStep: "step_cb_fallback_wrong" },
+                ],
+            },
+            // ── 8a. Wrong fallback answer ─────────────────────────
+            {
+                id: "step_cb_fallback_wrong",
+                type: "message",
+                text: "That doesn't sound right — password reset is a different thing entirely. I think fallback has to do with email conflicts when two users would get the same address?",
+                sender: "customer",
+                actions: [
+                    { label: "Correct — the fallback format kicks in when the primary format would create a duplicate email address, so each user still gets a unique email.", nextStep: "step_cb_matching" },
+                ],
+            },
+            // ── 9. Email matching vs. creating ────────────────────
+            {
+                id: "step_cb_matching",
+                type: "message",
+                text: "Last conceptual question. I noticed the credential step mentions 'matching emails' and 'creating emails' as two different things. What's the difference between those?",
+                sender: "customer",
+                actions: [
+                    { label: "Matching links existing Google accounts to Clever users by comparing their SIS email. Creating builds new email addresses for unmatched users using the format you configure.", nextStep: "step_cb_staff_email" },
+                    { label: "They're the same thing — both create new Google accounts.", nextStep: "step_cb_matching_wrong" },
+                ],
+            },
+            // ── 9a. Wrong matching answer ─────────────────────────
+            {
+                id: "step_cb_matching_wrong",
+                type: "message",
+                text: "I don't think they're the same. The credential step says something about 'SIS email' matching with existing Google accounts. That sounds different from creating new ones, right?",
+                sender: "customer",
+                actions: [
+                    { label: "Right — matching uses the SIS email to find existing Google accounts automatically, while creating builds new addresses for users who don't already have a Google account.", nextStep: "step_cb_staff_email" },
+                ],
+            },
+            // ── 10. Staff email computation ───────────────────────
+            {
+                id: "step_cb_staff_email",
+                type: "input",
+                text: "OK final test! Our sample staff member is Oswaldo Pouros. Using the current email format, what would his email address be?",
+                sender: "customer",
+                guideMessage: "The email format is {{name.first}}{{name.last}}@maytonlyceum.com. Substitute Oswaldo Pouros's name to compute his email.",
+                correctAnswer: ["oswaldopouros@maytonlyceum.com", "oswaldo.pouros@maytonlyceum.com"],
+                matchMode: "oneOf",
+                successStep: "step_cb_done",
+                hint: {
+                    message: "The format is first name + last name + @maytonlyceum.com. For Oswaldo Pouros: oswaldopouros@maytonlyceum.com",
+                },
+                autoShowHint: false,
+            },
+            // ── 11. Done ──────────────────────────────────────────
+            {
+                id: "step_cb_done",
+                type: "message",
+                text: "That all makes sense now! Three user types sharing the same domain, different SIS variables per type, password formats using SIS data, fallback for conflicts, and matching vs creating. I feel much more confident about making changes now. Thanks so much for walking me through all of this!",
+                sender: "customer",
+                actions: [
+                    { label: "You've got it! Let us know when you're ready to make the actual format changes.", nextStep: null },
+                    { label: "Great understanding, Sarah! Don't hesitate to reach out if you need help editing the formats.", nextStep: null },
+                ],
+            },
+        ],
+    },
 ];

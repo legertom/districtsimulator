@@ -38,8 +38,9 @@ describe("TicketInbox", () => {
         // Module 2 tickets
         expect(screen.getByText("How do I set up Google provisioning?")).toBeInTheDocument();
         expect(screen.getByText("Explain the provisioning steps before we change anything")).toBeInTheDocument();
-        // Module 3 ticket
+        // Module 3 tickets
         expect(screen.getByText("Change student email format to first initial + last name")).toBeInTheDocument();
+        expect(screen.getByText("Need to understand credential formats before making changes")).toBeInTheDocument();
     });
 
     it("downstream modules are locked when prerequisites are not completed", () => {
@@ -58,8 +59,9 @@ describe("TicketInbox", () => {
             ]),
             completedModules: new Set(["mod_overview", "mod_provisioning_basics"]),
         });
-        const ticket = screen.getByText("Change student email format to first initial + last name");
-        expect(ticket).toBeInTheDocument();
+        // Both Module 3 tickets should render unlocked
+        expect(screen.getByText("Change student email format to first initial + last name")).toBeInTheDocument();
+        expect(screen.getByText("Need to understand credential formats before making changes")).toBeInTheDocument();
         expect(screen.queryByText("Complete previous modules to unlock")).not.toBeInTheDocument();
     });
 
