@@ -36,7 +36,8 @@ Access to the application is strictly controlled via **NextAuth.js**:
 -   **Session Security**: Uses `HttpOnly`, `SameSite=Lax`, and `Secure` cookies to prevent session hijacking and XSS.
 -   **CSRF Protection**: Double Submit Cookie pattern enforcement on all state-changing requests.
 -   **XSS Mitigation**: React 19 auto-escaping logic is utilized throughout the UI layer.
--   **Security Headers**: Next.js is configured with conservative baseline headers, enforcing `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, and an restrictive `Content-Security-Policy`.
+-   **Security Headers**: Next.js is configured dynamically based on environment. Production enforces stricter `Content-Security-Policy` (no `unsafe-eval`), strong `Strict-Transport-Security` assertions (`preload`), and robust generic headers (e.g., `X-Frame-Options: DENY`).
+-   **Observability**: A lightweight structured JSON logging framework emits `SECURITY_AUDIT` logs during critical security boundary events (e.g. rate-limit triggered, open-redirect blocked, unauthorized provider gated).
 
 ## 6. How to Login (For Reviewers)
 To verify access controls:

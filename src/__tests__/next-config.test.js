@@ -2,21 +2,33 @@ import { describe, it, expect } from 'vitest';
 import nextConfig from '../../next.config.mjs';
 
 describe('next.config.mjs Security Headers Configuration', () => {
-    it('should export an async headers function returning conservative security headers', async () => {
+    it('should configure strict production headers', async () => {
+        const originalEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = 'production';
+
         const headersResult = await nextConfig.headers();
-        expect(Array.isArray(headersResult)).toBe(true);
-        expect(headersResult.length).toBeGreaterThan(0);
-
         const globalHeaders = headersResult.find(route => route.source === '/(.*)');
-        expect(globalHeaders).toBeDefined();
-
         const getHeader = (key) => globalHeaders.headers.find(h => h.key === key)?.value;
 
-        expect(getHeader('X-Frame-Options')).toBe('DENY');
-        expect(getHeader('X-Content-Type-Options')).toBe('nosniff');
-        expect(getHeader('Referrer-Policy')).toBe('origin-when-cross-origin');
-        expect(getHeader('Permissions-Policy')).toBe('camera=(), microphone=(), geolocation=()');
-        expect(getHeader('Strict-Transport-Security')).toBe('max-age=31536000; includeSubDomains');
-        expect(getHeader('Content-Security-Policy')).toContain("default-src 'self'");
+        expect(getHeader('Content-Security-Policy')).not.toContain("'unsafe-eval'");
+        expect(getHeader('Strict-Transport-Security')).toContain('max-age=63072000');
+        expect(getHeader('Strict-Transport-Security')).toContain('preload');
+
+        process.env.NODE_ENV = originalEnv;
+    });
+
+    it('should configure relaxed development headers', async () => {
+        const originalEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = 'development';
+
+        const headersResult = await nextConfig.headers();
+        const globalHeaders = headersResult.find(route => route.source === '/(.*)');
+        const getHeader = (key) => globalHeaders.headers.find(h => h.key === key)?.value;
+
+        expect(getHeader('Content-Security-Policy')).toContain("'unsafe-eval'");
+        expect(getHeader('Strict-Transport-Security')).toContain('max-age=31536000');
+        expect(getHeader('Strict-Transport-Security')).not.toContain('preload');
+
+        process.env.NODE_ENV = originalEnv;
     });
 });

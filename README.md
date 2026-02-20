@@ -62,6 +62,9 @@ To address specific enterprise security concerns:
 4.  **CSRF Protection**:
     -   NextAuth.js implements Double Submit Cookie pattern and safeguards all state-changing routes.
 
+5.  **Environment-Specific Configuration**:
+    -   Security headers restrict capabilities (e.g. disabling `unsafe-eval` in CSP) in production while retaining necessary relaxed rules during development.
+
 ## Hosting & Deployment
 
 -   **Platform**: Vercel (recommended) or any Node.js compatible container.

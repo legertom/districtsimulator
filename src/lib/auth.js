@@ -1,36 +1,18 @@
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { ENV } from './security/env';
+import { isRateLimited, clearRateLimit } from './security/rateLimit';
+import { getSafeRedirectUrl } from './security/redirect';
+import { isGoogleProviderEnabled } from './security/providerGate';
+import { logSecurityEvent } from './security/audit';
 
-// Simple in-memory rate limiter for credential brute-force protection
-const RATE_LIMIT_WINDOW_MS = parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000;
-const MAX_ATTEMPTS = parseInt(process.env.AUTH_MAX_ATTEMPTS, 10) || 5;
-const loginAttempts = new Map();
-
-function isRateLimited(identifier) {
-    if (process.env.NODE_ENV === 'test') return false; // Disable limiter in test environment
-
-    const now = Date.now();
-    const attempts = loginAttempts.get(identifier) || [];
-    const recentAttempts = attempts.filter(time => now - time < RATE_LIMIT_WINDOW_MS);
-
-    if (recentAttempts.length >= MAX_ATTEMPTS) {
-        return true;
-    }
-
-    recentAttempts.push(now);
-    loginAttempts.set(identifier, recentAttempts);
-    return false;
-}
+// Validate secrets on load
+ENV.validateAuthSecret();
 
 export const authOptions = {
     // Determine providers
     providers: [
-        ...(process.env.GOOGLE_CLIENT_ID &&
-            process.env.GOOGLE_CLIENT_SECRET &&
-            process.env.GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID" &&
-            process.env.GOOGLE_CLIENT_SECRET !== "YOUR_GOOGLE_CLIENT_SECRET" &&
-            process.env.GOOGLE_CLIENT_ID !== "placeholder_id" &&
-            process.env.GOOGLE_CLIENT_SECRET !== "placeholder_secret"
+        ...(isGoogleProviderEnabled()
             ? [
                 GoogleProvider({
                     clientId: process.env.GOOGLE_CLIENT_ID,
@@ -63,7 +45,7 @@ export const authOptions = {
                 };
 
                 if (emailInput === user.email && credentials?.password === "password") {
-                    loginAttempts.delete(identifier); // Reset attempts on success
+                    clearRateLimit(identifier); // Reset attempts on success
                     return user;
                 }
 
@@ -80,7 +62,15 @@ export const authOptions = {
     callbacks: {
         async signIn({ user, account }) {
             if (account?.provider === "google") {
-                return !!user?.email?.endsWith("@clever.com");
+                const isCleverEmail = !!user?.email?.endsWith("@clever.com");
+                if (!isCleverEmail) {
+                    logSecurityEvent('rejected-provider-signin', {
+                        provider: 'google',
+                        email: user?.email,
+                        reason: 'Non-matching email domain'
+                    });
+                }
+                return isCleverEmail;
             }
             return true; // Allow Credentials provider (dev)
         },
@@ -97,21 +87,7 @@ export const authOptions = {
             return session;
         },
         async redirect({ url, baseUrl }) {
-            // Defensively try/catch new URL parsing
-            try {
-                // Allows relative callback URLs
-                if (url.startsWith("/")) {
-                    return new URL(url, baseUrl).toString()
-                }
-                // Allows callback URLs on the same origin
-                else if (new URL(url).origin === baseUrl) {
-                    return url
-                }
-            } catch (error) {
-                // Ignore parse errors and fallback immediately
-            }
-            // Fallback to baseUrl
-            return baseUrl
+            return getSafeRedirectUrl(url, baseUrl);
         }
     },
     pages: {
