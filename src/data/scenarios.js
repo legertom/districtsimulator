@@ -2021,4 +2021,250 @@ export const scenarios = [
             },
         ],
     },
+
+    // ═══════════════════════════════════════════════════════════════
+    //  MODULE 7 — Troubleshooting
+    // ═══════════════════════════════════════════════════════════════
+
+    {
+        id: "scenario_sync_failure",
+        title: "Sync Failure Investigation",
+        description: "Investigate a failed IDM sync and report the likely root cause.",
+        customerId: "sarahChen",
+        moduleId: "mod_troubleshooting",
+        ticketSubject: "New students do not have Google accounts",
+        ticketPriority: "high",
+        ticketNumber: 1012,
+        ticketMessage: "Teachers report that several newly enrolled students don't have Google accounts. Can you investigate whether IDM sync failed and tell me what happened?",
+        nextScenario: null,
+        settings: {
+            dataOverrides: {
+                idm: {
+                    syncHistory: [
+                        { destination: "Google", dateTime: "Feb 20, 2026; 04:45:53 a.m.", creates: 0, matches: 30, updates: 0, archives: 0, issues: 7, status: "Failed" },
+                        { destination: "Google", dateTime: "Feb 19, 2026; 04:45:51 a.m.", creates: 2, matches: 38, updates: 1, archives: 0, issues: 1, status: "Success" },
+                    ],
+                    events: [
+                        { date: "Feb 20, 2026; 04:45:53 a.m.", event: "Failed", destination: "Google Workspace", user: "System", sisId: "N/A", destinationUsername: "N/A", userType: "System", modifiedFields: [{ field: "Error", value: "Credential template produced duplicate usernames" }] },
+                    ],
+                },
+            },
+        },
+        steps: [
+            {
+                id: "step_sf_nav_idm",
+                type: "task",
+                checklistLabel: "Open IDM",
+                goalRoute: "idm",
+                nextStep: "step_sf_check_sync",
+                guideMessage: "Open IDM to inspect sync health.",
+                autoShowHint: true,
+            },
+            {
+                id: "step_sf_check_sync",
+                type: "checkpoint",
+                checklistLabel: "Assess latest sync outcome",
+                question: "What does the most recent sync entry indicate?",
+                choices: [
+                    { label: "The latest sync failed and has elevated issues", nextStep: "step_sf_open_events", correct: true },
+                    { label: "Everything looks healthy and successful", nextStep: "step_sf_wrong_sync", unguidedNextStep: "step_sf_open_events", correct: false },
+                ],
+            },
+            {
+                id: "step_sf_wrong_sync",
+                type: "checkpoint",
+                scored: false,
+                checklistLabel: "Assess latest sync outcome (retry)",
+                question: "Re-check the newest row. Is the run successful or failed?",
+                choices: [{ label: "Failed with issues", nextStep: "step_sf_open_events" }],
+            },
+            {
+                id: "step_sf_open_events",
+                type: "task",
+                checklistLabel: "Open Events tab",
+                goalAction: "idm-tab-events",
+                nextStep: "step_sf_identify_error",
+                guideMessage: "Open Events to inspect the failure reason.",
+                autoShowHint: true,
+            },
+            {
+                id: "step_sf_identify_error",
+                type: "checkpoint",
+                checklistLabel: "Identify root-cause theme",
+                question: "Which root cause is most consistent with the failure event details?",
+                choices: [
+                    { label: "Credential format collision/duplicate username generation", nextStep: "step_sf_resolution", correct: true },
+                    { label: "Google service outage only", nextStep: "step_sf_wrong_root", unguidedNextStep: "step_sf_resolution", correct: false },
+                ],
+            },
+            {
+                id: "step_sf_wrong_root",
+                type: "checkpoint",
+                scored: false,
+                checklistLabel: "Identify root-cause theme (retry)",
+                question: "The event references duplicate usernames. Which area should be reviewed first?",
+                choices: [{ label: "Credential format/template logic", nextStep: "step_sf_resolution" }],
+            },
+            {
+                id: "step_sf_resolution",
+                type: "resolution",
+                checklistLabel: "Report findings",
+                question: "Choose the best report-back summary:",
+                choices: [
+                    { label: "Latest sync failed with elevated issues. Event details indicate duplicate username collisions from credential format logic. We should review credential templates, fix collisions, and rerun sync.", nextStep: null, correct: true },
+                    { label: "No action needed; sync is healthy and student accounts should appear automatically.", nextStep: null, correct: false },
+                ],
+            },
+        ],
+    },
+
+    {
+        id: "scenario_missing_teacher",
+        title: "Missing Teacher Account",
+        description: "Investigate why a newly hired teacher does not have a Google account.",
+        customerId: "marcusThompson",
+        moduleId: "mod_troubleshooting",
+        ticketSubject: "New teacher still cannot log in",
+        ticketPriority: "high",
+        ticketNumber: 1013,
+        ticketMessage: "We hired Betty Bauch last week and she still cannot log into Google. Please find out what's blocking account creation.",
+        nextScenario: null,
+        settings: {
+            dataOverrides: {
+                idm: {
+                    events: [
+                        { date: "Feb 20, 2026; 04:45:53 a.m.", event: "Failed", destination: "Google Workspace", user: "Betty Bauch", sisId: "teacher-4455", destinationUsername: "betty.bauch@maytonlyceum.com", userType: "Teacher", modifiedFields: [{ field: "Error", value: "Primary email already exists in Google" }] },
+                    ],
+                },
+            },
+        },
+        steps: [
+            {
+                id: "step_mt_nav_idm",
+                type: "task",
+                checklistLabel: "Open IDM",
+                goalRoute: "idm",
+                nextStep: "step_mt_open_events",
+                guideMessage: "Open IDM to inspect account events.",
+                autoShowHint: true,
+            },
+            {
+                id: "step_mt_open_events",
+                type: "task",
+                checklistLabel: "Open Events tab",
+                goalAction: "idm-tab-events",
+                nextStep: "step_mt_find_teacher",
+                guideMessage: "Go to Events and find Betty Bauch.",
+                autoShowHint: true,
+            },
+            {
+                id: "step_mt_find_teacher",
+                type: "observe",
+                checklistLabel: "Confirm Betty's event status",
+                question: "What status appears for Betty Bauch's recent event?",
+                correctAnswer: "failed",
+                matchMode: "includes",
+                successStep: "step_mt_root_cause",
+            },
+            {
+                id: "step_mt_root_cause",
+                type: "checkpoint",
+                checklistLabel: "Identify likely cause",
+                question: "What is the most likely root cause for Betty's missing account?",
+                choices: [
+                    { label: "Email conflict — target address already exists", nextStep: "step_mt_resolution", correct: true },
+                    { label: "OU placement missing prevents account creation every time", nextStep: "step_mt_wrong_root", unguidedNextStep: "step_mt_resolution", correct: false },
+                ],
+            },
+            {
+                id: "step_mt_wrong_root",
+                type: "checkpoint",
+                scored: false,
+                checklistLabel: "Identify likely cause (retry)",
+                question: "Event details explicitly call out an already-existing primary email. Which issue should be addressed?",
+                choices: [{ label: "Resolve duplicate/conflicting email", nextStep: "step_mt_resolution" }],
+            },
+            {
+                id: "step_mt_resolution",
+                type: "resolution",
+                checklistLabel: "Report findings",
+                question: "Choose the best response:",
+                choices: [
+                    { label: "Betty's creation event failed due to an existing primary email conflict. We should resolve the duplicate email/identity conflict, then rerun provisioning.", nextStep: null, correct: true },
+                    { label: "No issues found in IDM. Ask Betty to wait another week.", nextStep: null, correct: false },
+                ],
+            },
+        ],
+    },
+
+    {
+        id: "scenario_stale_provisioning",
+        title: "Stale Provisioning Check",
+        description: "Validate whether provisioning appears stale and what to do next.",
+        customerId: "lisaWilson",
+        moduleId: "mod_troubleshooting",
+        ticketSubject: "Is provisioning still running regularly?",
+        ticketPriority: "normal",
+        ticketNumber: 1014,
+        ticketMessage: "I'm worried provisioning may be stale. Please verify when IDM last ran and whether we should take action.",
+        nextScenario: null,
+        settings: {
+            dataOverrides: {
+                idm: {
+                    syncHistory: [
+                        { destination: "Google", dateTime: "Feb 03, 2026; 04:45:27 a.m.", creates: 0, matches: 40, updates: 0, archives: 0, issues: 0, status: "Success" },
+                        { destination: "Google", dateTime: "Jan 27, 2026; 04:45:27 a.m.", creates: 1, matches: 39, updates: 0, archives: 0, issues: 0, status: "Success" },
+                    ],
+                },
+            },
+        },
+        steps: [
+            {
+                id: "step_sp_nav_idm",
+                type: "task",
+                checklistLabel: "Open IDM",
+                goalRoute: "idm",
+                nextStep: "step_sp_open_sync",
+                guideMessage: "Open IDM and inspect sync recency.",
+                autoShowHint: true,
+            },
+            {
+                id: "step_sp_open_sync",
+                type: "task",
+                checklistLabel: "Open Sync History tab",
+                goalAction: "idm-tab-sync-history",
+                nextStep: "step_sp_assess_recency",
+                guideMessage: "Open Sync History to compare recent run dates.",
+                autoShowHint: true,
+            },
+            {
+                id: "step_sp_assess_recency",
+                type: "checkpoint",
+                checklistLabel: "Assess sync freshness",
+                question: "Based on the latest run timestamps, what is the best assessment?",
+                choices: [
+                    { label: "Provisioning appears stale (runs are not recent/daily), so investigation is needed", nextStep: "step_sp_resolution", correct: true },
+                    { label: "Provisioning is current and running daily", nextStep: "step_sp_wrong_recency", unguidedNextStep: "step_sp_resolution", correct: false },
+                ],
+            },
+            {
+                id: "step_sp_wrong_recency",
+                type: "checkpoint",
+                scored: false,
+                checklistLabel: "Assess sync freshness (retry)",
+                question: "The most recent run is significantly old. Is this normal for daily IDM operations?",
+                choices: [{ label: "No — this is stale and needs follow-up", nextStep: "step_sp_resolution" }],
+            },
+            {
+                id: "step_sp_resolution",
+                type: "resolution",
+                checklistLabel: "Report findings",
+                question: "Choose the best summary for the Tech Director:",
+                choices: [
+                    { label: "Sync history appears stale and not on the expected cadence. We should verify pause/schedule/config health and resume normal run cadence.", nextStep: null, correct: true },
+                    { label: "Everything is normal; no follow-up required.", nextStep: null, correct: false },
+                ],
+            },
+        ],
+    },
 ];

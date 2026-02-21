@@ -112,6 +112,23 @@ export const COURSES = [
                 bossCompletion:
                     "That's everything. You've completed IDM Fundamentals — you're ready to handle these tickets on your own. I'll be around for questions through Friday, but honestly? You've got this.",
             },
+
+            // ── Module 7 ──────────────────────────────────────────────
+            {
+                id: "mod_troubleshooting",
+                title: "Troubleshooting",
+                description: "Diagnose failed syncs, missing accounts, and stale provisioning signals",
+                prerequisites: ["mod_review_provision"],
+                scenarioIds: [
+                    "scenario_sync_failure",
+                    "scenario_missing_teacher",
+                    "scenario_stale_provisioning",
+                ],
+                bossIntro:
+                    "Real talk — most of your day won't be green checkmarks. Things break. Syncs fail. Accounts go missing. These tickets are based on real issues I dealt with. Welcome to the real job.",
+                bossCompletion:
+                    "You handled those like a pro. I'm officially not worried about leaving anymore. Good luck — you've got this.",
+            },
         ],
     },
 ];
