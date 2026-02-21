@@ -189,7 +189,7 @@ describe("InvestigationView", () => {
                 scores: { correct: 3, total: 4, timeMs: 180000 },
             },
         });
-        expect(screen.getByText("Investigation Complete")).toBeInTheDocument();
+        expect(screen.getByText(/Excellent Work with Guidance!/)).toBeInTheDocument();
         expect(screen.getByText("3/4")).toBeInTheDocument();
         expect(screen.getByText("3m 00s")).toBeInTheDocument();
         expect(screen.getByText(/Replay/)).toBeInTheDocument();

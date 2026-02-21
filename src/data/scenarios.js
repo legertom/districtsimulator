@@ -55,8 +55,8 @@ export const scenarios = [
                 question: "What identity provider is configured on this IDM page?",
                 choices: [
                     { label: "Google Workspace", nextStep: "step_orient_health", correct: true },
-                    { label: "Microsoft Entra ID", nextStep: "step_orient_provider_wrong", correct: false },
-                    { label: "Both Google and Microsoft", nextStep: "step_orient_provider_wrong", correct: false },
+                    { label: "Microsoft Entra ID", nextStep: "step_orient_provider_wrong", unguidedNextStep: "step_orient_health", correct: false },
+                    { label: "Both Google and Microsoft", nextStep: "step_orient_provider_wrong", unguidedNextStep: "step_orient_health", correct: false },
                 ],
                 hint: {
                     target: "google-provider-card",
@@ -112,7 +112,7 @@ export const scenarios = [
                 question: "Looking at the sync history, are syncs running regularly or has there been a gap?",
                 choices: [
                     { label: "Syncs are running regularly — the most recent one was within the last few days", nextStep: "step_orient_nav_tasks", correct: true },
-                    { label: "Syncs have stopped — the last one was weeks ago", nextStep: "step_orient_sync_wrong", correct: false },
+                    { label: "Syncs have stopped — the last one was weeks ago", nextStep: "step_orient_sync_wrong", unguidedNextStep: "step_orient_nav_tasks", correct: false },
                 ],
                 hint: {
                     message: "Check the dates in the Sync History table — are they recent and consistent?",
@@ -223,8 +223,8 @@ export const scenarios = [
                 question: "Looking at the Sync History tab, what's the overall health of the sync process?",
                 choices: [
                     { label: "All syncs completed successfully, though each has a minor issue flagged", nextStep: "step_tabs_click_exports", correct: true },
-                    { label: "Multiple syncs have failed — there are serious problems", nextStep: "step_tabs_sync_wrong", correct: false },
-                    { label: "There's no sync history — syncing hasn't been set up", nextStep: "step_tabs_sync_wrong", correct: false },
+                    { label: "Multiple syncs have failed — there are serious problems", nextStep: "step_tabs_sync_wrong", unguidedNextStep: "step_tabs_click_exports", correct: false },
+                    { label: "There's no sync history — syncing hasn't been set up", nextStep: "step_tabs_sync_wrong", unguidedNextStep: "step_tabs_click_exports", correct: false },
                 ],
                 hint: {
                     message: "Look at the Status column in the Sync History table — are they showing success or failure?",
@@ -263,7 +263,7 @@ export const scenarios = [
                 question: "What export capabilities does the Exports tab offer?",
                 choices: [
                     { label: "Manual CSV downloads plus an SFTP option for automated exports", nextStep: "step_tabs_click_events", correct: true },
-                    { label: "Only manual downloads — there's no automation option", nextStep: "step_tabs_exports_wrong", correct: false },
+                    { label: "Only manual downloads — there's no automation option", nextStep: "step_tabs_exports_wrong", unguidedNextStep: "step_tabs_click_events", correct: false },
                 ],
                 hint: {
                     target: "exports-tab-content",
@@ -303,7 +303,7 @@ export const scenarios = [
                 question: "What kind of information does the Events tab show?",
                 choices: [
                     { label: "Individual user-level changes — account creations, updates, and which user types were affected", nextStep: "step_tabs_nav_tasks", correct: true },
-                    { label: "Only system-level errors and warnings, not individual user changes", nextStep: "step_tabs_events_wrong", correct: false },
+                    { label: "Only system-level errors and warnings, not individual user changes", nextStep: "step_tabs_events_wrong", unguidedNextStep: "step_tabs_nav_tasks", correct: false },
                 ],
                 hint: {
                     target: "events-tab-content",
@@ -405,7 +405,7 @@ export const scenarios = [
                 question: "The first wizard step is 'Connect to Google.' Is Google already connected for this district?",
                 choices: [
                     { label: "Yes — the Connect step shows Google is already connected and authorized", nextStep: "step_wn_nav_mgmt", correct: true },
-                    { label: "No — Google still needs to be set up", nextStep: "step_wn_connection_wrong", correct: false },
+                    { label: "No — Google still needs to be set up", nextStep: "step_wn_connection_wrong", unguidedNextStep: "step_wn_nav_mgmt", correct: false },
                 ],
                 hint: {
                     target: "wizard-step-connect",

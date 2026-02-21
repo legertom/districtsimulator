@@ -247,8 +247,21 @@ export default function InvestigationView() {
                 {scenarioJustCompleted && (
                     <div className={styles.completionCard}>
                         <div className={styles.completionIcon}>\u2705</div>
-                        <div className={styles.completionTitle}>Investigation Complete</div>
+                        <div className={styles.completionTitle}>
+                            {coachMarksEnabled ? "Excellent Work with Guidance!" : "Strong Independent Performance!"}
+                        </div>
+                        <div className={styles.completionMessage}>
+                            {coachMarksEnabled 
+                                ? "With coach marks and guidance, you successfully navigated this investigation. Consider trying the unguided mode to test your independence."
+                                : "You successfully completed this investigation unaided - demonstrating strong independent problem-solving skills."}
+                        </div>
                         <div className={styles.completionStats}>
+                            <div className={styles.completionStat}>
+                                <span className={styles.statLabel}>Mode</span>
+                                <span className={styles.statValue}>
+                                    {coachMarksEnabled ? "📍 Guided" : "🧭 Unguided"}
+                                </span>
+                            </div>
                             <div className={styles.completionStat}>
                                 <span className={styles.statLabel}>Score</span>
                                 <span className={styles.statValue}>

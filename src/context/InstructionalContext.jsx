@@ -11,7 +11,67 @@ export const InstructionalContext = createContext();
 // ═══════════════════════════════════════════════════════════════
 
 const STORAGE_KEY = "pjs-state";
-const STATE_VERSION = 1;
+const STATE_VERSION = 2;
+
+// ═══════════════════════════════════════════════════════════════
+//  State migration — chainable v(N)→v(N+1) transformers
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Migrate v1 flat scores to v2 per-mode shape.
+ *
+ * v1 shape: scores[scenarioId] = { correct, total, startTime, timeMs? }
+ * v2 shape: scores[scenarioId] = { guided: { correct, total, startTime, timeMs? } | null,
+ *                                   unguided: { correct, total, startTime, timeMs? } | null }
+ *
+ * Existing v1 scores are assumed to be guided (the only mode that existed).
+ */
+export function migrateV1toV2(state) {
+    const migrated = { ...state, version: 2 };
+
+    if (state.scores && typeof state.scores === "object") {
+        const newScores = {};
+        for (const [scenarioId, scoreVal] of Object.entries(state.scores)) {
+            // Already v2 shape — pass through
+            if (scoreVal && ("guided" in scoreVal || "unguided" in scoreVal)) {
+                newScores[scenarioId] = scoreVal;
+            } else if (scoreVal && typeof scoreVal === "object") {
+                // v1 flat shape → wrap in guided bucket
+                newScores[scenarioId] = { guided: scoreVal, unguided: null };
+            } else {
+                // Malformed — reset
+                newScores[scenarioId] = { guided: null, unguided: null };
+            }
+        }
+        migrated.scores = newScores;
+    }
+
+    return migrated;
+}
+
+/** Ordered migration chain. Each entry: [fromVersion, migrator]. */
+const MIGRATIONS = [
+    [1, migrateV1toV2],
+];
+
+/**
+ * Run all necessary migrations on a parsed state object.
+ * Returns the fully-migrated state or null if unrecoverable.
+ */
+export function migrateState(state) {
+    if (!state || typeof state !== "object") return null;
+
+    let current = state;
+    for (const [fromVer, migrator] of MIGRATIONS) {
+        if ((current.version ?? 1) === fromVer) {
+            current = migrator(current);
+        }
+    }
+
+    // After running all migrations the version must match current
+    if (current.version !== STATE_VERSION) return null;
+    return current;
+}
 
 function saveState(state) {
     try {
@@ -27,8 +87,20 @@ function loadState() {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
-        if (parsed.version !== STATE_VERSION) return null;
-        return parsed;
+
+        // Already current version — return as-is
+        if (parsed.version === STATE_VERSION) return parsed;
+
+        // Attempt migration chain
+        const migrated = migrateState(parsed);
+        if (migrated) {
+            // Persist the migrated state so we don't re-migrate every load
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+            return migrated;
+        }
+
+        // Unrecoverable — discard
+        return null;
     } catch {
         return null;
     }
@@ -94,6 +166,51 @@ export function normalizeStep(step) {
  * @param {string|string[]} correctAnswer — expected answer(s)
  * @param {string} [matchMode="exact"] — "exact" | "includes" | "regex" | "oneOf"
  */
+// ═══════════════════════════════════════════════════════════════
+//  Choice target resolution (guided vs unguided branching)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Resolve the next step for a choice/action based on mode.
+ *
+ * Rule (single source of truth):
+ *   When coach marks are OFF (unguided) and the choice defines
+ *   unguidedNextStep, use that. Otherwise fall back to nextStep.
+ *
+ * @param {object} choice — the choice/action object from the step
+ * @param {boolean} coachMarksOn — current guided-mode flag
+ * @returns {string|undefined} target step id
+ */
+export function resolveChoiceTarget(choice, coachMarksOn) {
+    if (!coachMarksOn && choice.unguidedNextStep) {
+        return choice.unguidedNextStep;
+    }
+    return choice.nextStep;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Score-mode helper
+// ═══════════════════════════════════════════════════════════════
+
+/** Return the mode key ("guided" | "unguided") for score operations. */
+export function scoreModeKey(coachMarksOn) {
+    return coachMarksOn ? "guided" : "unguided";
+}
+
+/** Create a fresh v2 score bucket for a given mode. */
+function freshScoreBucket(mode) {
+    return {
+        guided: mode === "guided" ? { correct: 0, total: 0, startTime: Date.now() } : null,
+        unguided: mode === "unguided" ? { correct: 0, total: 0, startTime: Date.now() } : null,
+    };
+}
+
+/** Read the active bucket from a v2 score entry. */
+function readBucket(scoreEntry, mode) {
+    if (!scoreEntry) return null;
+    return scoreEntry[mode] ?? null;
+}
+
 function checkAnswer(userAnswer, correctAnswer, matchMode = "exact") {
     const input = userAnswer.toLowerCase();
 
@@ -282,7 +399,12 @@ export function InstructionalProvider({ children }) {
     const waitingForTicket = !currentStepId;
 
     const globalScore = useMemo(
-        () => Object.values(scores).reduce((sum, s) => sum + (s.correct ?? 0), 0),
+        () => Object.values(scores).reduce((sum, entry) => {
+            // v2 shape: sum both guided and unguided buckets
+            const g = entry?.guided?.correct ?? 0;
+            const u = entry?.unguided?.correct ?? 0;
+            return sum + g + u;
+        }, 0),
         [scores]
     );
     const score = globalScore; // backward-compatible alias
@@ -358,11 +480,22 @@ export function InstructionalProvider({ children }) {
         setScenarioJustCompleted(null);
         setVisitedStepIds(new Set([firstStep.id]));
 
-        // Initialize per-scenario scoring
-        setScores(prev => ({
-            ...prev,
-            [scenarioId]: { correct: 0, total: 0, startTime: Date.now() }
-        }));
+        // Initialize per-scenario scoring (v2: mode-aware)
+        const mode = scoreModeKey(guided);
+        setScores(prev => {
+            const existing = prev[scenarioId];
+            return {
+                ...prev,
+                [scenarioId]: {
+                    guided: mode === "guided"
+                        ? { correct: 0, total: 0, startTime: Date.now() }
+                        : (existing?.guided ?? null),
+                    unguided: mode === "unguided"
+                        ? { correct: 0, total: 0, startTime: Date.now() }
+                        : (existing?.unguided ?? null),
+                },
+            };
+        });
 
         // Legacy conversation view: push the first message into the chat
         if (panelView === "conversation") {
@@ -419,23 +552,28 @@ export function InstructionalProvider({ children }) {
                 variant: "success"
             }]);
 
-            // Finalize score timing and set explicit completion state
+            // Finalize score timing and set explicit completion state (v2: mode-aware)
+            const mode = scoreModeKey(coachMarksEnabledRef.current);
             setScores(prev => {
-                const s = prev[scenarioId];
-                const finalScore = {
-                    ...s,
-                    timeMs: Date.now() - (s?.startTime ?? Date.now()),
+                const entry = prev[scenarioId] ?? { guided: null, unguided: null };
+                const bucket = entry[mode] ?? { correct: 0, total: 0, startTime: Date.now() };
+                const finalBucket = {
+                    ...bucket,
+                    timeMs: Date.now() - (bucket.startTime ?? Date.now()),
                 };
+                const updatedEntry = { ...entry, [mode]: finalBucket };
+
                 // Set explicit completion state for ConversationView (Fix 2)
                 setScenarioJustCompleted({
                     scenarioId,
+                    mode,
                     scores: {
-                        correct: finalScore.correct ?? 0,
-                        total: finalScore.total ?? 0,
-                        timeMs: finalScore.timeMs,
+                        correct: finalBucket.correct ?? 0,
+                        total: finalBucket.total ?? 0,
+                        timeMs: finalBucket.timeMs,
                     }
                 });
-                return { ...prev, [scenarioId]: finalScore };
+                return { ...prev, [scenarioId]: updatedEntry };
             });
 
             checkModuleCompletion(scenarioId);
@@ -472,6 +610,27 @@ export function InstructionalProvider({ children }) {
     const handleAction = useCallback((action) => {
         const scenarioId = activeScenarioIdRef.current;
         const stepId = currentStepIdRef.current;
+        const coachMarksOn = coachMarksEnabledRef.current;
+        const mode = scoreModeKey(coachMarksOn);
+
+        /** Mode-aware score increment helper */
+        const incrementScore = (isCorrect) => {
+            setScores(prev => {
+                const entry = prev[scenarioId] ?? { guided: null, unguided: null };
+                const bucket = entry[mode] ?? { correct: 0, total: 0, startTime: Date.now() };
+                return {
+                    ...prev,
+                    [scenarioId]: {
+                        ...entry,
+                        [mode]: {
+                            ...bucket,
+                            total: bucket.total + 1,
+                            correct: bucket.correct + (isCorrect ? 1 : 0),
+                        },
+                    },
+                };
+            });
+        };
 
         if (action.type === 'submitted_answer') {
             const step = scenarios.find(s => s.id === scenarioId)
@@ -493,18 +652,8 @@ export function InstructionalProvider({ children }) {
                 }
             ]);
 
-            // Per-scenario scoring
-            setScores(prev => {
-                const s = prev[scenarioId] ?? { correct: 0, total: 0, startTime: Date.now() };
-                return {
-                    ...prev,
-                    [scenarioId]: {
-                        ...s,
-                        total: s.total + 1,
-                        correct: s.correct + (isCorrect ? 1 : 0),
-                    }
-                };
-            });
+            // Per-scenario scoring (v2: mode-aware)
+            incrementScore(isCorrect);
 
             if (isCorrect) {
                 setTimeout(() => advanceStep(step.successStep), 600);
@@ -534,23 +683,16 @@ export function InstructionalProvider({ children }) {
             }
         ]);
 
-        // Score choices that have explicit correct flag (Phase 1: Score on Write)
+        // Score choices that have explicit correct flag (v2: mode-aware)
         if (typeof action.correct === "boolean") {
-            setScores(prev => {
-                const s = prev[scenarioId] ?? { correct: 0, total: 0, startTime: Date.now() };
-                return {
-                    ...prev,
-                    [scenarioId]: {
-                        ...s,
-                        total: s.total + 1,
-                        correct: s.correct + (action.correct ? 1 : 0),
-                    }
-                };
-            });
+            incrementScore(action.correct);
         }
 
-        if (action.nextStep) {
-            setTimeout(() => advanceStep(action.nextStep), 600);
+        // Resolve target step via guided/unguided branching rule
+        const targetStep = resolveChoiceTarget(action, coachMarksOn);
+
+        if (targetStep) {
+            setTimeout(() => advanceStep(targetStep), 600);
         } else {
             setTimeout(() => advanceStep(null), 600);
         }
@@ -606,6 +748,7 @@ export function InstructionalProvider({ children }) {
             next.delete(scenarioId);
             return next;
         });
+        // Clear both mode buckets for this scenario on replay
         setScores(prev => {
             const next = { ...prev };
             delete next[scenarioId];

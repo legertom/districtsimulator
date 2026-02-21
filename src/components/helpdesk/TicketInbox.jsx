@@ -271,8 +271,15 @@ export default function TicketInbox() {
                                                 <div className={styles.ticketMeta}>
                                                     {isDone && scenarioScore ? (
                                                         <span className={styles.ticketScore}>
-                                                            ✓ {scenarioScore.correct}/{scenarioScore.total}
-                                                            {scenarioScore.timeMs ? ` · ${formatTime(scenarioScore.timeMs)}` : ""}
+                                                            ✓ <span className={styles.scoreModeLabel}>Guided:</span> {scenarioScore.guided?.correct || 0}/{scenarioScore.guided?.total || 0}
+                                                            {scenarioScore.guided?.timeMs ? ` · ${formatTime(scenarioScore.guided.timeMs)}` : ""}
+                                                            {scenarioScore.unguided && (
+                                                                <>
+                                                                    <br />
+                                                                    <span className={styles.scoreModeLabel}>Unguided:</span> {scenarioScore.unguided.correct}/{scenarioScore.unguided.total}
+                                                                    {scenarioScore.unguided.timeMs ? ` · ${formatTime(scenarioScore.unguided.timeMs)}` : ""}
+                                                                </>
+                                                            )}
                                                         </span>
                                                     ) : locked ? (
                                                         <span className={styles.ticketLockedLabel}>

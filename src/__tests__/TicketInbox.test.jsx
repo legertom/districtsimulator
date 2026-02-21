@@ -81,9 +81,13 @@ describe("TicketInbox", () => {
         renderInbox({
             completedScenarios: new Set(["scenario_idm_orientation"]),
             scores: {
-                scenario_idm_orientation: { correct: 3, total: 4, timeMs: 120000, startTime: 0 }
+                scenario_idm_orientation: {
+                    guided: { correct: 3, total: 4, timeMs: 120000, startTime: 0 },
+                    unguided: null,
+                },
             },
         });
+        expect(screen.getByText(/Guided:/)).toBeInTheDocument();
         expect(screen.getByText(/3\/4/)).toBeInTheDocument();
         expect(screen.getByText(/2m 00s/)).toBeInTheDocument();
     });
