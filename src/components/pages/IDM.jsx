@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { PageHeader, Tabs, DataTable, Modal, Pagination } from "@/components/ui";
 import { useInstructional } from "@/context/InstructionalContext";
-import { destinations, syncHistory, events as allEvents } from "@/data/defaults/idm";
+import { useDataVariant } from "@/context/DataVariantContext";
 import styles from "./IDM.module.css";
 
 /* ── Inline SVG helpers ─────────────────────── */
@@ -66,6 +66,11 @@ const CopyIcon = () => (
 
 export default function IDM({ onEditProvisioning }) {
     const { checkActionGoal } = useInstructional();
+    const { resolvedData } = useDataVariant();
+    const idm = resolvedData?.idm ?? {};
+    const destinations = idm.destinations ?? [];
+    const syncHistory = idm.syncHistory ?? [];
+    const allEvents = idm.events ?? [];
     const [activeTab, setActiveTab] = useState("tasks");
 
     // Add Destination dropdown + modal

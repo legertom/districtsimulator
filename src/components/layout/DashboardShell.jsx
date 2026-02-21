@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { InstructionalProvider, useInstructional } from "@/context/InstructionalContext";
+import { DataVariantProvider } from "@/context/DataVariantContext";
 import Sidebar from "@/components/layout/Sidebar";
 import TopNav from "@/components/layout/TopNav";
 import CoachMark from "@/components/guidance/CoachMark";
@@ -58,9 +59,11 @@ function DashboardShellContent({ activeNav, children, showChatPanel }) {
 export default function DashboardShell({ activeNav, children, showChatPanel = true }) {
     return (
         <InstructionalProvider>
-            <DashboardShellContent activeNav={activeNav} showChatPanel={showChatPanel}>
-                {children}
-            </DashboardShellContent>
+            <DataVariantProvider>
+                <DashboardShellContent activeNav={activeNav} showChatPanel={showChatPanel}>
+                    {children}
+                </DashboardShellContent>
+            </DataVariantProvider>
         </InstructionalProvider>
     );
 }
