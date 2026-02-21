@@ -95,7 +95,7 @@ export default function InvestigationView() {
     };
 
     const formatTime = (ms) => {
-        if (!ms) return "\u2014";
+        if (!ms) return "—";
         const totalSec = Math.floor(ms / 1000);
         const min = Math.floor(totalSec / 60);
         const sec = totalSec % 60;
@@ -115,7 +115,7 @@ export default function InvestigationView() {
                     onClick={returnToInbox}
                     title="Return to inbox"
                 >
-                    \u2190
+                    ←
                 </button>
                 <div className={styles.headerInfo}>
                     <span className={styles.headerTitle}>
@@ -129,7 +129,7 @@ export default function InvestigationView() {
                             onClick={toggleCoachMarks}
                             title={coachMarksEnabled ? "Disable coach marks" : "Enable coach marks"}
                         >
-                            \uD83D\uDCA1
+                            💡
                         </button>
                     )}
                 </div>
@@ -157,11 +157,11 @@ export default function InvestigationView() {
                             {/* Step indicator */}
                             <div className={styles.stepIndicator}>
                                 {isCompleted ? (
-                                    <span className={styles.stepCheck}>\u2713</span>
+                                    <span className={styles.stepCheck}>✓</span>
                                 ) : isCurrent ? (
-                                    <span className={styles.stepArrow}>\u2192</span>
+                                    <span className={styles.stepArrow}>→</span>
                                 ) : (
-                                    <span className={styles.stepCircle}>\u25CB</span>
+                                    <span className={styles.stepCircle}>○</span>
                                 )}
                             </div>
 
@@ -170,7 +170,7 @@ export default function InvestigationView() {
                                 <div className={styles.stepLabel}>
                                     {isStepResolution && isCurrent && (
                                         <span className={styles.resolutionBadge}>
-                                            \uD83D\uDCE4 Report back to {customer.name}
+                                            📤 Report back to {customer.name}
                                         </span>
                                     )}
                                     {!(isStepResolution && isCurrent) && step.checklistLabel}
@@ -187,7 +187,7 @@ export default function InvestigationView() {
                                         {/* Goal step: navigation prompt */}
                                         {stepProc === "goal" && (
                                             <div className={styles.navPrompt}>
-                                                {step.guideMessage || "Navigate to complete this step\u2026"}
+                                                {step.guideMessage || "Navigate to complete this step…"}
                                             </div>
                                         )}
 
@@ -246,7 +246,7 @@ export default function InvestigationView() {
                 {/* ── Completion card ── */}
                 {scenarioJustCompleted && (
                     <div className={styles.completionCard}>
-                        <div className={styles.completionIcon}>\u2705</div>
+                        <div className={styles.completionIcon}>✅</div>
                         <div className={styles.completionTitle}>
                             {coachMarksEnabled ? "Excellent Work with Guidance!" : "Strong Independent Performance!"}
                         </div>
@@ -280,7 +280,7 @@ export default function InvestigationView() {
                                 className={styles.replayButton}
                                 onClick={() => replayScenario(scenarioJustCompleted.scenarioId)}
                             >
-                                \u21BA Replay
+                                ↺ Replay
                             </button>
                             <button
                                 className={styles.returnButton}
