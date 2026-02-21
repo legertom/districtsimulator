@@ -14,7 +14,7 @@ import styles from "./DashboardShell.module.css";
 function DashboardShellContent({ activeNav, children, showChatPanel }) {
     const router = useRouter();
     const pathname = usePathname();
-    const { checkNavigationGoal, activeScenarioId, currentStep, rightPanelView } = useInstructional();
+    const { checkNavigationGoal, activeScenarioId, normalizedCurrentStep, rightPanelView } = useInstructional();
 
     const handleNavChange = useCallback((navId, options = {}) => {
         checkNavigationGoal(navId);
@@ -40,7 +40,7 @@ function DashboardShellContent({ activeNav, children, showChatPanel }) {
     // is on that page even when they accept a ticket from a different layout
     // (e.g. deep inside provisioning wizard).
     useEffect(() => {
-        const goalRoute = currentStep?.goalRoute;
+        const goalRoute = normalizedCurrentStep?.goalRoute;
         const inTicketFlow = rightPanelView === "investigation" || rightPanelView === "conversation";
 
         if (!activeScenarioId || !inTicketFlow || !goalRoute) return;
@@ -49,7 +49,7 @@ function DashboardShellContent({ activeNav, children, showChatPanel }) {
         if (pathname === targetRoute) return;
 
         router.push(targetRoute);
-    }, [activeScenarioId, rightPanelView, currentStep?.goalRoute, pathname, router]);
+    }, [activeScenarioId, rightPanelView, normalizedCurrentStep?.goalRoute, pathname, router]);
 
     return (
         <div className={styles.appContainer}>
