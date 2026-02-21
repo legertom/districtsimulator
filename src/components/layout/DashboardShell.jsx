@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { InstructionalProvider, useInstructional } from "@/context/InstructionalContext";
 import { DataVariantProvider } from "@/context/DataVariantContext";
@@ -13,7 +13,7 @@ import styles from "./DashboardShell.module.css";
 
 function DashboardShellContent({ activeNav, children, showChatPanel }) {
     const router = useRouter();
-    const { checkNavigationGoal } = useInstructional();
+    const { checkNavigationGoal, activeScenarioId, currentStep, rightPanelView } = useInstructional();
 
     const handleNavChange = useCallback((navId, options = {}) => {
         checkNavigationGoal(navId);
@@ -34,6 +34,19 @@ function DashboardShellContent({ activeNav, children, showChatPanel }) {
     const handleSwitchToPortal = useCallback(() => {
         router.push("/");
     }, [router]);
+
+    // If the active instructional step requires a route goal, ensure the user
+    // is on that page even when they accept a ticket from a different layout
+    // (e.g. deep inside provisioning wizard).
+    useEffect(() => {
+        const goalRoute = currentStep?.goalRoute;
+        const inTicketFlow = rightPanelView === "investigation" || rightPanelView === "conversation";
+
+        if (!activeScenarioId || !inTicketFlow || !goalRoute) return;
+        if (goalRoute === activeNav) return;
+
+        router.push(buildDashboardRoute(goalRoute));
+    }, [activeScenarioId, rightPanelView, currentStep?.goalRoute, activeNav, router]);
 
     return (
         <div className={styles.appContainer}>
