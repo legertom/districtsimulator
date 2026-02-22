@@ -2,6 +2,8 @@
 
 How to build new training scenarios for the District Simulator. This guide is intended for agents (human or AI) who need to rapidly create new ticket scenarios.
 
+> **For AI-assisted contributors:** If you're using an AI assistant to build a new scenario and submit a PR, see [`scenario-contributor-api.md`](./scenario-contributor-api.md) — it's a self-contained spec optimized for that workflow.
+
 ---
 
 ## Quick Start

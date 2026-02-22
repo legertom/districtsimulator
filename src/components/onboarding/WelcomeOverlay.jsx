@@ -45,33 +45,34 @@ export default function WelcomeOverlay({ onEnterDashboard }) {
             <div className={styles.card}>
                 <div className={styles.badge}>Day 1</div>
                 <h1 className={styles.title}>
-                    Welcome, {firstName}!
+                    Hey, {firstName}!
                 </h1>
                 <p className={styles.subtitle}>
-                    Today is your first day as the new <strong>Clever Admin</strong> at{" "}
-                    <strong>{DISTRICT.name}</strong>.
+                    I'm <strong>Alex Rivera</strong>, senior IT admin here at{" "}
+                    <strong>{DISTRICT.name}</strong>. I'll be your onboarding buddy.
                 </p>
                 <p className={styles.description}>
-                    Your onboarding buddy Alex Rivera will show you the ropes.
-                    You'll learn to manage the district's Google Workspace accounts through Clever IDM —
-                    set up the integration, then handle real requests from your coworkers.
+                    You're the new <strong>Clever Admin</strong> — which means you're in charge of
+                    managing our Google Workspace accounts through <strong>Clever IDM</strong>.
+                    Don't worry, I'll walk you through everything. Fair warning — I over-explain.
+                    It's a feature, not a bug.
                 </p>
                 <div className={styles.steps}>
                     <div className={styles.step}>
                         <span className={styles.stepNumber}>1</span>
-                        <span>Set up Google Workspace provisioning in Clever IDM</span>
+                        <span>Get the lay of the land — IDM page, provider card, the works</span>
                     </div>
                     <div className={styles.step}>
                         <span className={styles.stepNumber}>2</span>
-                        <span>Handle requests from your coworkers</span>
+                        <span>Help your coworkers with real support tickets</span>
                     </div>
                     <div className={styles.step}>
                         <span className={styles.stepNumber}>3</span>
-                        <span>Master credentials, OUs, and group configuration</span>
+                        <span>Learn credentials, OUs, and groups — the stuff that actually matters</span>
                     </div>
                 </div>
                 <button className={styles.ctaButton} onClick={handleStart}>
-                    Enter the Dashboard
+                    Let's get started
                 </button>
             </div>
         </div>

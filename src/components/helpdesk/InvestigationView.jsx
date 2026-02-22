@@ -65,6 +65,39 @@
  *
  * KNOWN ISSUES OR DEVIATIONS:
  * - None. Implementation follows spec exactly.
+ *
+ * NARRATIVE CHANGES:
+ * 7. WelcomeOverlay.jsx — Rewrote as Alex Rivera greeting the player. Title changed
+ *    to "Hey, {firstName}!", subtitle introduces Alex by name/role, description is
+ *    Alex's voice explaining the job, steps rewritten as casual plan, CTA changed
+ *    to "Let's get started".
+ * 8. scenarios.js — Rewrote ~40 question strings across all 14 scenarios. Framed
+ *    questions as investigation steps referencing the customer by name instead of
+ *    test-style prompts. Also softened 1 checklistLabel ("Assess the integration
+ *    health" → "Check if the integration is healthy").
+ * 9. curriculum.js — No changes needed. All 7 bossIntro/bossCompletion pairs are
+ *    already strong with consistent Alex voice.
+ * 10. InvestigationView.jsx scaffolding text — Changed 5 strings:
+ *     "Navigate to complete this step..." → "Head over to the right spot in the dashboard..."
+ *     "Choose an answer above" → "Pick the best answer above"
+ *     "Loading..." → "Pulling up the next step..."
+ *     "Ticket resolved" → "Ticket closed — nice work"
+ *     "Press Enter to send" → "Enter to submit"
+ * 11. InvestigationView.jsx completion messages —
+ *     Guided title: "Nice work following the thread."
+ *     Unguided title: "You didn't need any help."
+ *     Guided message: "You followed the thread and landed on the right answer —
+ *       that's exactly how it should go. Try it without coach marks next time?"
+ *     Unguided message: "You figured that out without any hand-holding. I'm going
+ *       to stop worrying about you."
+ *
+ * NARRATIVE SAMPLES (3 before/after rewrites):
+ * 1. [scenarios.js] BEFORE: "What identity provider is configured on this IDM page?"
+ *    → AFTER: "What provider do you see on the IDM page? That's what we need to tell Principal Jones."
+ * 2. [scenarios.js] BEFORE: "What's the difference between Full and Password-Only management levels?"
+ *    → AFTER: "Marcus needs a plain-English explanation: what's the difference between Full and Password-Only?"
+ * 3. [InvestigationView.jsx] BEFORE: "Strong Independent Performance!"
+ *    → AFTER: "You didn't need any help."
  */
 "use client";
 
@@ -238,7 +271,7 @@ export default function InvestigationView() {
                                         {/* Goal step: navigation hint */}
                                         {stepType === "goal" && (
                                             <div className={styles.navPrompt}>
-                                                {step.guideMessage || "Navigate to complete this step..."}
+                                                {step.guideMessage || "Head over to the right spot in the dashboard..."}
                                             </div>
                                         )}
 
@@ -278,12 +311,12 @@ export default function InvestigationView() {
                     <div className={styles.completionCard}>
                         <div className={styles.completionIcon}>✅</div>
                         <div className={styles.completionTitle}>
-                            {coachMarksEnabled ? "Excellent Work with Guidance!" : "Strong Independent Performance!"}
+                            {coachMarksEnabled ? "Nice work following the thread." : "You didn't need any help."}
                         </div>
                         <div className={styles.completionMessage}>
                             {coachMarksEnabled
-                                ? "With coach marks and guidance, you successfully navigated this investigation. Consider trying the unguided mode to test your independence."
-                                : "You successfully completed this investigation unaided — demonstrating strong independent problem-solving skills."}
+                                ? "You followed the thread and landed on the right answer — that's exactly how it should go. Try it without coach marks next time?"
+                                : "You figured that out without any hand-holding. I'm going to stop worrying about you."}
                         </div>
                         <div className={styles.completionStats}>
                             <div className={styles.completionStat}>
@@ -315,7 +348,7 @@ export default function InvestigationView() {
             {/* ── Footer (persistent) ── */}
             {scenarioJustCompleted ? (
                 <div className={styles.footer}>
-                    <div className={styles.footerStatus}>Ticket resolved</div>
+                    <div className={styles.footerStatus}>Ticket closed — nice work</div>
                     <div className={styles.footerActions}>
                         <button className={styles.replayButton} onClick={() => replayScenario(scenarioJustCompleted.scenarioId)}>
                             ↺ Replay
@@ -345,7 +378,7 @@ export default function InvestigationView() {
                         </button>
                     </div>
                     <div className={styles.footerMeta}>
-                        <span className={styles.footerHint}>Press Enter to send</span>
+                        <span className={styles.footerHint}>Enter to submit</span>
                         <button className={styles.skipButton} onClick={skipTicket}>
                             Skip this ticket
                         </button>
@@ -354,7 +387,7 @@ export default function InvestigationView() {
             ) : stepProc === "goal" ? (
                 <div className={styles.footer}>
                     <div className={styles.footerStatus}>
-                        {currentStep?.guideMessage || "Navigate to complete this step..."}
+                        {currentStep?.guideMessage || "Head over to the right spot in the dashboard..."}
                     </div>
                     <div className={styles.footerMeta}>
                         <span />
@@ -365,7 +398,7 @@ export default function InvestigationView() {
                 </div>
             ) : currentStep ? (
                 <div className={styles.footer}>
-                    <div className={styles.footerStatus}>Choose an answer above</div>
+                    <div className={styles.footerStatus}>Pick the best answer above</div>
                     <div className={styles.footerMeta}>
                         <span />
                         <button className={styles.skipButton} onClick={skipTicket}>
@@ -375,7 +408,7 @@ export default function InvestigationView() {
                 </div>
             ) : (
                 <div className={styles.footer}>
-                    <div className={styles.footerStatus}>Loading...</div>
+                    <div className={styles.footerStatus}>Pulling up the next step...</div>
                 </div>
             )}
         </div>
