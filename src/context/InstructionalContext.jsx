@@ -3,6 +3,9 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { scenarios } from "@/data/scenarios";
 import { COURSES, SCENARIO_TO_MODULE } from "@/data/curriculum";
+import { CHARACTERS } from "@/data/characters";
+import { STEP_TYPE_MAP, normalizeStep } from "@/data/stepUtils";
+import { validateScenarios as runValidation } from "@/data/validateScenarios";
 
 export const InstructionalContext = createContext();
 
@@ -125,50 +128,10 @@ function clearPersistedState() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  Step normalizer — backward-compatible old/new schema bridge
+//  Step normalizer — re-exported from shared stepUtils
 // ═══════════════════════════════════════════════════════════════
 
-/**
- * Maps all step type names (old + new) to internal processing categories.
- * - "choice"   → render choices/actions, advance on click
- * - "freetext" → validate typed answer
- * - "goal"     → wait for nav/action goal completion
- */
-export const STEP_TYPE_MAP = {
-    message:    "choice",    // legacy
-    action:     "choice",    // legacy
-    input:      "freetext",  // legacy
-    task:       "goal",      // legacy (unchanged)
-    observe:    "freetext",  // new: alias for input
-    checkpoint: "choice",    // new: alias for message
-    resolution: "choice",    // new: alias for message (terminal)
-};
-
-function defaultChecklistLabel(step) {
-    const proc = STEP_TYPE_MAP[step.type];
-    if (proc === "goal") return step.guideMessage ?? "Complete this step";
-    if (proc === "freetext") return "Answer a question";
-    return "Continue";
-}
-
-/**
- * Normalize a step to support both old and new schema fields.
- * Old scenarios use: text, actions, sender
- * New scenarios use: question, choices (no sender)
- * The normalizer resolves both via ?? fallback.
- */
-export function normalizeStep(step) {
-    if (!step) return null;
-    return {
-        ...step,
-        // "question" is preferred, "text" is legacy fallback
-        question:       step.question       ?? step.text    ?? null,
-        // "choices" is preferred, "actions" is legacy fallback
-        choices:        step.choices        ?? step.actions  ?? null,
-        // checklistLabel defaults to a type-based generic if absent
-        checklistLabel: step.checklistLabel ?? defaultChecklistLabel(step),
-    };
-}
+export { STEP_TYPE_MAP, normalizeStep };
 
 // ═══════════════════════════════════════════════════════════════
 //  Answer matching
@@ -247,92 +210,26 @@ function checkAnswer(userAnswer, correctAnswer, matchMode = "exact") {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  DEV-MODE validation
+//  Scenario validation (dev: throw, prod: warn)
 // ═══════════════════════════════════════════════════════════════
 
-function validateScenarios() {
-    if (process.env.NODE_ENV !== "development") return;
+const _validationErrors = runValidation(scenarios, COURSES, CHARACTERS);
 
-    const validTypes = new Set(Object.keys(STEP_TYPE_MAP));
+if (_validationErrors.length > 0) {
+    const summary = _validationErrors
+        .map(e => `[${e.scenario}]${e.step ? ` Step "${e.step}"` : ""} → ${e.message}`)
+        .join("\n");
 
-    scenarios.forEach((scenario) => {
-        const stepIds = new Set(scenario.steps.map(s => s.id));
-        const prefix = `[Scenario "${scenario.id}"]`;
-
-        if (!scenario.id) console.warn(`${prefix} Missing scenario id`);
-        if (!scenario.description) console.warn(`${prefix} Missing description`);
-        if (!scenario.steps?.length) console.warn(`${prefix} No steps defined`);
-
-        scenario.steps.forEach((step) => {
-            const sp = `${prefix} Step "${step.id}"`;
-            const norm = normalizeStep(step);
-
-            // Validate step type
-            if (step.type && !validTypes.has(step.type)) {
-                console.warn(`${sp} → unknown step type "${step.type}"`);
-            }
-
-            if (step.nextStep && !stepIds.has(step.nextStep)) {
-                console.warn(`${sp} → nextStep "${step.nextStep}" does not exist`);
-            }
-            if (step.successStep && !stepIds.has(step.successStep)) {
-                console.warn(`${sp} → successStep "${step.successStep}" does not exist`);
-            }
-
-            // Validate choices/actions (supports both old and new field names)
-            const choices = norm.choices;
-            if (choices) {
-                choices.forEach((choice, i) => {
-                    if (choice.nextStep && !stepIds.has(choice.nextStep)) {
-                        console.warn(`${sp} → choices[${i}].nextStep "${choice.nextStep}" does not exist`);
-                    }
-                    if (choice.unguidedNextStep && !stepIds.has(choice.unguidedNextStep)) {
-                        console.warn(`${sp} → choices[${i}].unguidedNextStep "${choice.unguidedNextStep}" does not exist`);
-                    }
-                });
-            }
-
-            // Validate goal steps (task type)
-            const proc = STEP_TYPE_MAP[step.type];
-            if (proc === "goal" && !step.goalRoute && !step.goalAction) {
-                console.warn(`${sp} → goal step needs goalRoute or goalAction`);
-            }
-
-            // Validate freetext steps (input/observe type)
-            if (proc === "freetext" && !step.correctAnswer) {
-                console.warn(`${sp} → freetext step missing correctAnswer`);
-            }
-            if (proc === "freetext" && !step.successStep) {
-                console.warn(`${sp} → freetext step missing successStep`);
-            }
-        });
-
-        if (scenario.nextScenario) {
-            const target = scenarios.find(s => s.id === scenario.nextScenario);
-            if (!target) {
-                console.warn(`${prefix} → nextScenario "${scenario.nextScenario}" does not exist`);
-            }
-        }
-
-        // Validate curriculum reference
-        if (scenario.moduleId && !SCENARIO_TO_MODULE[scenario.id]) {
-            console.warn(`${prefix} → moduleId "${scenario.moduleId}" not found in curriculum.js`);
-        }
-    });
-
-    // Validate curriculum → scenario references
-    for (const course of COURSES) {
-        for (const mod of course.modules) {
-            for (const scenarioId of mod.scenarioIds) {
-                if (!scenarios.find(s => s.id === scenarioId)) {
-                    console.warn(`[Curriculum "${mod.id}"] → scenarioId "${scenarioId}" not in scenarios.js yet`);
-                }
-            }
-        }
+    if (process.env.NODE_ENV === "development") {
+        throw new Error(
+            `Scenario validation failed with ${_validationErrors.length} error(s):\n${summary}`
+        );
+    } else {
+        console.warn(
+            `Scenario validation warnings (${_validationErrors.length}):\n${summary}`
+        );
     }
 }
-
-validateScenarios();
 
 // ═══════════════════════════════════════════════════════════════
 //  Initial history (ticket cards)
@@ -584,6 +481,83 @@ export function InstructionalProvider({ children }) {
                 }
             }, 400);
         }
+    }, []);
+
+    // ═══ DEV-ONLY: URL-based scenario jumping ═══
+    useEffect(() => {
+        if (process.env.NODE_ENV !== "development") return;
+        if (typeof window === "undefined") return;
+
+        const params = new URLSearchParams(window.location.search);
+        const scenarioId = params.get("scenario");
+        if (!scenarioId) return;
+
+        const scenario = scenarios.find(s => s.id === scenarioId);
+        if (!scenario) {
+            console.warn(`[DEV] Scenario "${scenarioId}" not found`);
+            return;
+        }
+
+        const guided = params.get("mode") !== "unguided";
+        const targetStepId = params.get("step");
+
+        // Find the module that owns this scenario and unlock all prerequisites
+        const targetModule = SCENARIO_TO_MODULE[scenarioId];
+        if (targetModule) {
+            const prereqModuleIds = new Set();
+            const collectPrereqs = (modId) => {
+                for (const course of COURSES) {
+                    const mod = course.modules.find(m => m.id === modId);
+                    if (!mod) continue;
+                    for (const preId of mod.prerequisites) {
+                        if (!prereqModuleIds.has(preId)) {
+                            prereqModuleIds.add(preId);
+                            collectPrereqs(preId);
+                        }
+                    }
+                }
+            };
+            collectPrereqs(targetModule.id);
+
+            // Mark all prerequisite modules and their scenarios as complete
+            if (prereqModuleIds.size > 0) {
+                const prereqScenarioIds = new Set();
+                for (const course of COURSES) {
+                    for (const mod of course.modules) {
+                        if (prereqModuleIds.has(mod.id)) {
+                            for (const sid of mod.scenarioIds) {
+                                prereqScenarioIds.add(sid);
+                            }
+                        }
+                    }
+                }
+                setCompletedModules(prev => new Set([...prev, ...prereqModuleIds]));
+                setCompletedScenarios(prev => new Set([...prev, ...prereqScenarioIds]));
+            }
+        }
+
+        // Accept the ticket
+        acceptTicket(scenarioId, guided);
+
+        // Jump to target step if specified
+        if (targetStepId) {
+            const targetStep = scenario.steps.find(s => s.id === targetStepId);
+            if (targetStep) {
+                // Build visited set for all steps up to the target
+                const visited = new Set();
+                for (const s of scenario.steps) {
+                    visited.add(s.id);
+                    if (s.id === targetStepId) break;
+                }
+                setCurrentStepId(targetStepId);
+                setVisitedStepIds(visited);
+            } else {
+                console.warn(`[DEV] Step "${targetStepId}" not found in scenario "${scenarioId}"`);
+            }
+        }
+
+        console.log(`[DEV] Auto-loaded scenario: ${scenarioId}${targetStepId ? ` at step: ${targetStepId}` : ""}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const skipTicket = useCallback(() => {
@@ -869,6 +843,64 @@ export function InstructionalProvider({ children }) {
         setConversationHistory([]);
         setScenarioJustCompleted(null);
         setVisitedStepIds(new Set());
+    }, []);
+
+    // ═══ DEV-ONLY: Ctrl+Shift+R reset-to-module shortcut ═══
+    useEffect(() => {
+        if (process.env.NODE_ENV !== "development") return;
+
+        const handleDevReset = (e) => {
+            if (!(e.ctrlKey && e.shiftKey && e.key === "R")) return;
+            e.preventDefault();
+
+            const input = window.prompt("Reset to which module? (1-7)");
+            if (!input) return;
+
+            const moduleNum = parseInt(input, 10);
+            if (isNaN(moduleNum) || moduleNum < 1) return;
+
+            const course = COURSES[0];
+            if (!course) return;
+
+            const targetIndex = moduleNum - 1;
+            if (targetIndex >= course.modules.length) return;
+
+            // Mark all modules before targetIndex as complete (with their scenarios)
+            const modulesToComplete = new Set();
+            const scenariosToComplete = new Set();
+
+            for (let i = 0; i < targetIndex; i++) {
+                const mod = course.modules[i];
+                modulesToComplete.add(mod.id);
+                for (const sid of mod.scenarioIds) {
+                    scenariosToComplete.add(sid);
+                }
+            }
+
+            // Clear the target module and everything after
+            setCompletedModules(modulesToComplete);
+            setCompletedScenarios(scenariosToComplete);
+            setScores(prev => {
+                const next = {};
+                for (const sid of scenariosToComplete) {
+                    if (prev[sid]) next[sid] = prev[sid];
+                }
+                return next;
+            });
+
+            // Navigate to inbox
+            setActiveScenarioId(null);
+            setCurrentStepId(null);
+            setShowHint(false);
+            setRightPanelView("inbox");
+            setScenarioJustCompleted(null);
+            setVisitedStepIds(new Set());
+
+            console.log(`[DEV] Reset to Module ${moduleNum}: Modules 1-${moduleNum - 1} complete, Module ${moduleNum} freshly unlocked`);
+        };
+
+        window.addEventListener("keydown", handleDevReset);
+        return () => window.removeEventListener("keydown", handleDevReset);
     }, []);
 
     // ═══ Context value ═══

@@ -23,9 +23,11 @@ for (const course of COURSES) {
  * This prevents prerequisite deadlocks when modules are defined
  * in curriculum.js but their scenarios haven't been written yet.
  */
+const scenarioIdSet = new Set(scenarios.map(s => s.id));
+
 function isModuleEffectivelyComplete(mod, completedScenarios) {
     const authored = mod.scenarioIds.filter(
-        sid => scenarios.find(s => s.id === sid)
+        sid => scenarioIdSet.has(sid)
     );
     if (authored.length === 0) return true;
     return authored.every(sid => completedScenarios.has(sid));
@@ -86,11 +88,11 @@ export default function TicketInbox() {
     };
 
     // ── Module progress ──
-    const moduleStates = course.modules.map(mod => {
+    const moduleStates = useMemo(() => course.modules.map(mod => {
         const locked = isModuleLocked(mod, completedModules, completedScenarios);
         const complete = isModuleEffectivelyComplete(mod, completedScenarios);
         return { mod, locked, complete };
-    });
+    }), [course.modules, completedModules, completedScenarios]);
 
     // ── Open ticket count (for badge) ──
     const openTicketCount = useMemo(() => {

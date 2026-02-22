@@ -44,11 +44,23 @@ export default function CoachMark() {
 
     useEffect(() => {
         let timer;
+        let retryCount = 0;
+        const MAX_RETRIES = 5;
+
         const updateRect = () => {
             const rect = findTarget();
             if (rect) {
                 setTargetRect(rect);
             } else if (coachMarksEnabled && showHint && currentStep?.hint?.target) {
+                retryCount++;
+                if (retryCount >= MAX_RETRIES) {
+                    const target = currentStep.hint.target;
+                    console.error(
+                        `[CoachMark] Hint target "${target}" not found after ${MAX_RETRIES} retries. Check that a DOM element has id="${target}" or data-instruction-target="${target}".`
+                    );
+                    setTargetRect(null);
+                    return;
+                }
                 // If not found (e.g., sidebar still expanding), retry after a short delay
                 timer = setTimeout(updateRect, 150);
             } else {
@@ -62,8 +74,8 @@ export default function CoachMark() {
         return () => clearTimeout(timer);
     }, [findTarget, coachMarksEnabled, showHint, currentStep]);
 
-    // Render Guard: Must have both rect AND valid hint data
-    if (!targetRect || !currentStep?.hint) return null;
+    // Render Guard: Must have both rect AND valid hint data with message
+    if (!targetRect || !currentStep?.hint?.message) return null;
 
     return (
         <div className={styles.overlayContainer}>
@@ -80,10 +92,32 @@ export default function CoachMark() {
             {/* The Hint Message */}
             <div
                 className={styles.tooltip}
-                style={{
-                    top: targetRect.top + (targetRect.height / 2) - 20, // Align broadly
-                    left: targetRect.left + targetRect.width + 16, // To the right
-                }}
+                style={(() => {
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    const tooltipWidth = 280;
+                    const tooltipHeight = 80;
+
+                    let top = targetRect.top + (targetRect.height / 2) - (tooltipHeight / 2);
+                    let left = targetRect.left + targetRect.width + 16;
+
+                    // If tooltip would go off right edge, place it to the left
+                    if (left + tooltipWidth > viewportWidth - 16) {
+                        left = targetRect.left - tooltipWidth - 16;
+                    }
+
+                    // If tooltip would go off bottom, nudge up
+                    if (top + tooltipHeight > viewportHeight - 16) {
+                        top = viewportHeight - tooltipHeight - 16;
+                    }
+
+                    // If tooltip would go off top, nudge down
+                    if (top < 16) {
+                        top = 16;
+                    }
+
+                    return { top, left };
+                })()}
             >
                 <div className={styles.arrow} />
                 <div className={styles.content}>

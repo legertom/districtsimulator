@@ -228,7 +228,7 @@ export default function InvestigationView() {
                                         )}
 
                                         {/* Hint toggle */}
-                                        {coachMarksEnabled && step._originalStep.hint && (
+                                        {coachMarksEnabled && step.hint && (
                                             <button
                                                 className={`${styles.hintButton} ${showHint ? styles.hintActive : ""}`}
                                                 onClick={toggleHint}

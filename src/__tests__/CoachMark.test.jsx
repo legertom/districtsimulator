@@ -137,9 +137,27 @@ describe("CoachMark", () => {
     expect(spotlightEl.style.width).toBe(`${rect.width + 8}px`);
     expect(spotlightEl.style.height).toBe(`${rect.height + 8}px`);
 
-    // Tooltip styles (as computed in the component)
-    expect(tooltipEl.style.top).toBe(`${rect.top + rect.height / 2 - 20}px`);
-    expect(tooltipEl.style.left).toBe(`${rect.left + rect.width + 16}px`);
+    // Tooltip styles (viewport-aware positioning)
+    const tooltipHeight = 80;
+    const tooltipWidth = 280;
+    let expectedTop = rect.top + rect.height / 2 - tooltipHeight / 2;
+    let expectedLeft = rect.left + rect.width + 16;
+
+    // Apply viewport-aware adjustments (same logic as CoachMark)
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    if (expectedLeft + tooltipWidth > viewportWidth - 16) {
+        expectedLeft = rect.left - tooltipWidth - 16;
+    }
+    if (expectedTop + tooltipHeight > viewportHeight - 16) {
+        expectedTop = viewportHeight - tooltipHeight - 16;
+    }
+    if (expectedTop < 16) {
+        expectedTop = 16;
+    }
+
+    expect(tooltipEl.style.top).toBe(`${expectedTop}px`);
+    expect(tooltipEl.style.left).toBe(`${expectedLeft}px`);
 
     // Sanity: something rendered
     expect(container).not.toBeEmptyDOMElement();
