@@ -1,5 +1,5 @@
 /**
- * Character definitions for the Help Desk Training Simulator.
+ * Character definitions for the Cedar Ridge District Simulator.
  *
  * Characters are separated from scenarios so that multiple scenarios
  * can reference the same customer. The `id` key matches the
@@ -12,7 +12,7 @@ export const CHARACTERS = {
         id: "boss",
         firstName: "Alex",
         lastName: "Rivera",
-        role: "Outgoing Clever Admin",
+        role: "Senior IT Administrator",
         school: null,
         avatar: "AR",
         avatarColor: "#2c3e50",

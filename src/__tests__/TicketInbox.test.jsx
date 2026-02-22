@@ -36,22 +36,22 @@ describe("TicketInbox", () => {
     it("renders ticket cards for authored scenarios", () => {
         renderInbox();
         // Module 1 tickets
-        expect(screen.getByText("Where do I find the Google sync settings?")).toBeInTheDocument();
-        expect(screen.getByText("Need to document our IDM page for the IT wiki")).toBeInTheDocument();
+        expect(screen.getByText("Welcome! Can you check on our Google sync?")).toBeInTheDocument();
+        expect(screen.getByText("Documenting IDM for the team wiki")).toBeInTheDocument();
         // Module 2 tickets
-        expect(screen.getByText("How do I set up Google provisioning?")).toBeInTheDocument();
-        expect(screen.getByText("Explain the provisioning steps before we change anything")).toBeInTheDocument();
+        expect(screen.getByText("Need our Google provisioning setup documented")).toBeInTheDocument();
+        expect(screen.getByText("Board presentation prep — provisioning overview")).toBeInTheDocument();
         // Module 3 tickets
-        expect(screen.getByText("Change student email format to first initial + last name")).toBeInTheDocument();
-        expect(screen.getByText("Need to understand credential formats before making changes")).toBeInTheDocument();
+        expect(screen.getByText("Student email format change request")).toBeInTheDocument();
+        expect(screen.getByText("Document our credential system before we touch anything")).toBeInTheDocument();
         // Module 4 tickets
-        expect(screen.getByText("Parent asking why their kid's Google account is in a specific folder")).toBeInTheDocument();
-        expect(screen.getByText("Need to review archive and ignored OU policies for board presentation")).toBeInTheDocument();
+        expect(screen.getByText("Parent asking why their kid's account is in a weird folder")).toBeInTheDocument();
+        expect(screen.getByText("Board wants our 'account lifecycle management strategy'")).toBeInTheDocument();
         // Module 5 ticket
-        expect(screen.getByText("Can we automate Google Group membership through IDM?")).toBeInTheDocument();
+        expect(screen.getByText("Can we email all 7th graders at once?")).toBeInTheDocument();
         // Module 6 tickets
-        expect(screen.getByText("Need to review provisioning setup before we go live")).toBeInTheDocument();
-        expect(screen.getByText("Walk me through the entire provisioning process from start to finish")).toBeInTheDocument();
+        expect(screen.getByText("Pre-provisioning safety check")).toBeInTheDocument();
+        expect(screen.getByText(/End-to-end provisioning walkthrough/)).toBeInTheDocument();
     });
 
     it("downstream modules are locked when prerequisites are not completed", () => {
@@ -71,9 +71,9 @@ describe("TicketInbox", () => {
             completedModules: new Set(["mod_overview", "mod_provisioning_basics"]),
         });
         // Module 3 tickets should render and be clickable (not locked)
-        const ticket3a = screen.getByText("Change student email format to first initial + last name");
+        const ticket3a = screen.getByText("Student email format change request");
         expect(ticket3a.closest("[role='button']")).toBeInTheDocument();
-        const ticket3b = screen.getByText("Need to understand credential formats before making changes");
+        const ticket3b = screen.getByText("Document our credential system before we touch anything");
         expect(ticket3b.closest("[role='button']")).toBeInTheDocument();
     });
 
@@ -100,7 +100,7 @@ describe("TicketInbox", () => {
     it("clicking open ticket shows mode picker", () => {
         renderInbox();
         // Use a Module 1 ticket (always unlocked, no prerequisites)
-        const ticket = screen.getByText("Where do I find the Google sync settings?");
+        const ticket = screen.getByText("Welcome! Can you check on our Google sync?");
         fireEvent.click(ticket.closest("[role='button']"));
         expect(screen.getByText("How would you like to proceed?")).toBeInTheDocument();
         expect(screen.getByText("Guided")).toBeInTheDocument();
@@ -123,8 +123,8 @@ describe("TicketInbox", () => {
             ]),
         });
         // All 11 ticket subjects should be visible
-        expect(screen.getByText("Where do I find the Google sync settings?")).toBeInTheDocument();
-        expect(screen.getByText("Walk me through the entire provisioning process from start to finish")).toBeInTheDocument();
+        expect(screen.getByText("Welcome! Can you check on our Google sync?")).toBeInTheDocument();
+        expect(screen.getByText(/End-to-end provisioning walkthrough/)).toBeInTheDocument();
         // No locked labels should appear
         expect(screen.queryByText("Complete previous modules to unlock")).not.toBeInTheDocument();
     });
@@ -134,7 +134,7 @@ describe("TicketInbox", () => {
         renderInbox({ acceptTicket: mockAccept });
 
         // Use a Module 1 ticket (always unlocked)
-        const ticket = screen.getByText("Where do I find the Google sync settings?");
+        const ticket = screen.getByText("Welcome! Can you check on our Google sync?");
         fireEvent.click(ticket.closest("[role='button']"));
 
         // Click "Guided"

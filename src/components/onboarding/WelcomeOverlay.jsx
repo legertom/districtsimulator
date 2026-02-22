@@ -52,9 +52,9 @@ export default function WelcomeOverlay({ onEnterDashboard }) {
                     <strong>{DISTRICT.name}</strong>.
                 </p>
                 <p className={styles.description}>
-                    The outgoing admin, Alex Rivera, is leaving Friday. Before then, you need to
-                    learn how to manage the district's Google Workspace accounts through Clever IDM.
-                    You'll set up the IDM integration, then handle real support tickets from staff.
+                    Your onboarding buddy Alex Rivera will show you the ropes.
+                    You'll learn to manage the district's Google Workspace accounts through Clever IDM —
+                    set up the integration, then handle real requests from your coworkers.
                 </p>
                 <div className={styles.steps}>
                     <div className={styles.step}>
@@ -63,7 +63,7 @@ export default function WelcomeOverlay({ onEnterDashboard }) {
                     </div>
                     <div className={styles.step}>
                         <span className={styles.stepNumber}>2</span>
-                        <span>Handle support tickets from your coworkers</span>
+                        <span>Handle requests from your coworkers</span>
                     </div>
                     <div className={styles.step}>
                         <span className={styles.stepNumber}>3</span>

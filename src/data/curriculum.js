@@ -1,5 +1,5 @@
 /**
- * Course and module definitions for the Help Desk Training Simulator.
+ * Course and module definitions for the Cedar Ridge District Simulator.
  *
  * This is the top-level organizational layer that sits above scenarios.
  * It groups scenario IDs into pedagogical modules, defines prerequisites,
@@ -29,9 +29,9 @@ export const COURSES = [
                     "scenario_idm_tab_exploration",
                 ],
                 bossIntro:
-                    "Hey — glad you're here. I'm Alex, the outgoing Clever admin for Cedar Ridge SD. My last day is Friday, so we need to move fast. First thing: the IDM page. This is where all our Google Workspace provisioning lives. Get familiar with the provider card and the four tabs — you'll live here.",
+                    "Hey — welcome aboard! I'm Alex, the senior IT admin here at Cedar Ridge. I'll be your onboarding buddy. I know — 'Identity Management' sounds like something from a spy movie. It's not. It's better. First stop: the IDM page. This is where all our Google Workspace provisioning lives. Get familiar with the provider card and the four tabs — you'll be spending a lot of time here.",
                 bossCompletion:
-                    "Nice. You know your way around the IDM page now. That's step one. Next I'll show you the provisioning wizard — that's where the real configuration happens.",
+                    "Not bad for day one. You can already navigate IDM better than most people who've been here a year. Don't tell them I said that. Next up: the provisioning wizard.",
             },
 
             // ── Module 2 ──────────────────────────────────────────────
@@ -45,9 +45,9 @@ export const COURSES = [
                     "scenario_wizard_concepts",
                 ],
                 bossIntro:
-                    "OK, the provisioning wizard. This is the 8-step setup flow that controls how Clever creates and manages Google accounts. I need you to understand every step — when districts call in confused, this is usually where they're stuck.",
+                    "OK — the provisioning wizard. An 8-step setup flow that controls how Clever creates and manages Google accounts. I know, I know — eight steps sounds like a lot. But trust me, once you get this, you're basically a wizard yourself. A very specific, niche wizard.",
                 bossCompletion:
-                    "Good — you can navigate the wizard and explain each step. That's exactly what the support calls need. Now let's tackle credentials, which is the #1 ticket type.",
+                    "You can explain an 8-step wizard without putting anyone to sleep. That's a genuine skill. Next up: credentials — the most important config piece you'll touch.",
             },
 
             // ── Module 3 ──────────────────────────────────────────────
@@ -61,9 +61,9 @@ export const COURSES = [
                     "scenario_credential_building",
                 ],
                 bossIntro:
-                    "Credentials — this is the thing districts mess up most. Email formats, SIS variables, password rules. I get at least two credential tickets a day. You need to be able to read a format string and build one from scratch.",
+                    "Credentials. This is the part where you learn why I mutter 'SIS variables' in my sleep. Email formats, password rules, fallback templates — it's the most important config piece in your system. You need to be able to read a format string and build one from scratch.",
                 bossCompletion:
-                    "You've got credentials down. That was the hardest knowledge piece — nice work. Next up: OUs, which is the most complex *configuration* piece.",
+                    "That was the hardest knowledge piece, and you got through it. I'm going to stop worrying about you. Mostly. Next up: OUs — the most complex *configuration* piece.",
             },
 
             // ── Module 4 ──────────────────────────────────────────────
@@ -77,9 +77,9 @@ export const COURSES = [
                     "scenario_ou_configuration",
                 ],
                 bossIntro:
-                    "OUs are where things get nested and confusing. Organizational Units control where Google puts each account in the directory tree. You need to understand sub-OU formats, archive OUs, and the ignored-OU policy — districts call about these constantly.",
+                    "OUs — Organizational Units. Google's way of putting accounts into folders. Sounds simple. It is not simple. You'll need to understand sub-OU formats, archive OUs, and the ignored-OU policy. But you'll be fine.",
                 bossCompletion:
-                    "OU management is the gnarliest part of IDM, and you handled it. I'm feeling better about leaving. Two more modules and you'll be fully independent.",
+                    "OU management is the gnarliest part of IDM, and you handled it. I think you might actually like this job. Two more modules to go.",
             },
 
             // ── Module 5 ──────────────────────────────────────────────
@@ -92,9 +92,9 @@ export const COURSES = [
                     "scenario_group_setup",
                 ],
                 bossIntro:
-                    "Google Groups — shorter module, but don't skip it. IDM can auto-manage group memberships, which saves districts a ton of manual work. Know the group types and membership rules cold.",
+                    "Good news: this one's shorter. Bad news: I'm still going to make you learn it. Google Groups can save the district hours of manual work by auto-managing memberships. Know the group types and membership rules cold.",
                 bossCompletion:
-                    "Groups done. One final module left: review and provisioning. This is the 'go live' step — where mistakes actually cost something.",
+                    "Groups: done. You're getting dangerously competent. One more module: review and provisioning — the 'go live' step.",
             },
 
             // ── Module 6 ──────────────────────────────────────────────
@@ -108,9 +108,9 @@ export const COURSES = [
                     "scenario_sync_management",
                 ],
                 bossIntro:
-                    "Last module. This is the review step and the actual provisioning trigger. Once you click 'provision,' real Google accounts get created, modified, or suspended. I need you to read preview stats carefully and know how to pause a sync if something looks wrong.",
+                    "This is the 'measure twice, cut once' step. Once you click Provision, real Google accounts get created, modified, or suspended. No take-backs. Well, some take-backs. But let's not find out. Read preview stats carefully and know how to pause a sync if something looks wrong.",
                 bossCompletion:
-                    "That's everything. You've completed IDM Fundamentals — you're ready to handle these tickets on your own. I'll be around for questions through Friday, but honestly? You've got this.",
+                    "You've completed IDM Fundamentals. I'd say 'you're ready' but honestly you were ready two modules ago. I just like being thorough.",
             },
 
             // ── Module 7 ──────────────────────────────────────────────
@@ -125,9 +125,9 @@ export const COURSES = [
                     "scenario_stale_provisioning",
                 ],
                 bossIntro:
-                    "Real talk — most of your day won't be green checkmarks. Things break. Syncs fail. Accounts go missing. These tickets are based on real issues I dealt with. Welcome to the real job.",
+                    "OK, real talk. Everything we've covered so far? That's the sunny-day version. Now let's talk about what happens when things break. Spoiler: things break. These tickets are based on real issues — syncs fail, accounts go missing, and someone always needs an answer yesterday.",
                 bossCompletion:
-                    "You handled those like a pro. I'm officially not worried about leaving anymore. Good luck — you've got this.",
+                    "You handled those like someone who's been doing this for years. Welcome to the team — for real this time.",
             },
         ],
     },

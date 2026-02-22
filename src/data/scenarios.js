@@ -1,5 +1,5 @@
 /**
- * Training scenarios for the Help Desk Simulator.
+ * Training scenarios for the Cedar Ridge District Simulator.
  *
  * Each scenario is a sequence of steps that simulate a customer support ticket.
  * Scenarios are grouped into modules via curriculum.js.
@@ -25,10 +25,10 @@ export const scenarios = [
         description: "Investigate the IDM page layout and report whether Google sync is healthy.",
         customerId: "principalJones",
         moduleId: "mod_overview",
-        ticketSubject: "Where do I find the Google sync settings?",
+        ticketSubject: "Welcome! Can you check on our Google sync?",
         ticketPriority: "normal",
         ticketNumber: 1001,
-        ticketMessage: "Hi! I heard we use something called Clever IDM for managing Google accounts. The old admin left and nobody briefed me. Can you check if everything's working and let me know?",
+        ticketMessage: "Hi! Welcome aboard! I'm not going to pretend I understand what Clever IDM does, but the previous admin told me it's important. Can you just... check that everything's working? Green lights are good, right?",
         nextScenario: null,
         settings: {},
 
@@ -180,10 +180,10 @@ export const scenarios = [
         description: "Navigate all four IDM tabs and document what each one shows for the IT wiki.",
         customerId: "sarahChen",
         moduleId: "mod_overview",
-        ticketSubject: "Need to document our IDM page for the IT wiki",
+        ticketSubject: "Documenting IDM for the team wiki",
         ticketPriority: "normal",
         ticketNumber: 1002,
-        ticketMessage: "Hey — I'm updating our internal IT wiki and need to document what information is available on the IDM page. Can you look through each section and tell me what I should include? I especially need to know about sync logs, exports, and event tracking.",
+        ticketMessage: "Hey — welcome to Cedar Ridge! I've been meaning to document our IDM page for the IT wiki but haven't had time. Since you're getting oriented anyway, want to kill two birds with one stone? I especially need to know about sync logs, exports, and event tracking.",
         nextScenario: null,
         settings: {},
 
@@ -361,10 +361,10 @@ export const scenarios = [
         description: "Navigate the provisioning wizard and document its structure for the district director.",
         customerId: "principalJones",
         moduleId: "mod_provisioning_basics",
-        ticketSubject: "How do I set up Google provisioning?",
+        ticketSubject: "Need our Google provisioning setup documented",
         ticketPriority: "normal",
         ticketNumber: 1003,
-        ticketMessage: "The district director wants us to document our Google provisioning setup before the board meeting. Can you open the wizard, check what's configured, and give me a summary of the structure?",
+        ticketMessage: "The district director wants documentation of our Google provisioning setup before the board meeting. I told him you'd handle it. Hope that's OK! 😅 Can you open the wizard, check what's configured, and give me a summary of the structure?",
         nextScenario: null,
         settings: {},
 
@@ -527,10 +527,10 @@ export const scenarios = [
         description: "Walk through each wizard step and explain what it does for a board presentation.",
         customerId: "marcusThompson",
         moduleId: "mod_provisioning_basics",
-        ticketSubject: "Explain the provisioning steps before we change anything",
+        ticketSubject: "Board presentation prep — provisioning overview",
         ticketPriority: "normal",
         ticketNumber: 1004,
-        ticketMessage: "I'm preparing a presentation for the board on our Google Workspace setup. Before we change anything, I need you to walk through the provisioning wizard and explain what each step configures. I want to make sure I describe it correctly to non-technical board members.",
+        ticketMessage: "I'm presenting to the board next Thursday on our Google Workspace infrastructure. I need a clear, non-technical explanation of the provisioning pipeline. Board members... do not enjoy jargon. Can you walk through the wizard and explain what each step configures?",
         nextScenario: null,
         settings: {},
 
@@ -752,10 +752,10 @@ export const scenarios = [
         description: "Navigate to the credentials step, identify the current student email format, and determine the new format.",
         customerId: "principalJones",
         moduleId: "mod_credentials",
-        ticketSubject: "Change student email format to first initial + last name",
+        ticketSubject: "Student email format change request",
         ticketPriority: "normal",
         ticketNumber: 1005,
-        ticketMessage: `Hi! We decided to change student emails from first name + last name (like rogeliowaelchi@cedarridgesd.org) to first initial + last name (like rwaelchi@cedarridgesd.org). Can you figure out where that setting is and what the new format would look like?`,
+        ticketMessage: `So we decided to change how student emails work. Instead of rogeliowaelchi@cedarridgesd.org, we want first initial + last name — like rwaelchi@cedarridgesd.org. I'm told this is "in the wizard somewhere." That's all I've got. Good luck!`,
         nextScenario: null,
         settings: {},
 
@@ -880,10 +880,10 @@ export const scenarios = [
         description: "Document the credential system for all user types including email patterns, password formats, and key concepts.",
         customerId: "sarahChen",
         moduleId: "mod_credentials",
-        ticketSubject: "Need to understand credential formats before making changes",
+        ticketSubject: "Document our credential system before we touch anything",
         ticketPriority: "normal",
         ticketNumber: 1006,
-        ticketMessage: "Before we change any credential settings, I need to fully understand how the current system works. Can you open the credentials step and document the email and password formats for all user types? I also want to understand fallback formats and how matching vs. creating works.",
+        ticketMessage: "Before we change any credential settings, I want to make sure we actually understand the current system. I've seen too many 'quick changes' turn into 'why can't 200 students log in.' Can you document the email and password formats for all user types? I also need fallback formats and how matching vs. creating works.",
         nextScenario: null,
         settings: {},
 
@@ -1108,10 +1108,10 @@ export const scenarios = [
         description: "Navigate to the OU step and trace how students, teachers, and staff are organized into Google OUs.",
         customerId: "lisaWilson",
         moduleId: "mod_ou_management",
-        ticketSubject: "Parent asking why their kid's Google account is in a specific folder",
+        ticketSubject: "Parent asking why their kid's account is in a weird folder",
         ticketPriority: "normal",
         ticketNumber: 1007,
-        ticketMessage: "A parent called asking why their kid's Google account is in a folder called 'Cedar Ridge Middle School.' Can you figure out how student accounts get organized into Google OUs and trace where a specific student would end up? I also need to understand teacher and staff placement.",
+        ticketMessage: "Got a parent on the phone asking why their kid's Google account is 'in a folder called Cedar Ridge Middle School.' I told them I'd find out. I did not find out. Can you figure out how these OU things work and trace where a specific student would end up? I also need to understand teacher and staff placement.",
         nextScenario: null,
         settings: {},
 
@@ -1287,10 +1287,10 @@ export const scenarios = [
         description: "Review archive and ignored OU policies and document lifecycle management for a board presentation.",
         customerId: "marcusThompson",
         moduleId: "mod_ou_management",
-        ticketSubject: "Need to review archive and ignored OU policies for board presentation",
+        ticketSubject: "Board wants our 'account lifecycle management strategy'",
         ticketPriority: "high",
         ticketNumber: 1008,
-        ticketMessage: "I'm presenting to the board on our Google account lifecycle. I need to understand: what happens when a teacher retires? What about accounts we manage manually? Document the archive and ignored policies, including what action we currently use and what alternatives exist.",
+        ticketMessage: "The board wants to know our 'account lifecycle management strategy.' Yes, I know that sounds made up. But I need to present on what happens when a teacher retires, accounts go dormant, etc. Can you pull the archive and ignored-user policies, including what action we currently use and what alternatives exist?",
         nextScenario: null,
         settings: {},
 
@@ -1471,10 +1471,10 @@ export const scenarios = [
         description: "Navigate to the Groups step and assess the current configuration for a coworker who wants to set up email lists.",
         customerId: "principalJones",
         moduleId: "mod_groups",
-        ticketSubject: "Can we automate Google Group membership through IDM?",
+        ticketSubject: "Can we email all 7th graders at once?",
         ticketPriority: "normal",
         ticketNumber: 1009,
-        ticketMessage: "I want to set up automatic email lists for each grade level, like 7th-grade-students@. I heard IDM can manage Google Groups automatically. Can you check the current configuration and tell me what's set up — and what we'd need to do to enable it?",
+        ticketMessage: "Quick question — is there a way to email all 7th graders at once without me manually typing 90 email addresses? Someone mentioned 'Google Groups' and it sounded too good to be true. Can you check the current configuration and tell me what's set up?",
         nextScenario: null,
         settings: {},
 
@@ -1642,12 +1642,12 @@ export const scenarios = [
         description: "Navigate to Summary and Preview steps, assess whether it's safe to provision.",
         customerId: "sarahChen",
         moduleId: "mod_review_provision",
-        ticketSubject: "Need to review provisioning setup before we go live",
+        ticketSubject: "Pre-provisioning safety check",
         ticketPriority: "high",
         ticketNumber: 1010,
         nextScenario: null,
         settings: {},
-        ticketMessage: "Hi — we're close to going live with Google provisioning. Before I approve anything I want to carefully review the Summary and Preview steps. Can you walk me through what they show and whether it's safe to provision?",
+        ticketMessage: "We're close to running our next provisioning cycle. Before anyone clicks any buttons, I want a second pair of eyes on the Summary and Preview. Last time someone provisioned without checking, three teachers got duplicate accounts. That was a fun week. Can you walk me through what they show and whether it's safe to provision?",
 
         steps: [
             // ── 1. Navigate to the Summary wizard step ───────────────
@@ -1837,12 +1837,12 @@ export const scenarios = [
         description: "Trace the full provisioning pipeline from Connect through Preview, including a Pause Sync assessment.",
         customerId: "lisaWilson",
         moduleId: "mod_review_provision",
-        ticketSubject: "Walk me through the entire provisioning process from start to finish",
+        ticketSubject: "End-to-end provisioning walkthrough (+ where's the off switch?)",
         ticketPriority: "normal",
         ticketNumber: 1011,
         nextScenario: null,
         settings: {},
-        ticketMessage: "Hi — I've learned bits and pieces about the provisioning wizard but I want to understand the entire pipeline from start to finish. Can you also show me where the Pause Sync button is? I need to know how to stop syncs in an emergency.",
+        ticketMessage: "I've heard bits and pieces about how provisioning works but I want the full picture — start to finish. Also, where's the emergency stop button? Asking for peace of mind.",
 
         steps: [
             // ── 1. Navigate to the Connect step ──────────────────────
@@ -2032,10 +2032,10 @@ export const scenarios = [
         description: "Investigate a failed IDM sync and report the likely root cause.",
         customerId: "sarahChen",
         moduleId: "mod_troubleshooting",
-        ticketSubject: "New students do not have Google accounts",
+        ticketSubject: "Students missing Google accounts — sync issue?",
         ticketPriority: "high",
         ticketNumber: 1012,
-        ticketMessage: "Teachers report that several newly enrolled students don't have Google accounts. Can you investigate whether IDM sync failed and tell me what happened?",
+        ticketMessage: "Teachers are reporting that several new students don't have Google accounts. I checked the enrollment list — they're definitely in the SIS. Something went wrong with the sync. Can you investigate before this becomes a Thing?",
         nextScenario: null,
         settings: {
             dataOverrides: {
@@ -2124,10 +2124,10 @@ export const scenarios = [
         description: "Investigate why a newly hired teacher does not have a Google account.",
         customerId: "marcusThompson",
         moduleId: "mod_troubleshooting",
-        ticketSubject: "New teacher still cannot log in",
+        ticketSubject: "Betty Bauch still can't log in",
         ticketPriority: "high",
         ticketNumber: 1013,
-        ticketMessage: "We hired Betty Bauch last week and she still cannot log into Google. Please find out what's blocking account creation.",
+        ticketMessage: "We hired Betty Bauch last week and she still can't log into Google. She's been very patient about it, which somehow makes it worse. Can you find out what's blocking her account?",
         nextScenario: null,
         settings: {
             dataOverrides: {
@@ -2203,10 +2203,10 @@ export const scenarios = [
         description: "Validate whether provisioning appears stale and what to do next.",
         customerId: "lisaWilson",
         moduleId: "mod_troubleshooting",
-        ticketSubject: "Is provisioning still running regularly?",
+        ticketSubject: "Is provisioning still running? Things look stale.",
         ticketPriority: "normal",
         ticketNumber: 1014,
-        ticketMessage: "I'm worried provisioning may be stale. Please verify when IDM last ran and whether we should take action.",
+        ticketMessage: "When's the last time provisioning actually ran? Because I'm looking at some accounts that seem... stale. Like, 'hasn't-synced-in-weeks' stale. Can you check?",
         nextScenario: null,
         settings: {
             dataOverrides: {
