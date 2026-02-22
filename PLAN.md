@@ -80,12 +80,12 @@ Recommended order (lowest risk first):
 
 ---
 
-### Micro-Phase D — Data Layer + ScenarioContext (combined)
+### Micro-Phase D — Data Layer + ScenarioContext (combined) [DONE]
 Create defaults and context together to avoid double-migrating imports.
 
-**D1.** Add `src/data/defaults/` scaffold + `src/context/ScenarioContext.jsx` + app root provider wiring.
+**D1.** Add `src/data/defaults/` scaffold + `src/context/ScenarioContext.jsx` + app root provider wiring. [DONE]
 
-**D2.** Extract and wire domains in batches:
+**D2.** Extract and wire domains in batches: [DONE]
 - Batch A (leaf): `team`, `applications`, `accessLogs`, `badges`, `people`
 - Batch B (mid): `dashboard`, `chat`, `profile`, `ssoSettings`, `portalSettings`
 - Batch C (complex/layout): `dataBrowser`, `sidebar`, `topNav`, `sisSync`
@@ -98,17 +98,17 @@ Create defaults and context together to avoid double-migrating imports.
 
 ---
 
-### Micro-Phase F — Auth (NextAuth) in safe slices
+### Micro-Phase F — Auth (NextAuth) in safe slices [DONE]
 
-**F1.** Install deps: `next-auth`, `bcryptjs`; add base auth config + route
+**F1.** Install deps: `next-auth`, `bcryptjs`; add base auth config + route [DONE]
 
-**F2.** Add login page UI (no route protection yet)
+**F2.** Add login page UI (no route protection yet) [DONE]
 
-**F3.** Add provider wrapper in layout + wire TopNav logout/session display
+**F3.** Add provider wrapper in layout + wire TopNav logout/session display [DONE]
 
-**F4.** Add middleware protection for app routes (`src/middleware.js`, not `src/app/*`)
+**F4.** Add proxy protection for app routes (`src/proxy.js`, formerly `middleware.js` in older Next.js) [DONE]
 
-**F5.** Add `.env.example` and local env guidance
+**F5.** Add `.env.example` and local env guidance [DONE]
 
 **Exit criteria:** unauthenticated users flow to `/login`, authenticated users can access app, build green.
 

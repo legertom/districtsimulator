@@ -907,6 +907,7 @@ export function InstructionalProvider({ children }) {
 
     const value = {
         // Existing API (backward-compatible)
+        activeScenarioId,
         activeScenario,
         scenarioSettings,
         currentStep,

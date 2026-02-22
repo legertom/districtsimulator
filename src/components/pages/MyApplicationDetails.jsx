@@ -14,29 +14,6 @@ const TABS = [
     { id: "past-rules", label: "Past rules" },
 ];
 
-const SCHOOL_ROWS = [
-    {
-        name: "Cedar Ridge Elementary",
-        schoolId: "5fb9220d-9b0f-4d32-a248-6492457c3890",
-        grades: "K - 5",
-    },
-    {
-        name: "Cedar Ridge High School",
-        schoolId: "d95145ba-e71b-4c8c-9786-010a58e36c31",
-        grades: "K - 5",
-    },
-    {
-        name: "Cedar Ridge Middle School",
-        schoolId: "1d5209a0-83a2-4b6e-9251-ee4ad8831eea",
-        grades: "6 - 8",
-    },
-    {
-        name: "Default District Office (Auto-generated)",
-        schoolId: "DEFAULT_DISTRICT_OFFICE",
-        grades: "",
-    },
-];
-
 function getDateAdded(appId) {
     const day = 11 + ((appId + 3) % 7);
     return `2026-02-${String(day).padStart(2, "0")}`;
@@ -214,7 +191,7 @@ export default function MyApplicationDetails({ app }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {SCHOOL_ROWS.map((school) => (
+                                    {(app.schools ?? []).map((school) => (
                                         <tr key={school.schoolId}>
                                             <td>
                                                 <a href="#" className={styles.link}>{school.name}</a>
