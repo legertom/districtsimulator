@@ -10,7 +10,6 @@
     background: var(--gray-50);
     border: 1px solid var(--gray-200);
     border-radius: 10px;
-    flex-shrink: 0;
 }
 
 .ticketHeader {

@@ -14,12 +14,7 @@ export default function RightPanel() {
         <div className={styles.panel}>
             {rightPanelView === "inbox" && <TicketInbox />}
             {rightPanelView === "conversation" && <ConversationView />}
-            {rightPanelView === "investigation" && (
-                <>
-                    <GuidancePanel />
-                    <InvestigationView />
-                </>
-            )}
+            {rightPanelView === "investigation" && <InvestigationView />}
         </div>
     );
 }

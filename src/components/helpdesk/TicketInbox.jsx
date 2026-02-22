@@ -210,45 +210,50 @@ export default function TicketInbox() {
 
             {/* ── Ticket list ── */}
             <div className={styles.ticketList}>
+                {/* Completed modules — compact rows */}
                 {moduleStates.map(({ mod, locked, complete }, modIdx) => {
-                    // Find authored scenarios for this module
+                    if (!complete || locked) return null;
+                    const authored = mod.scenarioIds.filter(sid => scenarios.find(s => s.id === sid));
+                    if (authored.length === 0) return null;
+
+                    return (
+                        <div key={mod.id} className={styles.completedModuleRow}>
+                            <span className={styles.completedModuleCheck}>✓</span>
+                            <span className={styles.completedModuleNumber}>Module {modIdx + 1}</span>
+                            <span className={styles.completedModuleTitle}>{mod.title}</span>
+                        </div>
+                    );
+                })}
+
+                {/* Current module — fully expanded */}
+                {moduleStates.map(({ mod, locked, complete }, modIdx) => {
+                    if (locked || complete) return null;
+
                     const authoredScenarios = mod.scenarioIds
                         .map(sid => scenarios.find(s => s.id === sid))
                         .filter(Boolean);
 
-                    // Skip modules with zero authored scenarios
                     if (authoredScenarios.length === 0) return null;
+
+                    // Only render the FIRST unlocked incomplete module
+                    const isCurrentModule = moduleStates.findIndex(
+                        ms => !ms.locked && !ms.complete && ms.mod.scenarioIds.some(sid => scenarios.find(s => s.id === sid))
+                    ) === modIdx;
+
+                    if (!isCurrentModule) return null;
 
                     return (
                         <div key={mod.id} className={styles.moduleGroup}>
-                            <div className={`${styles.moduleHeader} ${locked ? styles.moduleLocked : ""}`}>
+                            <div className={styles.moduleHeader}>
                                 <span className={styles.moduleNumber}>Module {modIdx + 1}</span>
                                 <span className={styles.moduleTitle}>{mod.title}</span>
-                                {locked && <span className={styles.lockIcon}>🔒</span>}
-                                {complete && !locked && <span className={styles.checkIcon}>✓</span>}
                             </div>
-
-                            {/* Boss completion message for finished modules */}
-                            {complete && !locked && mod.bossCompletion && (
-                                <div className={styles.bossCompletion}>
-                                    <div
-                                        className={styles.bossCompletionAvatar}
-                                        style={{ backgroundColor: boss.avatarColor }}
-                                    >
-                                        {boss.avatar}
-                                    </div>
-                                    <p className={styles.bossCompletionText}>
-                                        {mod.bossCompletion}
-                                    </p>
-                                </div>
-                            )}
 
                             {authoredScenarios.map(scenario => {
                                 const isDone = completedScenarios.has(scenario.id);
                                 const scenarioScore = scores[scenario.id];
-                                const isClickable = !locked && !isDone && !showModePicker;
+                                const isClickable = !isDone && !showModePicker;
                                 const isPending = pendingScenarioId === scenario.id;
-
                                 const customer = getCustomerInfo(scenario.customerId);
                                 const priority = scenario.ticketPriority || "normal";
 
@@ -258,8 +263,8 @@ export default function TicketInbox() {
                                             className={`${styles.ticketCard} ${
                                                 styles[`priority_${priority}`]
                                             } ${isDone ? styles.ticketDone : ""} ${
-                                                locked ? styles.ticketLocked : ""
-                                            } ${isClickable ? styles.ticketClickable : ""}`}
+                                                isClickable ? styles.ticketClickable : ""
+                                            }`}
                                             onClick={isClickable ? () => handleTicketClick(scenario.id) : undefined}
                                             role={isClickable ? "button" : undefined}
                                             tabIndex={isClickable ? 0 : undefined}
@@ -295,10 +300,6 @@ export default function TicketInbox() {
                                                                 </>
                                                             )}
                                                         </span>
-                                                    ) : locked ? (
-                                                        <span className={styles.ticketLockedLabel}>
-                                                            Complete previous modules to unlock
-                                                        </span>
                                                     ) : (
                                                         <span className={styles.ticketOpen}>Open</span>
                                                     )}
@@ -306,7 +307,6 @@ export default function TicketInbox() {
                                             </div>
                                         </div>
 
-                                        {/* Inline mode picker for this ticket */}
                                         {isPending && showModePicker && (
                                             <div className={styles.modePicker}>
                                                 <div className={styles.modePickerLabel}>

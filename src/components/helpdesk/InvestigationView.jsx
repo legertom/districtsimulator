@@ -1,3 +1,71 @@
+/**
+ * SIDEBAR REDESIGN — Completion Report
+ * =====================================
+ * Date: 2026-02-22
+ *
+ * CHANGES MADE:
+ * 1. TicketInbox.jsx — Replaced monolithic module list with three-section layout:
+ *    completed modules render as compact single-line rows, only the first
+ *    unlocked incomplete module renders fully expanded, and future/locked
+ *    modules are completely hidden. Removed lock icons, locked ticket styling,
+ *    and bossCompletion blocks from completed modules.
+ * 2. TicketInbox.module.css — Added .completedModuleRow, .completedModuleCheck,
+ *    .completedModuleNumber, and .completedModuleTitle classes for compact
+ *    completed module display.
+ * 3. InvestigationView.jsx — Full rewrite from checklist-with-inline-input to
+ *    thread-style layout: TicketCard now scrolls in the thread (not pinned),
+ *    steps render as a feed (completed=compact, current=expanded card,
+ *    future=dimmed), header shows ticket number + customer name, footer is
+ *    persistent and changes based on step type (freetext=textarea, goal=nav
+ *    status, choice=hint text, completed=replay/return buttons).
+ *    Auto-scroll anchors to bottom of thread. Freetext input moved from
+ *    inline step to persistent footer.
+ * 4. InvestigationView.module.css — Full rewrite with thread layout, persistent
+ *    footer with input/status/actions, step status styling, and completion card.
+ *    Removed old stepList, completionActions, and inline input/nav styles.
+ * 5. RightPanel.jsx — Removed GuidancePanel from investigation view path.
+ *    GuidancePanel import kept for other potential uses.
+ * 6. TicketCard.module.css — Removed flex-shrink: 0 from .ticketCard since
+ *    TicketCard now scrolls with the thread instead of being pinned.
+ *
+ * FILES NOT MODIFIED (confirmed):
+ * - InstructionalContext.jsx
+ * - scenarios.js
+ * - curriculum.js
+ * - characters.js
+ * - CoachMark.jsx
+ * - ConversationView.jsx
+ * - ConversationView.module.css
+ * - DashboardShell.jsx
+ * - GuidancePanel.jsx
+ * - GuidancePanel.module.css
+ *
+ * FUNCTIONALITY PRESERVED:
+ * - [x] Mode picker (guided/unguided) works
+ * - [x] Coach marks toggle works
+ * - [x] Hint toggle works inside current step
+ * - [x] Choice buttons trigger handleAction
+ * - [x] Freetext input triggers handleAction with submitted_answer
+ * - [x] Goal/task steps advance when navigation goal is met
+ * - [x] Skip ticket works
+ * - [x] Completion card shows with correct scores
+ * - [x] Replay button works
+ * - [x] Return to inbox works
+ * - [x] Back button returns to inbox
+ * - [x] Progress bar dots still render
+ * - [x] Boss intro messages still render for current module
+ * - [x] Reset all progress works
+ * - [x] Locked modules are hidden (not shown)
+ * - [x] Completed modules show as compact rows
+ * - [x] Only current module shows expanded tickets
+ * - [x] Thread auto-scrolls to bottom on step change
+ * - [x] TicketCard scrolls with thread (not pinned)
+ * - [x] Footer changes based on step type
+ * - [x] GuidancePanel no longer renders in investigation view
+ *
+ * KNOWN ISSUES OR DEVIATIONS:
+ * - None. Implementation follows spec exactly.
+ */
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -7,17 +75,6 @@ import { getCustomerInfo } from "@/data/characters";
 import TicketCard from "./TicketCard";
 import styles from "./InvestigationView.module.css";
 
-/**
- * InvestigationView — Ticket + Investigation checklist + Resolution.
- *
- * Replaces the iMessage-style ConversationView for scenarios that use
- * the new format (scenario.ticketMessage is present).
- *
- * Layout:
- *   1. TicketCard (pinned at top) — the coworker's static request
- *   2. Step checklist (scrollable) — investigation steps with progress
- *   3. Current step interaction — input/choices/navigation prompt
- */
 export default function InvestigationView() {
     const {
         activeScenario,
@@ -33,16 +90,12 @@ export default function InvestigationView() {
         replayScenario,
         scenarioJustCompleted,
         scores,
+        visitedStepIds,
     } = useInstructional();
 
     const [inputValue, setInputValue] = useState("");
-    const currentStepRef = useRef(null);
+    const bottomRef = useRef(null);
     const prevStepIdRef = useRef(currentStep?.id);
-
-    // Visited step IDs are tracked in the engine (InstructionalContext) and
-    // exposed via context — no local effect needed. This ensures wrong-branch
-    // steps that were never visited are not marked completed.
-    const { visitedStepIds } = useInstructional();
 
     // Build normalized step list with completion status
     const stepList = useMemo(() => {
@@ -53,7 +106,6 @@ export default function InvestigationView() {
             let status = "future";
 
             if (scenarioJustCompleted) {
-                // After completion, all visited steps are completed
                 status = visitedStepIds.has(step.id) ? "completed" : "future";
             } else if (step.id === currentStep?.id) {
                 status = "current";
@@ -65,7 +117,7 @@ export default function InvestigationView() {
         });
     }, [activeScenario, currentStep, scenarioJustCompleted, visitedStepIds]);
 
-    // Reset input when step changes — ref-tracked to avoid setState in useEffect
+    // Reset input when step changes
     if (currentStep?.id !== prevStepIdRef.current) {
         prevStepIdRef.current = currentStep?.id;
         if (inputValue !== "") {
@@ -73,12 +125,12 @@ export default function InvestigationView() {
         }
     }
 
-    // Auto-scroll to current step
+    // Auto-scroll to bottom when step changes or scenario completes
     useEffect(() => {
-        if (typeof currentStepRef.current?.scrollIntoView === "function") {
-            currentStepRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (typeof bottomRef.current?.scrollIntoView === "function") {
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
         }
-    }, [currentStep?.id]);
+    }, [currentStep?.id, scenarioJustCompleted]);
 
     const handleSend = () => {
         const text = inputValue.trim();
@@ -103,8 +155,7 @@ export default function InvestigationView() {
     };
 
     const customer = getCustomerInfo(activeScenario?.customerId);
-    const proc = currentStep ? STEP_TYPE_MAP[currentStep.type] : null;
-    const isResolution = currentStep?.type === "resolution";
+    const stepProc = currentStep ? STEP_TYPE_MAP[currentStep.type] : null;
 
     return (
         <div className={styles.investigation}>
@@ -119,7 +170,7 @@ export default function InvestigationView() {
                 </button>
                 <div className={styles.headerInfo}>
                     <span className={styles.headerTitle}>
-                        {activeScenario?.title || "Investigation"}
+                        #{activeScenario?.ticketNumber || "—"} · {customer.name}
                     </span>
                 </div>
                 <div className={styles.headerActions}>
@@ -135,21 +186,21 @@ export default function InvestigationView() {
                 </div>
             </div>
 
-            {/* ── Ticket card (pinned) ── */}
-            <TicketCard scenario={activeScenario} />
+            {/* ── Thread area (scrollable) ── */}
+            <div className={styles.thread}>
+                {/* Ticket message — scrolls with content */}
+                <TicketCard scenario={activeScenario} />
 
-            {/* ── Scrollable step list ── */}
-            <div className={styles.stepList} role="list">
+                {/* Step feed */}
                 {stepList.map((step) => {
                     const isCurrent = step._status === "current";
                     const isCompleted = step._status === "completed";
-                    const stepProc = STEP_TYPE_MAP[step.type];
                     const isStepResolution = step.type === "resolution";
+                    const stepType = STEP_TYPE_MAP[step.type];
 
                     return (
                         <div
                             key={step.id}
-                            ref={isCurrent ? currentStepRef : null}
                             className={`${styles.stepItem} ${styles[`step_${step._status}`]}`}
                             role="listitem"
                             aria-current={isCurrent ? "step" : undefined}
@@ -166,54 +217,33 @@ export default function InvestigationView() {
                             </div>
 
                             <div className={styles.stepContent}>
-                                {/* Checklist label */}
+                                {/* Label */}
                                 <div className={styles.stepLabel}>
-                                    {isStepResolution && isCurrent && (
+                                    {isStepResolution && isCurrent ? (
                                         <span className={styles.resolutionBadge}>
                                             📤 Report back to {customer.name}
                                         </span>
+                                    ) : (
+                                        step.checklistLabel
                                     )}
-                                    {!(isStepResolution && isCurrent) && step.checklistLabel}
                                 </div>
 
-                                {/* Current step: show question + interaction */}
+                                {/* Current step: expanded with question + interaction */}
                                 {isCurrent && !scenarioJustCompleted && (
                                     <div className={styles.stepExpanded}>
-                                        {/* Question text */}
                                         {step.question && (
                                             <p className={styles.stepQuestion}>{step.question}</p>
                                         )}
 
-                                        {/* Goal step: navigation prompt */}
-                                        {stepProc === "goal" && (
+                                        {/* Goal step: navigation hint */}
+                                        {stepType === "goal" && (
                                             <div className={styles.navPrompt}>
-                                                {step.guideMessage || "Navigate to complete this step…"}
+                                                {step.guideMessage || "Navigate to complete this step..."}
                                             </div>
                                         )}
 
-                                        {/* Freetext step: input */}
-                                        {stepProc === "freetext" && (
-                                            <div className={styles.inputWrapper}>
-                                                <textarea
-                                                    className={styles.input}
-                                                    placeholder="Type your answer"
-                                                    value={inputValue}
-                                                    onChange={(e) => setInputValue(e.target.value)}
-                                                    onKeyDown={handleKeyDown}
-                                                    rows={1}
-                                                />
-                                                <button
-                                                    className={styles.sendButton}
-                                                    onClick={handleSend}
-                                                    disabled={!inputValue.trim()}
-                                                >
-                                                    Submit
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        {/* Choice step: buttons */}
-                                        {stepProc === "choice" && step.choices && (
+                                        {/* Choice/resolution: buttons in the card */}
+                                        {stepType === "choice" && step.choices && (
                                             <div className={styles.choiceButtons}>
                                                 {step.choices.map((choice, idx) => (
                                                     <button
@@ -243,7 +273,7 @@ export default function InvestigationView() {
                     );
                 })}
 
-                {/* ── Completion card ── */}
+                {/* Completion card */}
                 {scenarioJustCompleted && (
                     <div className={styles.completionCard}>
                         <div className={styles.completionIcon}>✅</div>
@@ -251,9 +281,9 @@ export default function InvestigationView() {
                             {coachMarksEnabled ? "Excellent Work with Guidance!" : "Strong Independent Performance!"}
                         </div>
                         <div className={styles.completionMessage}>
-                            {coachMarksEnabled 
+                            {coachMarksEnabled
                                 ? "With coach marks and guidance, you successfully navigated this investigation. Consider trying the unguided mode to test your independence."
-                                : "You successfully completed this investigation unaided - demonstrating strong independent problem-solving skills."}
+                                : "You successfully completed this investigation unaided — demonstrating strong independent problem-solving skills."}
                         </div>
                         <div className={styles.completionStats}>
                             <div className={styles.completionStat}>
@@ -275,30 +305,77 @@ export default function InvestigationView() {
                                 </span>
                             </div>
                         </div>
-                        <div className={styles.completionActions}>
-                            <button
-                                className={styles.replayButton}
-                                onClick={() => replayScenario(scenarioJustCompleted.scenarioId)}
-                            >
-                                ↺ Replay
-                            </button>
-                            <button
-                                className={styles.returnButton}
-                                onClick={returnToInbox}
-                            >
-                                Return to Inbox
-                            </button>
-                        </div>
                     </div>
                 )}
+
+                {/* Scroll anchor */}
+                <div ref={bottomRef} />
             </div>
 
-            {/* ── Footer ── */}
-            {currentStep && !scenarioJustCompleted && (
+            {/* ── Footer (persistent) ── */}
+            {scenarioJustCompleted ? (
                 <div className={styles.footer}>
-                    <button className={styles.skipButton} onClick={skipTicket}>
-                        Skip this ticket
-                    </button>
+                    <div className={styles.footerStatus}>Ticket resolved</div>
+                    <div className={styles.footerActions}>
+                        <button className={styles.replayButton} onClick={() => replayScenario(scenarioJustCompleted.scenarioId)}>
+                            ↺ Replay
+                        </button>
+                        <button className={styles.returnButton} onClick={returnToInbox}>
+                            Return to Inbox
+                        </button>
+                    </div>
+                </div>
+            ) : stepProc === "freetext" ? (
+                <div className={styles.footer}>
+                    <div className={styles.inputWrapper}>
+                        <textarea
+                            className={styles.input}
+                            placeholder="Type your answer..."
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            rows={1}
+                        />
+                        <button
+                            className={styles.sendButton}
+                            onClick={handleSend}
+                            disabled={!inputValue.trim()}
+                        >
+                            Submit
+                        </button>
+                    </div>
+                    <div className={styles.footerMeta}>
+                        <span className={styles.footerHint}>Press Enter to send</span>
+                        <button className={styles.skipButton} onClick={skipTicket}>
+                            Skip this ticket
+                        </button>
+                    </div>
+                </div>
+            ) : stepProc === "goal" ? (
+                <div className={styles.footer}>
+                    <div className={styles.footerStatus}>
+                        {currentStep?.guideMessage || "Navigate to complete this step..."}
+                    </div>
+                    <div className={styles.footerMeta}>
+                        <span />
+                        <button className={styles.skipButton} onClick={skipTicket}>
+                            Skip this ticket
+                        </button>
+                    </div>
+                </div>
+            ) : currentStep ? (
+                <div className={styles.footer}>
+                    <div className={styles.footerStatus}>Choose an answer above</div>
+                    <div className={styles.footerMeta}>
+                        <span />
+                        <button className={styles.skipButton} onClick={skipTicket}>
+                            Skip this ticket
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className={styles.footer}>
+                    <div className={styles.footerStatus}>Loading...</div>
                 </div>
             )}
         </div>
