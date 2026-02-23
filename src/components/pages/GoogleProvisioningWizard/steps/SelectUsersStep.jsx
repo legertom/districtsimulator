@@ -1,11 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
+import { useInstructional } from "@/context/InstructionalContext";
 import styles from "../GoogleProvisioningWizard.module.css";
 
 export default function SelectUsersStep({ state, updateState, goNext }) {
+    const { checkActionGoal } = useInstructional();
     const anySelected = state.provisionStudents || state.provisionTeachers || state.provisionStaff;
     const [showRollover, setShowRollover] = useState(false);
+
+    const handleUserTypeChange = (field, checked) => {
+        updateState({ [field]: checked });
+        // Check if all three are now selected (considering the new change)
+        const students = field === "provisionStudents" ? checked : state.provisionStudents;
+        const teachers = field === "provisionTeachers" ? checked : state.provisionTeachers;
+        const staff = field === "provisionStaff" ? checked : state.provisionStaff;
+        if (students && teachers && staff) {
+            checkActionGoal("wizard-select-all-users");
+        }
+    };
 
     const handleNext = () => {
         if (!showRollover) {
@@ -38,7 +51,7 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
                 of our Clever IDM course in Clever Academy!
             </p>
 
-            <div className={styles.userTypeCard}>
+            <div className={styles.userTypeCard} data-instruction-target="user-type-checkboxes">
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--gray-900)", margin: "0 0 16px 0" }}>
                     Which Clever users do you want to provision Google accounts for?
                 </h3>
@@ -50,7 +63,7 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
                             type="checkbox"
                             className={styles.userTypeCheckbox}
                             checked={state.provisionStudents}
-                            onChange={(e) => updateState({ provisionStudents: e.target.checked })}
+                            onChange={(e) => handleUserTypeChange("provisionStudents", e.target.checked)}
                         />
                         Students
                     </label>
@@ -68,7 +81,7 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
                             type="checkbox"
                             className={styles.userTypeCheckbox}
                             checked={state.provisionTeachers}
-                            onChange={(e) => updateState({ provisionTeachers: e.target.checked })}
+                            onChange={(e) => handleUserTypeChange("provisionTeachers", e.target.checked)}
                         />
                         Teachers
                     </label>
@@ -86,7 +99,7 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
                             type="checkbox"
                             className={styles.userTypeCheckbox}
                             checked={state.provisionStaff}
-                            onChange={(e) => updateState({ provisionStaff: e.target.checked })}
+                            onChange={(e) => handleUserTypeChange("provisionStaff", e.target.checked)}
                         />
                         Staff
                     </label>

@@ -90,7 +90,9 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
 
     const goNext = () => {
         if (currentStepIndex < WIZARD_STEPS.length - 1) {
-            setStep(WIZARD_STEPS[currentStepIndex + 1].id);
+            const nextStepId = WIZARD_STEPS[currentStepIndex + 1].id;
+            checkActionGoal(`wizard-step-${nextStepId}`);
+            setStep(nextStepId);
         }
     };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useInstructional } from "@/context/InstructionalContext";
 import styles from "../GoogleProvisioningWizard.module.css";
 
 const GreenCheck = () => (
@@ -11,6 +12,15 @@ const GreenCheck = () => (
 );
 
 export default function ManagementLevelStep({ state, updateState, goNext }) {
+    const { checkActionGoal } = useInstructional();
+
+    const handleSelectLevel = (level) => {
+        updateState({ managementLevel: level, transitionMode: level === "password-only" ? state.transitionMode : false });
+        if (level === "full") {
+            checkActionGoal("wizard-select-full-provisioning");
+        }
+    };
+
     return (
         <>
             <h1 className={styles.stepTitle}>Select your IDM Management Level</h1>
@@ -25,7 +35,8 @@ export default function ManagementLevelStep({ state, updateState, goNext }) {
             <h3 className={styles.sectionHeading}>Full IDM</h3>
             <div
                 className={`${styles.radioCard} ${state.managementLevel === "full" ? styles.radioCardSelected : ""}`}
-                onClick={() => updateState({ managementLevel: "full", transitionMode: false })}
+                data-instruction-target="management-level-full"
+                onClick={() => handleSelectLevel("full")}
             >
                 <div className={styles.radioHeader}>
                     <label className={styles.radioLabel}>
@@ -34,7 +45,7 @@ export default function ManagementLevelStep({ state, updateState, goNext }) {
                             name="mgmt"
                             className={styles.radioInput}
                             checked={state.managementLevel === "full"}
-                            onChange={() => updateState({ managementLevel: "full", transitionMode: false })}
+                            onChange={() => handleSelectLevel("full")}
                         />
                         Full Provisioning and Password Management
                     </label>
@@ -63,7 +74,7 @@ export default function ManagementLevelStep({ state, updateState, goNext }) {
             <h3 className={styles.sectionHeading}>Secure Password Management Suite</h3>
             <div
                 className={`${styles.radioCard} ${state.managementLevel === "password-only" ? styles.radioCardSelected : ""}`}
-                onClick={() => updateState({ managementLevel: "password-only" })}
+                onClick={() => handleSelectLevel("password-only")}
             >
                 <div className={styles.radioHeader}>
                     <label className={styles.radioLabel}>
@@ -72,7 +83,7 @@ export default function ManagementLevelStep({ state, updateState, goNext }) {
                             name="mgmt"
                             className={styles.radioInput}
                             checked={state.managementLevel === "password-only"}
-                            onChange={() => updateState({ managementLevel: "password-only" })}
+                            onChange={() => handleSelectLevel("password-only")}
                         />
                         Password Management Only
                     </label>

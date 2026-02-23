@@ -154,6 +154,7 @@ export default function IDM({ onEditProvisioning }) {
         setShowDestDropdown(false);
         // If Google Workspace is selected before setup, go straight to the wizard
         if (dest === "Google Workspace" && !idmSetupComplete) {
+            checkActionGoal("select-google-destination");
             onEditProvisioning?.();
             return;
         }
@@ -290,6 +291,7 @@ export default function IDM({ onEditProvisioning }) {
                 <div className={styles.destDropdownContainer} ref={destDropdownRef}>
                     <button
                         className={styles.addDestinationBtn}
+                        data-instruction-target="add-destination-btn"
                         onClick={() => setShowDestDropdown(!showDestDropdown)}
                     >
                         Add new destination

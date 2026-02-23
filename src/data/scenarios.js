@@ -18,11 +18,11 @@ export const scenarios = [
     //  Two scenarios: page orientation + tab exploration
     // ═══════════════════════════════════════════════════════════════
 
-    // ── Scenario 1A: IDM Setup Walkthrough ───────────────────────
+    // ── Scenario 1A: First-Time IDM Provisioning Setup ───────────
     {
         id: "scenario_idm_orientation",
         title: "Setting Up IDM",
-        description: "Walk through IDM setup with Sam and get Google Workspace configured.",
+        description: "Walk through your first IDM provisioning setup with Sam.",
         customerId: "boss",
         moduleId: "mod_overview",
         ticketSubject: "Your first task: set up IDM",
@@ -30,169 +30,199 @@ export const scenarios = [
         ticketNumber: 1001,
         ticketMessage: null,
         chatMode: "onboarding",
-        alexIntro: "Hey! Welcome to day one. I'm Sam — senior IT admin here at Cedar Ridge. You're the new Clever admin, which means IDM is your domain now. We just subscribed to Clever IDM for Google Workspace, and your first job is to get familiar with it. I'll walk you through everything — just follow my lead.",
+        alexIntro: "Hey! Welcome to day one. I'm Sam — senior IT admin here at Cedar Ridge. You're the new Clever admin, which means IDM is your domain now. We just subscribed to Clever IDM for Google Workspace, and your first job is to get it set up. I'll walk you through everything — just follow my lead.",
         nextScenario: null,
-        settings: {},
+        settings: { clearWizardState: true },
 
         steps: [
             // ── 1. Navigate to IDM ───────────────────────────────
             {
-                id: "step_orient_nav_idm",
+                id: "step_setup_nav_idm",
                 type: "task",
                 checklistLabel: "Navigate to the IDM page",
                 goalRoute: "idm",
-                nextStep: "step_orient_provider",
+                nextStep: "step_setup_add_destination",
                 guideMessage: "Open the IDM page under User management in the sidebar.",
                 alexPrompt: "First things first — let's open the IDM page. You'll find it in the left sidebar under User Management. Click \"IDM\".",
                 systemPrompt: "Navigate to the IDM page",
-                alexCorrectResponse: "Nice, you found it. This is your IDM dashboard — your home base for identity management.",
+                alexCorrectResponse: "Here's your IDM dashboard. Right now it's empty — no destinations configured yet. Let's fix that.",
                 hint: {
                     target: "idm",
                     message: "Click 'IDM' in the sidebar under User management.",
                 },
                 autoShowHint: true,
             },
-            // ── 2. Identify the provider ─────────────────────────
+            // ── 2. Add Google Workspace destination ──────────────
             {
-                id: "step_orient_provider",
-                type: "checkpoint",
-                checklistLabel: "Identify the provider",
-                question: "What provider do you see on the IDM page?",
-                alexPrompt: "Good. Now look at the provider card at the top of the page. What identity provider is Cedar Ridge connected to?",
-                alexCorrectResponse: "Google Workspace — that's the one. Cedar Ridge uses Google for everything, so this is what we'll be managing.",
-                alexWrongResponse: "Hmm, take another look at the provider card. Check the logo and name.",
-                choices: [
-                    { label: "Google Workspace", nextStep: "step_orient_health", correct: true },
-                    { label: "Microsoft Entra ID", nextStep: "step_orient_provider_wrong", unguidedNextStep: "step_orient_health", correct: false },
-                    { label: "Both Google and Microsoft", nextStep: "step_orient_provider_wrong", unguidedNextStep: "step_orient_health", correct: false },
-                ],
-                hint: {
-                    target: "google-provider-card",
-                    message: "Look at the provider card at the top of the IDM page.",
-                },
-                autoShowHint: false,
-            },
-            // ── 2a. Wrong provider branch ────────────────────────
-            {
-                id: "step_orient_provider_wrong",
-                type: "checkpoint",
-                scored: false,
-                checklistLabel: "Identify the provider (retry)",
-                question: "Look again — what logo and name do you see?",
-                alexPrompt: "Look one more time at the provider card. What logo and name do you see?",
-                choices: [
-                    { label: "Google Workspace", nextStep: "step_orient_health" },
-                ],
-            },
-            // ── 3. Assess integration health ─────────────────────
-            {
-                id: "step_orient_health",
-                type: "observe",
-                checklistLabel: "Check if the integration is healthy",
-                question: "Is the integration healthy?",
-                alexPrompt: "See the status badges on that provider card? Tell me — is the Google integration healthy, or are there any problems showing?",
-                alexCorrectResponse: "Active and healthy. That's what we want to see. Means the connection between Clever and Google is solid.",
-                correctAnswer: "active",
-                matchMode: "includes",
-                successStep: "step_orient_nav_sync",
-                hint: {
-                    target: "google-provider-card",
-                    message: "Check the status badges and stats row on the provider card.",
-                },
-                autoShowHint: false,
-            },
-            // ── 4. Navigate to sync history ──────────────────────
-            {
-                id: "step_orient_nav_sync",
+                id: "step_setup_add_destination",
                 type: "task",
-                checklistLabel: "Check sync history",
-                goalAction: "idm-tab-sync-history",
-                nextStep: "step_orient_sync_health",
-                guideMessage: "Click the Sync History tab.",
-                alexPrompt: "Now let's check when the last sync ran. Click the Sync History tab.",
-                systemPrompt: "Open the Sync History tab",
-                alexCorrectResponse: "This table shows every time Clever synced data with Google. Let's make sure it's been running regularly.",
+                checklistLabel: "Add Google Workspace as a destination",
+                goalAction: "select-google-destination",
+                nextStep: "step_setup_connect_google",
+                guideMessage: "Click 'Add new destination' and select 'Google Workspace'.",
+                alexPrompt: "See that \"Add new destination\" dropdown? Click it, then select \"Google Workspace\". That'll open the provisioning wizard.",
+                alexCorrectResponse: "Welcome to the provisioning wizard. This is the 8-step setup flow that controls how Clever creates and manages Google accounts. Let's start at step 1.",
                 hint: {
-                    target: "last-sync-timestamp",
-                    message: "Look below the provider card for sync information, or click the Sync History tab.",
-                },
-                autoShowHint: false,
-            },
-            // ── 5. Evaluate sync recency ─────────────────────────
-            {
-                id: "step_orient_sync_health",
-                type: "checkpoint",
-                checklistLabel: "Evaluate sync schedule",
-                question: "Are syncs running regularly?",
-                alexPrompt: "Look at the dates in that table. Are syncs running on a regular schedule, or has there been a gap?",
-                alexCorrectResponse: "Regular syncs, nice. That means student and staff accounts are staying up to date automatically.",
-                alexWrongResponse: "Look more carefully at the dates — they're pretty consistent.",
-                choices: [
-                    { label: "Syncs are running regularly — the most recent one was within the last few days", nextStep: "step_orient_nav_tasks", correct: true },
-                    { label: "Syncs have stopped — the last one was weeks ago", nextStep: "step_orient_sync_wrong", unguidedNextStep: "step_orient_nav_tasks", correct: false },
-                ],
-                hint: {
-                    message: "Check the dates in the Sync History table — are they recent and consistent?",
-                },
-                autoShowHint: false,
-            },
-            // ── 5a. Wrong sync assessment ────────────────────────
-            {
-                id: "step_orient_sync_wrong",
-                type: "checkpoint",
-                scored: false,
-                checklistLabel: "Evaluate sync schedule (retry)",
-                question: "Look at the sync dates more carefully.",
-                alexPrompt: "Check those dates one more time. The table shows multiple recent entries — are they spaced regularly?",
-                choices: [
-                    { label: "Yes, syncs are running regularly", nextStep: "step_orient_nav_tasks" },
-                ],
-            },
-            // ── 6. Navigate to Tasks tab ─────────────────────────
-            {
-                id: "step_orient_nav_tasks",
-                type: "task",
-                checklistLabel: "Check the Tasks tab",
-                goalAction: "idm-tab-tasks",
-                nextStep: "step_orient_managed_users",
-                guideMessage: "Click the Tasks tab.",
-                alexPrompt: "Last stop — click over to the Tasks tab. This is where notifications about your managed users live.",
-                systemPrompt: "Open the Tasks tab",
-                alexCorrectResponse: "Here we go. See that notification?",
-                hint: {
-                    message: "Click the 'Tasks' tab near the top of the IDM page.",
+                    target: "add-destination-btn",
+                    message: "Click 'Add new destination' and select 'Google Workspace'.",
                 },
                 autoShowHint: true,
             },
-            // ── 7. Managed users count ───────────────────────────
+            // ── 3. Connect with Google ───────────────────────────
             {
-                id: "step_orient_managed_users",
-                type: "observe",
-                checklistLabel: "Count managed users",
-                question: "How many users?",
-                alexPrompt: "There's a notification about managed users. How many Google accounts is IDM managing right now? Just give me the number.",
-                alexCorrectResponse: "40 users — that's our whole district. Teachers, staff, and students all getting their accounts managed through Clever.",
-                guideMessage: "Look at the notification card for the user count.",
-                correctAnswer: "40",
-                matchMode: "exact",
-                successStep: "step_orient_resolution",
+                id: "step_setup_connect_google",
+                type: "task",
+                checklistLabel: "Connect with Google",
+                goalAction: "wizard-connect-google",
+                nextStep: "step_setup_nav_level",
+                guideMessage: "Click the 'Connect with Google' button.",
+                alexPrompt: "Step 1 is connecting Clever to your Google Workspace. Click the \"Connect with Google\" button to authorize the connection.",
+                alexCorrectResponse: "Connected. That green checkmark means Clever now has permission to manage Google accounts. Now hit \"Next\" to move on.",
                 hint: {
-                    target: "managed-users-notification",
-                    message: "Look at the notification card in the Tasks tab for the user count.",
+                    target: "connect-google-btn",
+                    message: "Click the 'Connect with Google' button.",
+                },
+                autoShowHint: true,
+            },
+            // ── 4. Navigate to Management Level ──────────────────
+            {
+                id: "step_setup_nav_level",
+                type: "task",
+                checklistLabel: "Move to the Management Level step",
+                goalAction: "wizard-step-management-level",
+                nextStep: "step_setup_choose_full",
+                guideMessage: "Click 'Next: Select Management Level' to continue.",
+                alexPrompt: "Click \"Next: Select Management Level\" to continue to step 2.",
+                alexCorrectResponse: "This is where you decide how much control Clever has over Google accounts.",
+                hint: {
+                    target: "wizard-step-management-level",
+                    message: "Click 'Next: Select Management Level' or the step in the sidebar.",
+                },
+                autoShowHint: true,
+            },
+            // ── 5. Select Full Provisioning ──────────────────────
+            {
+                id: "step_setup_choose_full",
+                type: "task",
+                checklistLabel: "Select Full Provisioning",
+                goalAction: "wizard-select-full-provisioning",
+                nextStep: "step_setup_nav_users",
+                guideMessage: "Select the 'Full Provisioning and Password Management' option.",
+                alexPrompt: "Cedar Ridge wants the works — full provisioning. Select \"Full Provisioning and Password Management\". It's the Clever recommendation.",
+                alexCorrectResponse: "Full provisioning it is. Clever will handle account creation, updates, archiving, and passwords. That's the whole lifecycle.",
+                hint: {
+                    target: "management-level-full",
+                    message: "Click the 'Full Provisioning and Password Management' option.",
                 },
                 autoShowHint: false,
             },
-            // ── 8. Wrap up ───────────────────────────────────────
+            // ── 6. Navigate to Select Users ──────────────────────
             {
-                id: "step_orient_resolution",
+                id: "step_setup_nav_users",
+                type: "task",
+                checklistLabel: "Move to the Select Users step",
+                goalAction: "wizard-step-users",
+                nextStep: "step_setup_select_users",
+                guideMessage: "Click 'Next: Select Users' to continue.",
+                alexPrompt: "Click \"Next: Select Users\" to continue to step 3.",
+                alexCorrectResponse: "Here's where you choose which user types Clever will provision Google accounts for.",
+                hint: {
+                    target: "wizard-step-users",
+                    message: "Click 'Next: Select Users' or the step in the sidebar.",
+                },
+                autoShowHint: true,
+            },
+            // ── 7. Select all three user types ───────────────────
+            {
+                id: "step_setup_select_users",
+                type: "task",
+                checklistLabel: "Select all three user types",
+                goalAction: "wizard-select-all-users",
+                nextStep: "step_setup_users_assessment",
+                guideMessage: "Check the boxes for Students, Teachers, and Staff.",
+                alexPrompt: "Cedar Ridge provisions everyone — students, teachers, and staff. Check all three boxes.",
+                alexCorrectResponse: "All three user types selected. You can see the counts — 20 students, 10 teachers, 10 staff. That's our whole district.",
+                hint: {
+                    target: "user-type-checkboxes",
+                    message: "Check the boxes for Students, Teachers, and Staff.",
+                },
+                autoShowHint: false,
+            },
+            // ── 8. Confirm total user count ──────────────────────
+            {
+                id: "step_setup_users_assessment",
+                type: "checkpoint",
+                checklistLabel: "Confirm total user count",
+                question: "How many total users will be provisioned?",
+                alexPrompt: "Quick check — add up the counts for students, teachers, and staff. How many total Google accounts will Clever be managing?",
+                alexCorrectResponse: "40 users total. That's the whole Cedar Ridge district getting their Google accounts managed by Clever.",
+                alexWrongResponse: "Look at the numbers next to each checkbox — students, teachers, and staff. Add them up.",
+                choices: [
+                    { label: "40 users total", nextStep: "step_setup_nav_preview", correct: true },
+                    { label: "20 users total", nextStep: "step_setup_users_wrong", unguidedNextStep: "step_setup_nav_preview", correct: false },
+                    { label: "30 users total", nextStep: "step_setup_users_wrong", unguidedNextStep: "step_setup_nav_preview", correct: false },
+                ],
+                hint: {
+                    target: "user-type-checkboxes",
+                    message: "Add up the counts: students + teachers + staff.",
+                },
+                autoShowHint: false,
+            },
+            // ── 8a. Wrong user count ─────────────────────────────
+            {
+                id: "step_setup_users_wrong",
+                type: "checkpoint",
+                scored: false,
+                checklistLabel: "Confirm user count (retry)",
+                question: "Look at each count — 20 students, 10 teachers, 10 staff. What's the total?",
+                alexPrompt: "Check the numbers again. 20 students, 10 teachers, 10 staff — what's the total?",
+                choices: [
+                    { label: "40 users total", nextStep: "step_setup_nav_preview" },
+                ],
+            },
+            // ── 9. Skip to Preview and Provision ─────────────────
+            {
+                id: "step_setup_nav_preview",
+                type: "task",
+                checklistLabel: "Skip ahead to Preview and Provision",
+                goalAction: "wizard-step-preview",
+                nextStep: "step_setup_provision",
+                guideMessage: "Click 'Preview and provision' in the wizard sidebar.",
+                alexPrompt: "For now, let's skip ahead to the last step. Click \"Preview and provision\" in the sidebar — we'll come back to credentials and OUs in later training.",
+                alexCorrectResponse: "This is the Preview step. In a real setup you'd configure credentials, OUs, and groups first, then review the preview carefully. For today, let's just hit the button.",
+                hint: {
+                    target: "wizard-step-preview",
+                    message: "Click 'Preview and provision' in the wizard sidebar.",
+                },
+                autoShowHint: true,
+            },
+            // ── 10. Provision Google ─────────────────────────────
+            {
+                id: "step_setup_provision",
+                type: "task",
+                checklistLabel: "Provision Google accounts",
+                goalAction: "wizard-provision-google",
+                nextStep: "step_setup_resolution",
+                guideMessage: "Click the 'Provision Google' button.",
+                alexPrompt: "Go ahead — click \"Provision Google\" to activate provisioning. This is the big one.",
+                alexCorrectResponse: "Provisioning started. Google accounts are being created for all 40 users. You just completed your first IDM setup.",
+                hint: {
+                    target: "provision-google-btn",
+                    message: "Click the 'Provision Google' button at the bottom.",
+                },
+                autoShowHint: true,
+            },
+            // ── 11. Wrap up ──────────────────────────────────────
+            {
+                id: "step_setup_resolution",
                 type: "resolution",
                 checklistLabel: "Wrap up",
-                question: "How would you summarize IDM's status?",
-                alexPrompt: "OK, quick check — if someone asked you \"how's IDM looking?\", which summary would you give?",
-                alexCorrectResponse: "That's a solid summary. You just completed your first IDM walkthrough.",
+                question: "How would you summarize what you just did?",
+                alexPrompt: "OK — if someone asked you \"what did you set up today?\", what would you say?",
+                alexCorrectResponse: "That's a solid summary. You just completed your first IDM setup. Welcome to the team.",
                 choices: [
-                    { label: "IDM is active with Google Workspace. Syncs are running regularly and we're managing 40 users. System is healthy.", nextStep: null, correct: true },
-                    { label: "IDM is down. The sync has failed and Google accounts aren't being managed.", nextStep: null, correct: false },
+                    { label: "I connected Google Workspace to Clever IDM, chose full provisioning, selected all user types (40 total), and activated provisioning.", nextStep: null, correct: true },
+                    { label: "I browsed the IDM page and checked some tabs.", nextStep: null, correct: false },
                 ],
             },
         ],

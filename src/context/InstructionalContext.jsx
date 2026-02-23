@@ -431,6 +431,12 @@ export function InstructionalProvider({ children }) {
         const scenario = scenarios.find(s => s.id === scenarioId);
         if (!scenario) return;
 
+        // Clear wizard localStorage if scenario settings require it
+        if (scenario.settings?.clearWizardState) {
+            try { localStorage.removeItem("idm-provisioning-state"); } catch { /* ignore */ }
+            setIdmSetupComplete(false);
+        }
+
         const firstStep = scenario.steps[0];
         if (!firstStep) return;
 
@@ -830,6 +836,7 @@ export function InstructionalProvider({ children }) {
     const resetAllProgress = useCallback(() => {
         clearPersistedState();
         try { localStorage.removeItem("cedarridge-welcome-seen"); } catch { /* ignore */ }
+        try { localStorage.removeItem("idm-provisioning-state"); } catch { /* ignore */ }
         setCompletedScenarios(new Set());
         setCompletedModules(new Set());
         setScores({});

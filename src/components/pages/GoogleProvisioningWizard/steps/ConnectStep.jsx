@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useInstructional } from "@/context/InstructionalContext";
 import styles from "../GoogleProvisioningWizard.module.css";
 
 const GoogleLogo = () => (
@@ -21,6 +22,8 @@ const CheckCircle = () => (
 );
 
 export default function ConnectStep({ state, updateState, goNext, setToast }) {
+    const { checkActionGoal } = useInstructional();
+
     const handleDisconnect = () => {
         updateState({ googleConnected: false });
         setToast("Google account disconnected. Click 'Connect with Google' to reconnect.");
@@ -28,6 +31,7 @@ export default function ConnectStep({ state, updateState, goNext, setToast }) {
 
     const handleConnect = () => {
         updateState({ googleConnected: true });
+        checkActionGoal("wizard-connect-google");
         setToast("Google account connected successfully.");
     };
 
@@ -65,7 +69,7 @@ export default function ConnectStep({ state, updateState, goNext, setToast }) {
                     </div>
                 ) : (
                     <div style={{ marginTop: 16 }}>
-                        <button className={styles.nextBtn} onClick={handleConnect}>
+                        <button className={styles.nextBtn} data-instruction-target="connect-google-btn" onClick={handleConnect}>
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                                 <GoogleLogo /> Connect with Google
                             </span>

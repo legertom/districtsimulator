@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useInstructional } from "@/context/InstructionalContext";
 import styles from "../GoogleProvisioningWizard.module.css";
 
 const DownloadIcon = () => (
@@ -31,6 +32,7 @@ const InfoIcon = () => (
 );
 
 export default function PreviewStep({ state, setToast, onExit, onProvisionComplete }) {
+    const { checkActionGoal } = useInstructional();
     const { preview } = state;
 
     const handleDownload = () => {
@@ -46,6 +48,7 @@ export default function PreviewStep({ state, setToast, onExit, onProvisionComple
     };
 
     const handleProvision = () => {
+        checkActionGoal("wizard-provision-google");
         onProvisionComplete?.();
         setToast("Provisioning started! Google accounts are being created. Returning to IDM...");
         setTimeout(() => onExit(), 2500);
@@ -148,7 +151,7 @@ export default function PreviewStep({ state, setToast, onExit, onProvisionComple
             </div>
 
             <div className={styles.nextBtnRow}>
-                <button className={styles.provisionBtn} onClick={handleProvision}>
+                <button className={styles.provisionBtn} data-instruction-target="provision-google-btn" onClick={handleProvision}>
                     Provision Google
                 </button>
             </div>
