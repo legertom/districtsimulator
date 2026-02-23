@@ -139,7 +139,7 @@ export default function ManagementLevelStep({ state, updateState, goNext }) {
             </div>
 
             <div className={styles.nextBtnRow}>
-                <button className={styles.nextBtn} onClick={goNext}>
+                <button className={styles.nextBtn} data-instruction-target="next-select-users" onClick={goNext}>
                     Next: Select Users
                 </button>
             </div>

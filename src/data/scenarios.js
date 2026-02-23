@@ -95,8 +95,8 @@ export const scenarios = [
                 alexPrompt: "Click \"Next: Select Management Level\" to continue to step 2.",
                 alexCorrectResponse: "This is where you decide how much control Clever has over Google accounts.",
                 hint: {
-                    target: "wizard-step-management-level",
-                    message: "Click 'Next: Select Management Level' or the step in the sidebar.",
+                    target: "next-management-level",
+                    message: "Click 'Next: Select Management Level' to continue.",
                 },
                 autoShowHint: true,
             },
@@ -127,8 +127,8 @@ export const scenarios = [
                 alexPrompt: "Click \"Next: Select Users\" to continue to step 3.",
                 alexCorrectResponse: "Here's where you choose which user types Clever will provision Google accounts for.",
                 hint: {
-                    target: "wizard-step-users",
-                    message: "Click 'Next: Select Users' or the step in the sidebar.",
+                    target: "next-select-users",
+                    message: "Click 'Next: Select Users' to continue.",
                 },
                 autoShowHint: true,
             },

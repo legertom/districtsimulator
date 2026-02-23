@@ -80,7 +80,7 @@ export default function ConnectStep({ state, updateState, goNext, setToast }) {
 
             {state.googleConnected && (
                 <div className={styles.nextBtnRow}>
-                    <button className={styles.nextBtn} onClick={goNext}>
+                    <button className={styles.nextBtn} data-instruction-target="next-management-level" onClick={goNext}>
                         Next: Select Management Level
                     </button>
                 </div>
