@@ -2,7 +2,7 @@
 
 ## Current State
 
-- **IDM Scenario:** 2 scenarios authored (Setting Up IDM + Exploring IDM Tabs) with guided/unguided modes
+- **IDM Scenario:** 1 scenario authored (Setting Up IDM) with guided/unguided modes. IDM tab skills will be sprinkled into future credential/OU/group scenarios instead of a standalone module.
 - **Data persistence:** All localStorage — no database
 - **Scenario data flow:** Context system exists but not exercised end-to-end across IDM
 - **Profiles:** Admin profile only. Students/teachers/staff are detail panels in Data Browser — no dedicated routes, no IDM info
@@ -48,9 +48,9 @@
 
 ---
 
-## Wednesday, Feb 25 — Finalize IDM Tutorial Scenario
+## Wednesday, Feb 25 — Finalize IDM Setup Scenario
 
-**Goal:** Polish both IDM scenarios to be demo-ready.
+**Goal:** Polish Scenario 1A to be demo-ready. Remove standalone IDM Tabs scenario (1B) — those skills will be taught in context within future credential/OU/group scenarios.
 
 ### Scenario 1A — Setting Up IDM (11 steps)
 
@@ -60,20 +60,17 @@
 - Verify the wizard physically advances in lockstep with scenario steps
 - Polish dialogue/copy for Sam character
 
-### Scenario 1B — Exploring IDM Tabs (8 steps)
+### Remove Scenario 1B
 
-- End-to-end playthrough — verify tab navigation goals trigger correctly
-- Ensure sync history, exports, and events tabs show meaningful data
-- Fix checkpoint answer validation issues
-- Test resolution/completion flow and score recording
+- Delete or archive `scenario_idm_tab_exploration` from scenarios.js
+- IDM tab skills (Tasks, Sync History, Exports, Events) will be woven into Modules 2-4 instead
 
 ### Edge cases
 
 - Browser refresh mid-scenario (state recovery from DB)
 - Switching between guided/unguided mid-flow
-- Completing 1A then immediately starting 1B
 
-**Deliverable:** Both IDM scenarios play through cleanly start-to-finish in both modes. Progress saves to DB.
+**Deliverable:** IDM Setup scenario plays through cleanly start-to-finish in both modes. Progress saves to DB.
 
 ---
 
@@ -126,7 +123,7 @@
 ## By End of Friday
 
 1. **Supabase database** storing user progress, wizard state, and session data
-2. **IDM tutorial (both scenarios)** polished and playable end-to-end
+2. **IDM Setup scenario** polished and playable end-to-end (standalone tabs scenario removed — those skills move into future lessons)
 3. **Scenario data flowing** consistently through IDM, Data Browser, and profiles
 4. **Student, Teacher, and Staff profile pages** with demographics, enrollment, and Clever IDM info
 5. **Integrated experience** where provisioning visibly affects profiles and persists across sessions
