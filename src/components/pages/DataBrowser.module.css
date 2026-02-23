@@ -248,3 +248,152 @@
 .inlineIcon {
     color: #ef4444;
 }
+
+/* ── Search input ──────────────────────────────────────────── */
+
+.searchWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.searchInput {
+    padding: 6px 12px 6px 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    width: 240px;
+    outline: none;
+    color: #374151;
+}
+
+.searchInput:focus {
+    border-color: #1464ff;
+    box-shadow: 0 0 0 2px rgba(20, 100, 255, 0.15);
+}
+
+.searchInput::placeholder {
+    color: #9ca3af;
+}
+
+/* ── Detail panel (slide-out) ──────────────────────────────── */
+
+.detailOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.detailPanel {
+    width: 480px;
+    max-width: 90vw;
+    background: #ffffff;
+    height: 100%;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.detailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.detailTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.detailClose {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    border-radius: 4px;
+}
+
+.detailClose:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.detailBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.detailField {
+    margin-bottom: 16px;
+}
+
+.detailLabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.detailValue {
+    display: block;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.detailList {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0;
+}
+
+.detailList li {
+    font-size: 13px;
+    color: #374151;
+    padding: 6px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.detailList li:last-child {
+    border-bottom: none;
+}
+
+/* ── Disabled pagination button ────────────────────────────── */
+
+.pageButton:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.pageButton:disabled:hover {
+    background: none;
+}

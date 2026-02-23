@@ -22,7 +22,7 @@ import { navItems, districtInfo } from './sidebar';
 import { searchPlaceholder, userInfo } from './topNav';
 import { SYNC_STATES, syncMetadata } from './sisSync';
 import { destinations as idmDestinations, syncHistory as idmSyncHistory, events as idmEvents } from './idm';
-import { TABS, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA } from './dataBrowser';
+import { TABS, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA, ENROLLMENTS_BY_STUDENT, ENROLLMENTS_BY_SECTION } from './dataBrowser';
 import {
     portalApps,
     portalCategories,
@@ -134,7 +134,9 @@ export const defaultScenario = {
         sections: SECTIONS_DATA,
         terms: TERMS_DATA,
         courses: COURSES_DATA,
-        contacts: CONTACTS_DATA
+        contacts: CONTACTS_DATA,
+        enrollmentsByStudent: ENROLLMENTS_BY_STUDENT,
+        enrollmentsBySection: ENROLLMENTS_BY_SECTION
     }
 };
 

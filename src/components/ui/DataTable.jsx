@@ -26,6 +26,7 @@ export function DataTable({
     data = [],
     selectable = false,
     onSelect,
+    onRowClick,
     className = ""
 }) {
     const [selectedRows, setSelectedRows] = useState(new Set());
@@ -111,7 +112,12 @@ export function DataTable({
                 </thead>
                 <tbody>
                     {sortedData.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
+                        <tr
+                            key={rowIndex}
+                            onClick={() => onRowClick?.(row)}
+                            className={onRowClick ? styles.clickableRow : ""}
+                            style={onRowClick ? { cursor: "pointer" } : undefined}
+                        >
                             {selectable && (
                                 <td className={styles.checkboxCell}>
                                     <input
