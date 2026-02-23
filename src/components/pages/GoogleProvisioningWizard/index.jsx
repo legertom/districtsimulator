@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { WIZARD_STEPS, DEFAULT_PROVISIONING_STATE } from "@/data/defaults/idm-provisioning";
+import { WIZARD_STEPS, DEFAULT_PROVISIONING_STATE, UNCONFIGURED_PROVISIONING_STATE } from "@/data/defaults/idm-provisioning";
 import { useInstructional } from "@/context/InstructionalContext";
 import ConnectStep from "./steps/ConnectStep";
 import ManagementLevelStep from "./steps/ManagementLevelStep";
@@ -38,6 +38,7 @@ const STEP_COMPONENTS = {
 
 export default function GoogleProvisioningWizard({ currentStep, onStepChange, onExit, onProvisionComplete }) {
     const [localStep, setLocalStep] = useState(WIZARD_STEPS[0].id);
+    const { idmSetupComplete } = useInstructional();
     const [wizardState, setWizardState] = useState(() => {
         try {
             const saved = localStorage.getItem("idm-provisioning-state");
@@ -45,7 +46,8 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
         } catch {
             // ignore
         }
-        return { ...DEFAULT_PROVISIONING_STATE };
+        // Use unconfigured state when IDM hasn't been set up yet
+        return idmSetupComplete ? { ...DEFAULT_PROVISIONING_STATE } : { ...UNCONFIGURED_PROVISIONING_STATE };
     });
     const [toast, setToast] = useState(null);
     const { checkActionGoal } = useInstructional();

@@ -21,6 +21,7 @@ import { portalShortname, customizationEnabled, tabs as portalTabs } from './por
 import { navItems, districtInfo } from './sidebar';
 import { searchPlaceholder, userInfo } from './topNav';
 import { SYNC_STATES, syncMetadata } from './sisSync';
+import { destinations as idmDestinations, syncHistory as idmSyncHistory, events as idmEvents } from './idm';
 import { TABS, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA } from './dataBrowser';
 import {
     portalApps,
@@ -114,6 +115,13 @@ export const defaultScenario = {
         categories: portalCategories,
         notice: portalNotice,
         apps: portalApps
+    },
+
+    // IDM domain
+    idm: {
+        destinations: idmDestinations,
+        syncHistory: idmSyncHistory,
+        events: idmEvents,
     },
 
     // Batch C domains (complex/layout pages) - Task 22B

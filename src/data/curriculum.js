@@ -21,15 +21,15 @@ export const COURSES = [
             // ── Module 1 ──────────────────────────────────────────────
             {
                 id: "mod_overview",
-                title: "IDM Overview & Navigation",
-                description: "Learn the IDM layout, provider card, and all four tabs",
+                title: "IDM Setup",
+                description: "Set up IDM and get familiar with the dashboard",
                 prerequisites: [],
                 scenarioIds: [
                     "scenario_idm_orientation",
                     "scenario_idm_tab_exploration",
                 ],
                 bossIntro:
-                    "Hey — welcome aboard! I'm Alex, the senior IT admin here at Cedar Ridge. I'll be your onboarding buddy. I know — 'Identity Management' sounds like something from a spy movie. It's not. It's better. First stop: the IDM page. This is where all our Google Workspace provisioning lives. Get familiar with the provider card and the four tabs — you'll be spending a lot of time here.",
+                    "Welcome to Cedar Ridge! I'm Alex — I'll be walking you through everything in chat. Your first job: get familiar with Clever IDM. Let's do this.",
                 bossCompletion:
                     "Not bad for day one. You can already navigate IDM better than most people who've been here a year. Don't tell them I said that. Next up: the provisioning wizard.",
             },

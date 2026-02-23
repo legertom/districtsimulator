@@ -282,7 +282,7 @@ export function InstructionalProvider({ children }) {
     const [pendingNotifications, setPendingNotifications] = useState([]);
 
     // ── Right panel view ──
-    const [rightPanelView, setRightPanelView] = useState("inbox");
+    const [rightPanelView, setRightPanelView] = useState("chat");
 
     // ── Explicit completion state (Fix 2 — no message-variant inference) ──
     const [scenarioJustCompleted, setScenarioJustCompleted] = useState(null);
@@ -436,7 +436,7 @@ export function InstructionalProvider({ children }) {
 
         // Choose panel view: new investigation format if ticketMessage exists,
         // otherwise fall back to legacy conversation view
-        const panelView = scenario.ticketMessage ? "investigation" : "conversation";
+        const panelView = "chat";
 
         setCoachMarksEnabled(guided);
         setActiveScenarioId(scenarioId);
@@ -815,12 +815,13 @@ export function InstructionalProvider({ children }) {
     // ═══ Return to inbox ═══
 
     const returnToInbox = useCallback(() => {
-        setRightPanelView("inbox");
+        setRightPanelView("chat");
         setActiveScenarioId(null);
         setCurrentStepId(null);
         setShowHint(false);
         setConversationHistory([]);
-        setScenarioJustCompleted(null);
+        // Note: don't clear scenarioJustCompleted here — ChatView uses it
+        // to show the completion card before transitioning to lobby
         setVisitedStepIds(new Set());
     }, []);
 

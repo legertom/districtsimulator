@@ -18,17 +18,19 @@ export const scenarios = [
     //  Two scenarios: page orientation + tab exploration
     // ═══════════════════════════════════════════════════════════════
 
-    // ── Scenario 1A: IDM Page Orientation ────────────────────────
+    // ── Scenario 1A: IDM Setup Walkthrough ───────────────────────
     {
         id: "scenario_idm_orientation",
-        title: "IDM Page Orientation",
-        description: "Investigate the IDM page layout and report whether Google sync is healthy.",
-        customerId: "principalJones",
+        title: "Setting Up IDM",
+        description: "Walk through IDM setup with Alex and get Google Workspace configured.",
+        customerId: "boss",
         moduleId: "mod_overview",
-        ticketSubject: "Welcome! Can you check on our Google sync?",
+        ticketSubject: "Your first task: set up IDM",
         ticketPriority: "normal",
         ticketNumber: 1001,
-        ticketMessage: "Hi! Welcome aboard! I'm not going to pretend I understand what Clever IDM does, but the previous admin told me it's important. Can you just... check that everything's working? Green lights are good, right?",
+        ticketMessage: null,
+        chatMode: "onboarding",
+        alexIntro: "Hey! Welcome to day one. I'm Alex — senior IT admin here at Cedar Ridge. You're the new Clever admin, which means IDM is your domain now. We just subscribed to Clever IDM for Google Workspace, and your first job is to get familiar with it. I'll walk you through everything — just follow my lead.",
         nextScenario: null,
         settings: {},
 
@@ -41,6 +43,9 @@ export const scenarios = [
                 goalRoute: "idm",
                 nextStep: "step_orient_provider",
                 guideMessage: "Open the IDM page under User management in the sidebar.",
+                alexPrompt: "First things first — let's open the IDM page. You'll find it in the left sidebar under User Management. Click \"IDM\".",
+                systemPrompt: "Navigate to the IDM page",
+                alexCorrectResponse: "Nice, you found it. This is your IDM dashboard — your home base for identity management.",
                 hint: {
                     target: "idm",
                     message: "Click 'IDM' in the sidebar under User management.",
@@ -52,7 +57,10 @@ export const scenarios = [
                 id: "step_orient_provider",
                 type: "checkpoint",
                 checklistLabel: "Identify the provider",
-                question: "What provider do you see on the IDM page? That's what we need to tell Principal Jones.",
+                question: "What provider do you see on the IDM page?",
+                alexPrompt: "Good. Now look at the provider card at the top of the page. What identity provider is Cedar Ridge connected to?",
+                alexCorrectResponse: "Google Workspace — that's the one. Cedar Ridge uses Google for everything, so this is what we'll be managing.",
+                alexWrongResponse: "Hmm, take another look at the provider card. Check the logo and name.",
                 choices: [
                     { label: "Google Workspace", nextStep: "step_orient_health", correct: true },
                     { label: "Microsoft Entra ID", nextStep: "step_orient_provider_wrong", unguidedNextStep: "step_orient_health", correct: false },
@@ -70,7 +78,8 @@ export const scenarios = [
                 type: "checkpoint",
                 scored: false,
                 checklistLabel: "Identify the provider (retry)",
-                question: "Look again at the provider card — what logo and name do you see?",
+                question: "Look again — what logo and name do you see?",
+                alexPrompt: "Look one more time at the provider card. What logo and name do you see?",
                 choices: [
                     { label: "Google Workspace", nextStep: "step_orient_health" },
                 ],
@@ -80,7 +89,9 @@ export const scenarios = [
                 id: "step_orient_health",
                 type: "observe",
                 checklistLabel: "Check if the integration is healthy",
-                question: "Looking at the status badges on the provider card — is the Google integration healthy, or are there problems?",
+                question: "Is the integration healthy?",
+                alexPrompt: "See the status badges on that provider card? Tell me — is the Google integration healthy, or are there any problems showing?",
+                alexCorrectResponse: "Active and healthy. That's what we want to see. Means the connection between Clever and Google is solid.",
                 correctAnswer: "active",
                 matchMode: "includes",
                 successStep: "step_orient_nav_sync",
@@ -90,14 +101,17 @@ export const scenarios = [
                 },
                 autoShowHint: false,
             },
-            // ── 4. Navigate to sync timestamp area ───────────────
+            // ── 4. Navigate to sync history ──────────────────────
             {
                 id: "step_orient_nav_sync",
                 type: "task",
-                checklistLabel: "Find the last sync timestamp",
+                checklistLabel: "Check sync history",
                 goalAction: "idm-tab-sync-history",
                 nextStep: "step_orient_sync_health",
-                guideMessage: "Click on the Sync History tab to see when the last sync ran.",
+                guideMessage: "Click the Sync History tab.",
+                alexPrompt: "Now let's check when the last sync ran. Click the Sync History tab.",
+                systemPrompt: "Open the Sync History tab",
+                alexCorrectResponse: "This table shows every time Clever synced data with Google. Let's make sure it's been running regularly.",
                 hint: {
                     target: "last-sync-timestamp",
                     message: "Look below the provider card for sync information, or click the Sync History tab.",
@@ -108,8 +122,11 @@ export const scenarios = [
             {
                 id: "step_orient_sync_health",
                 type: "checkpoint",
-                checklistLabel: "Evaluate whether syncs are running regularly",
-                question: "Are syncs running on a regular schedule, or has there been a gap?",
+                checklistLabel: "Evaluate sync schedule",
+                question: "Are syncs running regularly?",
+                alexPrompt: "Look at the dates in that table. Are syncs running on a regular schedule, or has there been a gap?",
+                alexCorrectResponse: "Regular syncs, nice. That means student and staff accounts are staying up to date automatically.",
+                alexWrongResponse: "Look more carefully at the dates — they're pretty consistent.",
                 choices: [
                     { label: "Syncs are running regularly — the most recent one was within the last few days", nextStep: "step_orient_nav_tasks", correct: true },
                     { label: "Syncs have stopped — the last one was weeks ago", nextStep: "step_orient_sync_wrong", unguidedNextStep: "step_orient_nav_tasks", correct: false },
@@ -124,8 +141,9 @@ export const scenarios = [
                 id: "step_orient_sync_wrong",
                 type: "checkpoint",
                 scored: false,
-                checklistLabel: "Evaluate sync recency (retry)",
-                question: "Look at the sync dates more carefully. The table shows multiple recent entries. Are they spaced regularly?",
+                checklistLabel: "Evaluate sync schedule (retry)",
+                question: "Look at the sync dates more carefully.",
+                alexPrompt: "Check those dates one more time. The table shows multiple recent entries — are they spaced regularly?",
                 choices: [
                     { label: "Yes, syncs are running regularly", nextStep: "step_orient_nav_tasks" },
                 ],
@@ -134,22 +152,27 @@ export const scenarios = [
             {
                 id: "step_orient_nav_tasks",
                 type: "task",
-                checklistLabel: "Check the Tasks tab for notifications",
+                checklistLabel: "Check the Tasks tab",
                 goalAction: "idm-tab-tasks",
                 nextStep: "step_orient_managed_users",
-                guideMessage: "Click the Tasks tab to see any active notifications or tasks.",
+                guideMessage: "Click the Tasks tab.",
+                alexPrompt: "Last stop — click over to the Tasks tab. This is where notifications about your managed users live.",
+                systemPrompt: "Open the Tasks tab",
+                alexCorrectResponse: "Here we go. See that notification?",
                 hint: {
                     message: "Click the 'Tasks' tab near the top of the IDM page.",
                 },
                 autoShowHint: true,
             },
-            // ── 7. Managed users assessment ──────────────────────
+            // ── 7. Managed users count ───────────────────────────
             {
                 id: "step_orient_managed_users",
                 type: "observe",
-                checklistLabel: "Note how many users IDM manages",
-                question: "There's a notification about managed users here. How many Google accounts is IDM managing? Principal Jones will want to know.",
-                guideMessage: "Look at the notification card that mentions how many Google users IDM manages.",
+                checklistLabel: "Count managed users",
+                question: "How many users?",
+                alexPrompt: "There's a notification about managed users. How many Google accounts is IDM managing right now? Just give me the number.",
+                alexCorrectResponse: "40 users — that's our whole district. Teachers, staff, and students all getting their accounts managed through Clever.",
+                guideMessage: "Look at the notification card for the user count.",
                 correctAnswer: "40",
                 matchMode: "exact",
                 successStep: "step_orient_resolution",
@@ -159,15 +182,17 @@ export const scenarios = [
                 },
                 autoShowHint: false,
             },
-            // ── 8. Resolution ────────────────────────────────────
+            // ── 8. Wrap up ───────────────────────────────────────
             {
                 id: "step_orient_resolution",
                 type: "resolution",
-                checklistLabel: "Report back to Principal Jones",
-                question: "Choose the best summary to report back to Principal Jones:",
+                checklistLabel: "Wrap up",
+                question: "How would you summarize IDM's status?",
+                alexPrompt: "OK, quick check — if someone asked you \"how's IDM looking?\", which summary would you give?",
+                alexCorrectResponse: "That's a solid summary. You just completed your first IDM walkthrough.",
                 choices: [
-                    { label: "Our IDM is active with Google Workspace. Syncs are running regularly and we're managing 40 users. There's 1 minor issue to review, but overall the system is healthy.", nextStep: null, correct: true },
-                    { label: "IDM is down. The sync has failed and Google accounts aren't being managed. We need to call Clever support immediately.", nextStep: null, correct: false },
+                    { label: "IDM is active with Google Workspace. Syncs are running regularly and we're managing 40 users. System is healthy.", nextStep: null, correct: true },
+                    { label: "IDM is down. The sync has failed and Google accounts aren't being managed.", nextStep: null, correct: false },
                 ],
             },
         ],
@@ -177,12 +202,14 @@ export const scenarios = [
     {
         id: "scenario_idm_tab_exploration",
         title: "Exploring IDM Tabs",
-        description: "Navigate all four IDM tabs and document what each one shows for the IT wiki.",
-        customerId: "sarahChen",
+        description: "Explore all four IDM tabs with Alex and learn what each one does.",
+        customerId: "boss",
         moduleId: "mod_overview",
-        ticketSubject: "Documenting IDM for the team wiki",
+        ticketSubject: "Explore the IDM tabs",
         ticketPriority: "normal",
         ticketNumber: 1002,
+        chatMode: "onboarding",
+        alexIntro: "OK, you've got the basics down. Now let's dig into each of the four IDM tabs so you know exactly what's available. This is the stuff you'll use every day.",
         ticketMessage: "Hey — welcome to Cedar Ridge! I've been meaning to document our IDM page for the IT wiki but haven't had time. Since you're getting oriented anyway, want to kill two birds with one stone? I especially need to know about sync logs, exports, and event tracking.",
         nextScenario: null,
         settings: {},

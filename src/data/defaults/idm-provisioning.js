@@ -14,6 +14,53 @@ export const WIZARD_STEPS = [
     { id: "preview", label: "Preview and provision", number: 8 },
 ];
 
+/** Unconfigured wizard state — virgin/untouched, before the user begins setup */
+export const UNCONFIGURED_PROVISIONING_STATE = {
+    googleConnected: false,
+    managementLevel: null,
+    transitionMode: false,
+    provisionStudents: false,
+    provisionTeachers: false,
+    provisionStaff: false,
+    studentCount: 20,
+    teacherCount: 10,
+    staffCount: 10,
+    credentials: {
+        students: {
+            completed: false, email: "", password: "", domain: "cedarridgesd.org",
+            emailTokens: [], emailFormat: [], fallbackEnabled: false, fallbackFormat: [],
+        },
+        teachers: {
+            completed: false, email: "", password: "", domain: "cedarridgesd.org",
+            emailTokens: [], emailFormat: [], fallbackEnabled: false, fallbackFormat: [],
+        },
+        staff: {
+            completed: false, email: "", password: "", domain: "cedarridgesd.org",
+            emailTokens: [], emailFormat: [], fallbackEnabled: false, fallbackFormat: [],
+        },
+    },
+    ous: {
+        students: { completed: false, path: "", selectedOU: null, subOUFormat: [] },
+        teachers: { completed: false, path: "", selectedOU: null, subOUFormat: [] },
+        staff:    { completed: false, path: "", selectedOU: null, subOUFormat: [] },
+        archive:  { completed: false, path: "", selectedOU: null, archiveAction: null },
+        ignored:  { completed: false, path: "", ignoredOUs: [], handling: { students: null, teachers: null, staff: null } },
+    },
+    groups: {
+        students: { rulesConfigured: 0 },
+        teachers: { rulesConfigured: 0 },
+        staff:    { rulesConfigured: 0 },
+    },
+    preview: {
+        lastRun: null,
+        accountsToCreate: 0,
+        accountsToUpdate: 0,
+        accountsToArchive: 0,
+        syncIssues: 0,
+        details: [],
+    },
+};
+
 /** Default wizard state — represents a fully-configured provisioning setup */
 export const DEFAULT_PROVISIONING_STATE = {
     /* Step 1 — Connect to Google */

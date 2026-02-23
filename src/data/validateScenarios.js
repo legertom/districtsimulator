@@ -45,9 +45,11 @@ export function validateScenarios(scenarios, courses, characters) {
         if (!scenario.description) pushErr("Missing description");
         if (!scenario.steps?.length) pushErr("No steps defined");
 
-        // (e) Required fields for InvestigationView
-        if (!scenario.ticketSubject) pushErr("Missing ticketSubject");
-        if (!scenario.ticketMessage) pushErr("Missing ticketMessage");
+        // (e) Required fields — ticket fields only needed when not in onboarding chatMode
+        if (!scenario.chatMode) {
+            if (!scenario.ticketSubject) pushErr("Missing ticketSubject");
+            if (!scenario.ticketMessage) pushErr("Missing ticketMessage");
+        }
         if (!scenario.customerId) pushErr("Missing customerId");
         if (!scenario.moduleId) pushErr("Missing moduleId");
 
