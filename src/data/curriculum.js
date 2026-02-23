@@ -29,7 +29,7 @@ export const COURSES = [
                     "scenario_idm_tab_exploration",
                 ],
                 bossIntro:
-                    "Welcome to Cedar Ridge! I'm Alex — I'll be walking you through everything in chat. Your first job: get familiar with Clever IDM. Let's do this.",
+                    "Welcome to Cedar Ridge! I'm Sam — I'll be walking you through everything in chat. Your first job: get familiar with Clever IDM. Let's do this.",
                 bossCompletion:
                     "Not bad for day one. You can already navigate IDM better than most people who've been here a year. Don't tell them I said that. Next up: the provisioning wizard.",
             },

@@ -48,7 +48,7 @@ export default function WelcomeOverlay({ onEnterDashboard }) {
                     Hey, {firstName}!
                 </h1>
                 <p className={styles.subtitle}>
-                    I'm <strong>Alex Rivera</strong>, senior IT admin here at{" "}
+                    I'm <strong>Sam</strong>, senior IT admin here at{" "}
                     <strong>{DISTRICT.name}</strong>. I'll be your onboarding buddy.
                 </p>
                 <p className={styles.description}>

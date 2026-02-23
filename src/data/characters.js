@@ -10,11 +10,11 @@ export const CHARACTERS = {
     // ── The user's boss ────────────────────────────────────────────
     boss: {
         id: "boss",
-        firstName: "Alex",
-        lastName: "Rivera",
+        firstName: "Sam",
+        lastName: "",
         role: "Senior IT Administrator",
         school: null,
-        avatar: "AR",
+        avatar: "S",
         avatarColor: "#2c3e50",
     },
 

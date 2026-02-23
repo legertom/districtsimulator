@@ -22,7 +22,7 @@ export const scenarios = [
     {
         id: "scenario_idm_orientation",
         title: "Setting Up IDM",
-        description: "Walk through IDM setup with Alex and get Google Workspace configured.",
+        description: "Walk through IDM setup with Sam and get Google Workspace configured.",
         customerId: "boss",
         moduleId: "mod_overview",
         ticketSubject: "Your first task: set up IDM",
@@ -30,7 +30,7 @@ export const scenarios = [
         ticketNumber: 1001,
         ticketMessage: null,
         chatMode: "onboarding",
-        alexIntro: "Hey! Welcome to day one. I'm Alex — senior IT admin here at Cedar Ridge. You're the new Clever admin, which means IDM is your domain now. We just subscribed to Clever IDM for Google Workspace, and your first job is to get familiar with it. I'll walk you through everything — just follow my lead.",
+        alexIntro: "Hey! Welcome to day one. I'm Sam — senior IT admin here at Cedar Ridge. You're the new Clever admin, which means IDM is your domain now. We just subscribed to Clever IDM for Google Workspace, and your first job is to get familiar with it. I'll walk you through everything — just follow my lead.",
         nextScenario: null,
         settings: {},
 
@@ -202,7 +202,7 @@ export const scenarios = [
     {
         id: "scenario_idm_tab_exploration",
         title: "Exploring IDM Tabs",
-        description: "Explore all four IDM tabs with Alex and learn what each one does.",
+        description: "Explore all four IDM tabs with Sam and learn what each one does.",
         customerId: "boss",
         moduleId: "mod_overview",
         ticketSubject: "Explore the IDM tabs",

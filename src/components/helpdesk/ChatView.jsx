@@ -326,7 +326,7 @@ export default function ChatView() {
                         <div className={styles.headerProfile}>
                             <div className={styles.headerAvatar} style={{ backgroundColor: boss.avatarColor }}>{boss.avatar}</div>
                             <div className={styles.headerInfo}>
-                                <span className={styles.headerName}>Alex Rivera</span>
+                                <span className={styles.headerName}>Sam</span>
                                 <span className={styles.headerRole}>Onboarding</span>
                             </div>
                         </div>
