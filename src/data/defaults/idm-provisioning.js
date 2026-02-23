@@ -25,6 +25,7 @@ export const UNCONFIGURED_PROVISIONING_STATE = {
     studentCount: 20,
     teacherCount: 10,
     staffCount: 10,
+    graduationRolloverDate: "",
     credentials: {
         students: {
             completed: false, email: "", password: "", domain: "cedarridgesd.org",
@@ -77,6 +78,7 @@ export const DEFAULT_PROVISIONING_STATE = {
     studentCount: 20,
     teacherCount: 10,
     staffCount: 10,
+    graduationRolloverDate: "08/13/2026",
 
     /* Step 4 — Login Credentials */
     credentials: {
