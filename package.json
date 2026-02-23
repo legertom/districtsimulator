@@ -16,6 +16,7 @@
     "verify:quality": "npm run lint && npm test && npm run lint:scenarios && npm run check:protected-paths"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
     "bcryptjs": "^3.0.3",
     "next": "16.1.6",
     "next-auth": "^4.24.13",

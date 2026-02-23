@@ -5,6 +5,7 @@ import { isRateLimited, clearRateLimit } from './security/rateLimit';
 import { getSafeRedirectUrl } from './security/redirect';
 import { isGoogleProviderEnabled } from './security/providerGate';
 import { logSecurityEvent } from './security/audit';
+import { getSupabaseServerClient } from './supabase/server';
 
 // Validate secrets on load
 ENV.validateAuthSecret();
@@ -74,15 +75,42 @@ export const authOptions = {
             }
             return true; // Allow Credentials provider (dev)
         },
-        async jwt({ token, user }) {
+        async jwt({ token, user, account }) {
             if (user) {
                 token.role = user.role;
+            }
+            // On first sign-in, upsert a profile row and store the UUID
+            if (user?.email && !token.profileId) {
+                try {
+                    const supabase = getSupabaseServerClient();
+                    const { data, error } = await supabase
+                        .from("profiles")
+                        .upsert(
+                            {
+                                email: user.email,
+                                name: user.name ?? null,
+                                provider: account?.provider ?? "credentials",
+                                role: user.role ?? "admin",
+                            },
+                            { onConflict: "email" }
+                        )
+                        .select("id")
+                        .single();
+                    if (error) {
+                        console.error("Supabase profile upsert error:", error.message, error.code);
+                    } else if (data?.id) {
+                        token.profileId = data.id;
+                    }
+                } catch (err) {
+                    console.error("Failed to upsert profile:", err);
+                }
             }
             return token;
         },
         async session({ session, token }) {
             if (session?.user) {
                 session.user.role = token.role;
+                session.user.id = token.profileId ?? null;
             }
             return session;
         },
