@@ -265,37 +265,33 @@ export default function DataBrowser() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedItem, setSelectedItem] = useState(null);
 
-    // ── Search keys per tab ─────────────────────────────────
-    const searchKeys = {
-        Schools: ["name", "city", "state", "principal"],
-        Students: ["first", "last", "school", "grade", "email", "dob"],
-        Teachers: ["first", "last", "school", "email", "title"],
-        Staff: ["first", "last", "email", "title", "department"],
-        Sections: ["name", "school", "teacher", "course", "subject", "grade"],
-        Terms: ["name"],
-        Courses: ["name", "number"],
-        Contacts: ["name", "email"],
-    };
-
-    // ── Data source per tab ─────────────────────────────────
-    const dataForTab = {
-        Schools: SCHOOLS_DATA,
-        Students: STUDENTS_DATA,
-        Teachers: TEACHERS_DATA,
-        Staff: STAFF_DATA,
-        Sections: SECTIONS_DATA,
-        Terms: TERMS_DATA,
-        Courses: COURSES_DATA,
-        Contacts: CONTACTS_DATA || [],
-    };
-
     // ── Filtered data ───────────────────────────────────────
     const filteredData = useMemo(() => {
+        const searchKeys = {
+            Schools: ["name", "city", "state", "principal"],
+            Students: ["first", "last", "school", "grade", "email", "dob"],
+            Teachers: ["first", "last", "school", "email", "title"],
+            Staff: ["first", "last", "email", "title", "department"],
+            Sections: ["name", "school", "teacher", "course", "subject", "grade"],
+            Terms: ["name"],
+            Courses: ["name", "number"],
+            Contacts: ["name", "email"],
+        };
+        const dataForTab = {
+            Schools: SCHOOLS_DATA,
+            Students: STUDENTS_DATA,
+            Teachers: TEACHERS_DATA,
+            Staff: STAFF_DATA,
+            Sections: SECTIONS_DATA,
+            Terms: TERMS_DATA,
+            Courses: COURSES_DATA,
+            Contacts: CONTACTS_DATA || [],
+        };
         const data = dataForTab[activeTab] || [];
         const keys = searchKeys[activeTab] || [];
         if (!searchQuery) return data;
         return data.filter(row => matchesSearch(row, searchQuery, keys));
-    }, [activeTab, searchQuery, dataForTab, searchKeys, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA]);
+    }, [activeTab, searchQuery, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA]);
 
     // ── Pagination ──────────────────────────────────────────
     const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
