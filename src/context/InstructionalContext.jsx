@@ -1,19 +1,28 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useSession } from "next-auth/react";
 import { scenarios } from "@/data/scenarios";
 import { COURSES, SCENARIO_TO_MODULE } from "@/data/curriculum";
 import { CHARACTERS } from "@/data/characters";
 import { STEP_TYPE_MAP, normalizeStep } from "@/data/stepUtils";
 import { validateScenarios as runValidation } from "@/data/validateScenarios";
+import {
+    fetchProgressFromApi,
+    saveProgressToApi,
+    loadProgressFromLocalStorage,
+    saveProgressToLocalStorage,
+    clearLocalStorage,
+    apiResponseToState,
+    createDebouncedApiSave,
+} from "@/lib/progressApi";
 
 export const InstructionalContext = createContext();
 
 // ═══════════════════════════════════════════════════════════════
-//  localStorage persistence
+//  State version (used by migration chain and progressApi)
 // ═══════════════════════════════════════════════════════════════
 
-const STORAGE_KEY = "pjs-state";
 const STATE_VERSION = 3;
 
 // ═══════════════════════════════════════════════════════════════
@@ -88,43 +97,6 @@ export function migrateState(state) {
     // After running all migrations the version must match current
     if (current.version !== STATE_VERSION) return null;
     return current;
-}
-
-function saveState(state) {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            version: STATE_VERSION,
-            ...state,
-        }));
-    } catch { /* quota exceeded or private browsing */ }
-}
-
-function loadState() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-
-        // Already current version — return as-is
-        if (parsed.version === STATE_VERSION) return parsed;
-
-        // Attempt migration chain
-        const migrated = migrateState(parsed);
-        if (migrated) {
-            // Persist the migrated state so we don't re-migrate every load
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-            return migrated;
-        }
-
-        // Unrecoverable — discard
-        return null;
-    } catch {
-        return null;
-    }
-}
-
-function clearPersistedState() {
-    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -253,7 +225,11 @@ function getInitialHistory() {
 // ═══════════════════════════════════════════════════════════════
 
 export function InstructionalProvider({ children }) {
-    const saved = useMemo(() => loadState(), []);
+    const { data: session, status: authStatus } = useSession();
+    const isAuthenticated = authStatus === "authenticated" && !!session?.user?.id;
+
+    // Phase 1: synchronous localStorage load (instant, no flash)
+    const saved = useMemo(() => loadProgressFromLocalStorage(), []);
 
     // ── Core state ──
     const [activeScenarioId, setActiveScenarioId] = useState(null);
@@ -335,16 +311,65 @@ export function InstructionalProvider({ children }) {
 
     const timestamp = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // ═══ Persist on change ═══
+    // ═══ Phase 2: async DB load (overlays localStorage once resolved) ═══
     useEffect(() => {
-        saveState({
+        if (!isAuthenticated) return;
+
+        let cancelled = false;
+
+        fetchProgressFromApi().then((data) => {
+            if (cancelled || !data) return;
+
+            const dbState = apiResponseToState(data);
+
+            // DB is authoritative — overlay onto current state
+            setCompletedScenarios(new Set(dbState.completedScenarios));
+            setCompletedModules(new Set(dbState.completedModules));
+            setScores(dbState.scores);
+            setCoachMarksEnabled(dbState.coachMarksEnabled);
+            setIdmSetupComplete(dbState.idmSetupComplete);
+
+            // Keep localStorage in sync
+            saveProgressToLocalStorage({
+                completedScenarios: dbState.completedScenarios,
+                completedModules: dbState.completedModules,
+                scores: dbState.scores,
+                coachMarksEnabled: dbState.coachMarksEnabled,
+                idmSetupComplete: dbState.idmSetupComplete,
+            });
+        });
+
+        return () => { cancelled = true; };
+    }, [isAuthenticated]);
+
+    // ═══ Persist on change (dual-write: localStorage + API) ═══
+    const debouncedApiSaveRef = useRef(null);
+    if (!debouncedApiSaveRef.current) {
+        debouncedApiSaveRef.current = createDebouncedApiSave();
+    }
+
+    useEffect(() => {
+        const stateSnapshot = {
             completedScenarios: [...completedScenarios],
             completedModules: [...completedModules],
             scores,
             coachMarksEnabled,
             idmSetupComplete,
-        });
-    }, [completedScenarios, completedModules, scores, coachMarksEnabled, idmSetupComplete]);
+        };
+
+        // Always write to localStorage immediately (offline fallback)
+        saveProgressToLocalStorage(stateSnapshot);
+
+        // Debounced write to API if authenticated
+        if (isAuthenticated) {
+            debouncedApiSaveRef.current.debouncedSave(stateSnapshot);
+        }
+    }, [completedScenarios, completedModules, scores, coachMarksEnabled, idmSetupComplete, isAuthenticated]);
+
+    // Cleanup debounce timer on unmount
+    useEffect(() => {
+        return () => debouncedApiSaveRef.current?.cancel();
+    }, []);
 
     // ═══ Notification helper ═══
     const dismissNotification = useCallback((notificationId) => {
@@ -834,7 +859,7 @@ export function InstructionalProvider({ children }) {
     // ═══ Reset all progress ═══
 
     const resetAllProgress = useCallback(() => {
-        clearPersistedState();
+        clearLocalStorage();
         try { localStorage.removeItem("cedarridge-welcome-seen"); } catch { /* ignore */ }
         try { localStorage.removeItem("idm-provisioning-state"); } catch { /* ignore */ }
         setCompletedScenarios(new Set());
@@ -851,7 +876,18 @@ export function InstructionalProvider({ children }) {
         setConversationHistory([]);
         setScenarioJustCompleted(null);
         setVisitedStepIds(new Set());
-    }, []);
+
+        // Also reset DB if authenticated
+        if (isAuthenticated) {
+            saveProgressToApi({
+                completedScenarios: [],
+                completedModules: [],
+                scores: {},
+                coachMarksEnabled: true,
+                idmSetupComplete: false,
+            });
+        }
+    }, [isAuthenticated]);
 
     // ═══ DEV-ONLY: Ctrl+Shift+R reset-to-module shortcut ═══
     useEffect(() => {
