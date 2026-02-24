@@ -44,6 +44,14 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
+
+    if (typeof body !== "object" || body === null || Array.isArray(body)) {
+        return Response.json({ error: "Invalid payload" }, { status: 400 });
+    }
+    if (body.wizard_data && typeof body.wizard_data !== "object") {
+        return Response.json({ error: "wizard_data must be an object" }, { status: 400 });
+    }
+
     const supabase = getSupabaseServerClient();
 
     const row = {

@@ -51,6 +51,21 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
+
+    // Basic input validation
+    if (typeof body !== "object" || body === null || Array.isArray(body)) {
+        return Response.json({ error: "Invalid payload" }, { status: 400 });
+    }
+    if (body.completed_scenarios && !Array.isArray(body.completed_scenarios)) {
+        return Response.json({ error: "completed_scenarios must be an array" }, { status: 400 });
+    }
+    if (body.completed_modules && !Array.isArray(body.completed_modules)) {
+        return Response.json({ error: "completed_modules must be an array" }, { status: 400 });
+    }
+    if (body.scores && typeof body.scores !== "object") {
+        return Response.json({ error: "scores must be an object" }, { status: 400 });
+    }
+
     const supabase = getSupabaseServerClient();
 
     const row = {
