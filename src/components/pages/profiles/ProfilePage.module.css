@@ -1,0 +1,361 @@
+/* ── Profile page shared styles ─────────────────────────────── */
+/* Replicates the real Clever dashboard profile layout */
+
+.container {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--gray-50);
+}
+
+/* ── Hero Header ─────────────────────────────────────────────── */
+
+.heroSection {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 24px 32px 0;
+}
+
+.heroContent {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 1200px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gray-600);
+    flex-shrink: 0;
+}
+
+.heroInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.heroName {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 2px 0;
+}
+
+.heroSubtext {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin: 0 0 10px 0;
+}
+
+.heroMeta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.heroBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    background-color: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.heroBadgeGreen {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.heroLink {
+    font-size: 13px;
+    color: var(--clever-blue);
+    text-decoration: none;
+}
+
+.heroLink:hover {
+    text-decoration: underline;
+}
+
+.heroEmail {
+    font-size: 13px;
+    color: var(--gray-600);
+}
+
+.heroActions {
+    flex-shrink: 0;
+}
+
+.actionsButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid var(--clever-blue);
+    border-radius: 4px;
+    background: white;
+    color: var(--clever-blue);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.actionsButton:hover {
+    background: var(--clever-blue-light, #f0f4ff);
+}
+
+/* ── Stats Bar ───────────────────────────────────────────────── */
+
+.statsBar {
+    display: flex;
+    gap: 32px;
+    padding: 16px 32px;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.statLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statValue {
+    font-size: 14px;
+    color: var(--gray-900);
+    font-weight: 500;
+}
+
+/* ── Tab bar ─────────────────────────────────────────────────── */
+/* We use the shared <Tabs> component from ui/Tabs.jsx */
+
+/* ── Content area ────────────────────────────────────────────── */
+
+.content {
+    padding: 24px 32px;
+    max-width: 1200px;
+}
+
+/* ── Back link ───────────────────────────────────────────────── */
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--clever-blue);
+    text-decoration: none;
+    margin-bottom: 16px;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Card sections ───────────────────────────────────────────── */
+
+.card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 24px 32px;
+    margin-bottom: 20px;
+}
+
+.cardHeader {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 20px 0;
+}
+
+.fieldGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 48px;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fieldLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.fieldValue {
+    font-size: 14px;
+    color: var(--gray-900);
+}
+
+.fieldEmpty {
+    font-size: 14px;
+    color: var(--gray-400);
+}
+
+.fieldLink {
+    font-size: 14px;
+    color: var(--clever-blue);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.fieldLink:hover {
+    text-decoration: underline;
+}
+
+/* ── Tables inside cards ─────────────────────────────────────── */
+
+.cardTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.cardTable th {
+    text-align: left;
+    padding: 10px 16px;
+    color: var(--gray-600);
+    font-weight: 600;
+    border-bottom: 2px solid var(--gray-200);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cardTable td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    color: var(--gray-700);
+}
+
+.cardTable tr:last-child td {
+    border-bottom: none;
+}
+
+.cardTable a {
+    color: var(--clever-blue);
+    text-decoration: none;
+}
+
+.cardTable a:hover {
+    text-decoration: underline;
+}
+
+/* ── Empty states ────────────────────────────────────────────── */
+
+.emptyState {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--gray-500);
+    font-size: 14px;
+}
+
+/* ── Apps & Logins placeholders ──────────────────────────────── */
+
+.placeholderCard {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 24px 32px;
+    margin-bottom: 20px;
+}
+
+.placeholderCard h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 16px 0;
+}
+
+.placeholderEmpty {
+    text-align: center;
+    padding: 32px;
+    color: var(--gray-400);
+    font-size: 14px;
+    background: var(--gray-50);
+    border-radius: 6px;
+}
+
+/* ── Status badges ───────────────────────────────────────────── */
+
+.statusProvisioned {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.statusNotProvisioned {
+    background-color: var(--gray-100);
+    color: var(--gray-600);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ── Actions dropdown ────────────────────────────────────────── */
+
+.actionsDropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 260px;
+    z-index: 50;
+    padding: 6px 0;
+}
+
+.actionsDropdownItem {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 14px;
+    color: var(--gray-700);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.actionsDropdownItem:hover {
+    background: var(--gray-50);
+}
+
+.actionsDropdownDivider {
+    height: 1px;
+    background: var(--gray-200);
+    margin: 4px 0;
+}

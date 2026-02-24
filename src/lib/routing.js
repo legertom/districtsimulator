@@ -134,3 +134,42 @@ export function buildApplicationDetailsRoute(appId) {
 export function buildProvisioningRoute(step) {
     return `/dashboard/idm/provisioning/${parseProvisioningStep(step)}`;
 }
+
+// ── Profile routes ──────────────────────────────────────────
+
+export function parseProfileId(id) {
+    const normalizedId = getRouteParamValue(id).trim();
+    if (
+        !normalizedId ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizedId)
+    ) {
+        return null;
+    }
+    return normalizedId;
+}
+
+export function buildStudentProfileRoute(id) {
+    const parsedId = parseProfileId(id);
+    if (parsedId === null) return buildDashboardRoute("data-browser");
+    return `/dashboard/student-profile/${parsedId}`;
+}
+
+export function buildTeacherProfileRoute(id) {
+    const parsedId = parseProfileId(id);
+    if (parsedId === null) return buildDashboardRoute("data-browser");
+    return `/dashboard/teacher-profile/${parsedId}`;
+}
+
+export function buildStaffProfileRoute(id) {
+    const parsedId = parseProfileId(id);
+    if (parsedId === null) return buildDashboardRoute("data-browser");
+    return `/dashboard/staff-profile/${parsedId}`;
+}
+
+export function buildProfileRouteByType(userType, id) {
+    const type = userType?.toLowerCase();
+    if (type === "student") return buildStudentProfileRoute(id);
+    if (type === "teacher") return buildTeacherProfileRoute(id);
+    if (type === "staff") return buildStaffProfileRoute(id);
+    return buildDashboardRoute("data-browser");
+}
