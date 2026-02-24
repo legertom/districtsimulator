@@ -39,7 +39,7 @@ describe("TicketInbox", () => {
         renderInbox();
         // Only Module 1 tickets render (modules 2-6 are locked/hidden)
         expect(screen.getByText("Your first task: set up IDM")).toBeInTheDocument();
-        expect(screen.getByText("Explore the IDM tabs")).toBeInTheDocument();
+        // scenario_idm_tab_exploration was removed — Module 1 now has only 1 scenario
     });
 
     it("downstream modules are locked when prerequisites are not completed", () => {
@@ -56,7 +56,7 @@ describe("TicketInbox", () => {
     it("Module 3 unlocks when Modules 1-2 are completed", () => {
         renderInbox({
             completedScenarios: new Set([
-                "scenario_idm_orientation", "scenario_idm_tab_exploration",
+                "scenario_idm_orientation",
                 "scenario_wizard_navigation", "scenario_wizard_concepts",
             ]),
             completedModules: new Set(["mod_overview", "mod_provisioning_basics"]),
@@ -69,10 +69,17 @@ describe("TicketInbox", () => {
     });
 
     it("completed ticket shows score", () => {
+        // Module 1 has only 1 scenario now, so completing it collapses the module
+        // to a compact row. Use Module 2 (which has 2 scenarios) instead: complete
+        // one scenario so the module stays expanded and renders scores.
         renderInbox({
-            completedScenarios: new Set(["scenario_idm_orientation"]),
+            completedScenarios: new Set([
+                "scenario_idm_orientation",
+                "scenario_wizard_navigation",
+            ]),
+            completedModules: new Set(["mod_overview"]),
             scores: {
-                scenario_idm_orientation: {
+                scenario_wizard_navigation: {
                     guided: { correct: 3, total: 4, timeMs: 120000, startTime: 0 },
                     unguided: null,
                 },
@@ -101,7 +108,7 @@ describe("TicketInbox", () => {
     it("full curriculum unlocks when all modules are completed", () => {
         renderInbox({
             completedScenarios: new Set([
-                "scenario_idm_orientation", "scenario_idm_tab_exploration",
+                "scenario_idm_orientation",
                 "scenario_wizard_navigation", "scenario_wizard_concepts",
                 "scenario_idm_credentials", "scenario_credential_building",
                 "scenario_ou_navigation", "scenario_ou_configuration",

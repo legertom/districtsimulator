@@ -26,7 +26,6 @@ export const COURSES = [
                 prerequisites: [],
                 scenarioIds: [
                     "scenario_idm_orientation",
-                    "scenario_idm_tab_exploration",
                 ],
                 bossIntro:
                     "Welcome to Cedar Ridge! I'm Sam — I'll be walking you through everything in chat. Your first job: get familiar with Clever IDM. Let's do this.",
