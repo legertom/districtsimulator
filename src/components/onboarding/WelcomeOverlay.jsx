@@ -48,14 +48,14 @@ export default function WelcomeOverlay({ onEnterDashboard }) {
                     Hey, {firstName}!
                 </h1>
                 <p className={styles.subtitle}>
-                    I'm <strong>Sam</strong>, senior IT admin here at{" "}
-                    <strong>{DISTRICT.name}</strong>. I'll be your onboarding buddy.
+                    I&apos;m <strong>Sam</strong>, senior IT admin here at{" "}
+                    <strong>{DISTRICT.name}</strong>. I&apos;ll be your onboarding buddy.
                 </p>
                 <p className={styles.description}>
-                    You're the new <strong>Clever Admin</strong> — which means you're in charge of
+                    You&apos;re the new <strong>Clever Admin</strong> — which means you&apos;re in charge of
                     managing our Google Workspace accounts through <strong>Clever IDM</strong>.
-                    Don't worry, I'll walk you through everything. Fair warning — I over-explain.
-                    It's a feature, not a bug.
+                    Don&apos;t worry, I&apos;ll walk you through everything. Fair warning — I over-explain.
+                    It&apos;s a feature, not a bug.
                 </p>
                 <div className={styles.steps}>
                     <div className={styles.step}>
@@ -72,7 +72,7 @@ export default function WelcomeOverlay({ onEnterDashboard }) {
                     </div>
                 </div>
                 <button className={styles.ctaButton} onClick={handleStart}>
-                    Let's get started
+                    Let&apos;s get started
                 </button>
             </div>
         </div>

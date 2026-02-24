@@ -295,7 +295,7 @@ export default function DataBrowser() {
         const keys = searchKeys[activeTab] || [];
         if (!searchQuery) return data;
         return data.filter(row => matchesSearch(row, searchQuery, keys));
-    }, [activeTab, searchQuery, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA]);
+    }, [activeTab, searchQuery, dataForTab, searchKeys, SCHOOLS_DATA, STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SECTIONS_DATA, TERMS_DATA, COURSES_DATA, CONTACTS_DATA]);
 
     // ── Pagination ──────────────────────────────────────────
     const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
