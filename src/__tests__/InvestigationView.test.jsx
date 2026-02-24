@@ -118,7 +118,8 @@ describe("InvestigationView", () => {
 
     it("shows navigation prompt for goal (task) step", () => {
         renderInvestigation();
-        expect(screen.getByText("Open the IDM page from the sidebar.")).toBeInTheDocument();
+        // guideMessage appears in both the step card and the footer
+        expect(screen.getAllByText("Open the IDM page from the sidebar.").length).toBeGreaterThanOrEqual(1);
     });
 
     it("renders choice buttons for checkpoint step", () => {
@@ -150,7 +151,7 @@ describe("InvestigationView", () => {
             visitedStepIds: new Set(["step_nav", "step_check", "step_input"]),
         });
         expect(screen.getByText("When was the last sync?")).toBeInTheDocument();
-        expect(screen.getByPlaceholderText("Type your answer")).toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Type your answer...")).toBeInTheDocument();
     });
 
     it("handles text input submission", () => {
@@ -160,7 +161,7 @@ describe("InvestigationView", () => {
             visitedStepIds: new Set(["step_nav", "step_check", "step_input"]),
             handleAction: mockAction,
         });
-        const textarea = screen.getByPlaceholderText("Type your answer");
+        const textarea = screen.getByPlaceholderText("Type your answer...");
         fireEvent.change(textarea, { target: { value: "02/16/2026" } });
         fireEvent.click(screen.getByText("Submit"));
         expect(mockAction).toHaveBeenCalledWith({
@@ -189,7 +190,7 @@ describe("InvestigationView", () => {
                 scores: { correct: 3, total: 4, timeMs: 180000 },
             },
         });
-        expect(screen.getByText(/Excellent Work with Guidance!/)).toBeInTheDocument();
+        expect(screen.getByText(/Nice work following the thread/)).toBeInTheDocument();
         expect(screen.getByText("3/4")).toBeInTheDocument();
         expect(screen.getByText("3m 00s")).toBeInTheDocument();
         expect(screen.getByText(/Replay/)).toBeInTheDocument();

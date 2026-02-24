@@ -25,41 +25,32 @@ function renderInbox(overrides = {}) {
 describe("TicketInbox", () => {
     it("renders module headers from curriculum", () => {
         renderInbox();
-        expect(screen.getByText("IDM Overview & Navigation")).toBeInTheDocument();
-        expect(screen.getByText("Provisioning Wizard Basics")).toBeInTheDocument();
-        expect(screen.getByText("Credential Configuration")).toBeInTheDocument();
-        expect(screen.getByText("OU Organization")).toBeInTheDocument();
-        expect(screen.getByText("Group Configuration")).toBeInTheDocument();
-        expect(screen.getByText("Review & Provisioning")).toBeInTheDocument();
+        // Module 1 is the only unlocked module in default state — it renders
+        expect(screen.getByText("IDM Setup")).toBeInTheDocument();
+        // Locked modules are completely hidden
+        expect(screen.queryByText("Provisioning Wizard Basics")).not.toBeInTheDocument();
+        expect(screen.queryByText("Credential Configuration")).not.toBeInTheDocument();
+        expect(screen.queryByText("OU Organization")).not.toBeInTheDocument();
+        expect(screen.queryByText("Group Configuration")).not.toBeInTheDocument();
+        expect(screen.queryByText("Review & Provisioning")).not.toBeInTheDocument();
     });
 
     it("renders ticket cards for authored scenarios", () => {
         renderInbox();
-        // Module 1 tickets
-        expect(screen.getByText("Welcome! Can you check on our Google sync?")).toBeInTheDocument();
-        expect(screen.getByText("Documenting IDM for the team wiki")).toBeInTheDocument();
-        // Module 2 tickets
-        expect(screen.getByText("Need our Google provisioning setup documented")).toBeInTheDocument();
-        expect(screen.getByText("Board presentation prep — provisioning overview")).toBeInTheDocument();
-        // Module 3 tickets
-        expect(screen.getByText("Student email format change request")).toBeInTheDocument();
-        expect(screen.getByText("Document our credential system before we touch anything")).toBeInTheDocument();
-        // Module 4 tickets
-        expect(screen.getByText("Parent asking why their kid's account is in a weird folder")).toBeInTheDocument();
-        expect(screen.getByText("Board wants our 'account lifecycle management strategy'")).toBeInTheDocument();
-        // Module 5 ticket
-        expect(screen.getByText("Can we email all 7th graders at once?")).toBeInTheDocument();
-        // Module 6 tickets
-        expect(screen.getByText("Pre-provisioning safety check")).toBeInTheDocument();
-        expect(screen.getByText(/End-to-end provisioning walkthrough/)).toBeInTheDocument();
+        // Only Module 1 tickets render (modules 2-6 are locked/hidden)
+        expect(screen.getByText("Your first task: set up IDM")).toBeInTheDocument();
+        expect(screen.getByText("Explore the IDM tabs")).toBeInTheDocument();
     });
 
     it("downstream modules are locked when prerequisites are not completed", () => {
         // Module 2 requires mod_overview, Module 3 requires mod_provisioning_basics
-        // Neither is completed in the default context → both modules show locked tickets
+        // Neither is completed in the default context → locked modules are completely hidden
         renderInbox();
-        const lockedLabels = screen.getAllByText("Complete previous modules to unlock");
-        expect(lockedLabels.length).toBeGreaterThanOrEqual(1);
+        expect(screen.queryByText("Provisioning Wizard Basics")).not.toBeInTheDocument();
+        expect(screen.queryByText("Credential Configuration")).not.toBeInTheDocument();
+        expect(screen.queryByText("OU Organization")).not.toBeInTheDocument();
+        expect(screen.queryByText("Group Configuration")).not.toBeInTheDocument();
+        expect(screen.queryByText("Review & Provisioning")).not.toBeInTheDocument();
     });
 
     it("Module 3 unlocks when Modules 1-2 are completed", () => {
@@ -100,7 +91,7 @@ describe("TicketInbox", () => {
     it("clicking open ticket shows mode picker", () => {
         renderInbox();
         // Use a Module 1 ticket (always unlocked, no prerequisites)
-        const ticket = screen.getByText("Welcome! Can you check on our Google sync?");
+        const ticket = screen.getByText("Your first task: set up IDM");
         fireEvent.click(ticket.closest("[role='button']"));
         expect(screen.getByText("How would you like to proceed?")).toBeInTheDocument();
         expect(screen.getByText("Guided")).toBeInTheDocument();
@@ -122,9 +113,13 @@ describe("TicketInbox", () => {
                 "mod_ou_management", "mod_groups", "mod_review_provision",
             ]),
         });
-        // All 11 ticket subjects should be visible
-        expect(screen.getByText("Welcome! Can you check on our Google sync?")).toBeInTheDocument();
-        expect(screen.getByText(/End-to-end provisioning walkthrough/)).toBeInTheDocument();
+        // All completed modules render as compact rows
+        expect(screen.getByText("IDM Setup")).toBeInTheDocument();
+        expect(screen.getByText("Provisioning Wizard Basics")).toBeInTheDocument();
+        expect(screen.getByText("Credential Configuration")).toBeInTheDocument();
+        expect(screen.getByText("OU Organization")).toBeInTheDocument();
+        expect(screen.getByText("Group Configuration")).toBeInTheDocument();
+        expect(screen.getByText("Review & Provisioning")).toBeInTheDocument();
         // No locked labels should appear
         expect(screen.queryByText("Complete previous modules to unlock")).not.toBeInTheDocument();
     });
@@ -134,7 +129,7 @@ describe("TicketInbox", () => {
         renderInbox({ acceptTicket: mockAccept });
 
         // Use a Module 1 ticket (always unlocked)
-        const ticket = screen.getByText("Welcome! Can you check on our Google sync?");
+        const ticket = screen.getByText("Your first task: set up IDM");
         fireEvent.click(ticket.closest("[role='button']"));
 
         // Click "Guided"
