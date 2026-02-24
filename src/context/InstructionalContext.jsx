@@ -23,7 +23,7 @@ export const InstructionalContext = createContext();
 //  State version (used by migration chain and progressApi)
 // ═══════════════════════════════════════════════════════════════
 
-const STATE_VERSION = 3;
+export const STATE_VERSION = 3;
 
 // ═══════════════════════════════════════════════════════════════
 //  State migration — chainable v(N)→v(N+1) transformers

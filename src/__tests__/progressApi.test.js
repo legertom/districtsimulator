@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock the migrateState import before importing progressApi
 vi.mock("@/context/InstructionalContext", () => ({
+    STATE_VERSION: 3,
     migrateState: vi.fn((state) => {
         // Simple pass-through for tests: just set version to 3
         if (!state || typeof state !== "object") return null;

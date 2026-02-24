@@ -1,11 +1,10 @@
-import { migrateState } from "@/context/InstructionalContext";
+import { migrateState, STATE_VERSION } from "@/context/InstructionalContext";
 
 // ═══════════════════════════════════════════════════════════════
 //  Constants
 // ═══════════════════════════════════════════════════════════════
 
 const STORAGE_KEY = "pjs-state";
-const STATE_VERSION = 3;
 const DEBOUNCE_MS = 1000;
 
 // ═══════════════════════════════════════════════════════════════
