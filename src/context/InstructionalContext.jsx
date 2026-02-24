@@ -15,6 +15,9 @@ import {
     clearLocalStorage,
     apiResponseToState,
     createDebouncedApiSave,
+    fetchSessionStateFromApi,
+    saveSessionStateToApi,
+    createDebouncedSessionSave,
 } from "@/lib/progressApi";
 
 export const InstructionalContext = createContext();
@@ -317,27 +320,56 @@ export function InstructionalProvider({ children }) {
 
         let cancelled = false;
 
-        fetchProgressFromApi().then((data) => {
-            if (cancelled || !data) return;
+        (async () => {
+            // Fetch progress and session state in parallel
+            const [progressData, sessionData] = await Promise.all([
+                fetchProgressFromApi(),
+                fetchSessionStateFromApi(),
+            ]);
 
-            const dbState = apiResponseToState(data);
+            if (cancelled) return;
 
-            // DB is authoritative — overlay onto current state
-            setCompletedScenarios(new Set(dbState.completedScenarios));
-            setCompletedModules(new Set(dbState.completedModules));
-            setScores(dbState.scores);
-            setCoachMarksEnabled(dbState.coachMarksEnabled);
-            setIdmSetupComplete(dbState.idmSetupComplete);
+            // Apply progress data (DB is authoritative)
+            const dbState = progressData ? apiResponseToState(progressData) : null;
+            if (dbState) {
+                setCompletedScenarios(new Set(dbState.completedScenarios));
+                setCompletedModules(new Set(dbState.completedModules));
+                setScores(dbState.scores);
+                setCoachMarksEnabled(dbState.coachMarksEnabled);
+                setIdmSetupComplete(dbState.idmSetupComplete);
 
-            // Keep localStorage in sync
-            saveProgressToLocalStorage({
-                completedScenarios: dbState.completedScenarios,
-                completedModules: dbState.completedModules,
-                scores: dbState.scores,
-                coachMarksEnabled: dbState.coachMarksEnabled,
-                idmSetupComplete: dbState.idmSetupComplete,
-            });
-        });
+                // Keep localStorage in sync
+                saveProgressToLocalStorage({
+                    completedScenarios: dbState.completedScenarios,
+                    completedModules: dbState.completedModules,
+                    scores: dbState.scores,
+                    coachMarksEnabled: dbState.coachMarksEnabled,
+                    idmSetupComplete: dbState.idmSetupComplete,
+                });
+            }
+
+            // Recover active scenario if one was in progress
+            if (sessionData?.active_scenario_id && sessionData?.current_step_id) {
+                const scenario = scenarios.find(s => s.id === sessionData.active_scenario_id);
+                const step = scenario?.steps.find(s => s.id === sessionData.current_step_id);
+                if (scenario && step) {
+                    // Build visited set: all steps from start up to and including the recovered step
+                    const visited = new Set();
+                    for (const s of scenario.steps) {
+                        visited.add(s.id);
+                        if (s.id === sessionData.current_step_id) break;
+                    }
+
+                    setActiveScenarioId(sessionData.active_scenario_id);
+                    setCurrentStepId(sessionData.current_step_id);
+                    setVisitedStepIds(visited);
+                    setShowHint((dbState?.coachMarksEnabled ?? true) && !!step.autoShowHint);
+                    setRightPanelView("chat");
+                    setConversationHistory([]);
+                    setScenarioJustCompleted(null);
+                }
+            }
+        })();
 
         return () => { cancelled = true; };
     }, [isAuthenticated]);
@@ -369,6 +401,22 @@ export function InstructionalProvider({ children }) {
     // Cleanup debounce timer on unmount
     useEffect(() => {
         return () => debouncedApiSaveRef.current?.flush();
+    }, []);
+
+    // ═══ Persist session state (active scenario + step position) ═══
+    const debouncedSessionSaveRef = useRef(null);
+    if (!debouncedSessionSaveRef.current) {
+        debouncedSessionSaveRef.current = createDebouncedSessionSave();
+    }
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        debouncedSessionSaveRef.current.debouncedSave(activeScenarioId, currentStepId);
+    }, [activeScenarioId, currentStepId, isAuthenticated]);
+
+    // Cleanup session save timer on unmount
+    useEffect(() => {
+        return () => debouncedSessionSaveRef.current?.flush();
     }, []);
 
     // ═══ Notification helper ═══
@@ -886,6 +934,8 @@ export function InstructionalProvider({ children }) {
                 coachMarksEnabled: true,
                 idmSetupComplete: false,
             });
+            // Also clear session state
+            saveSessionStateToApi(null, null);
         }
     }, [isAuthenticated]);
 

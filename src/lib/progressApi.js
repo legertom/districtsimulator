@@ -164,3 +164,78 @@ export function createDebouncedApiSave() {
 
     return { debouncedSave, cancel, flush };
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  Session state persistence (active scenario + step position)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Fetch the user's active session state from the API.
+ * Returns { active_scenario_id, current_step_id } or null on failure.
+ */
+export async function fetchSessionStateFromApi() {
+    try {
+        const res = await fetch("/api/progress/session");
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Save the user's active session state to the API.
+ * Fire-and-forget with error logging.
+ */
+export async function saveSessionStateToApi(activeScenarioId, currentStepId) {
+    try {
+        await fetch("/api/progress/session", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                active_scenario_id: activeScenarioId ?? null,
+                current_step_id: currentStepId ?? null,
+            }),
+        });
+    } catch (err) {
+        console.warn("[progressApi] Failed to save session state:", err);
+    }
+}
+
+/**
+ * Create a debounced save function for session state writes.
+ * Returns { debouncedSave, cancel, flush }.
+ */
+export function createDebouncedSessionSave() {
+    let timer = null;
+    let pendingArgs = null;
+
+    function debouncedSave(activeScenarioId, currentStepId) {
+        pendingArgs = [activeScenarioId, currentStepId];
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+            timer = null;
+            pendingArgs = null;
+            saveSessionStateToApi(activeScenarioId, currentStepId);
+        }, DEBOUNCE_MS);
+    }
+
+    function cancel() {
+        if (timer) clearTimeout(timer);
+        timer = null;
+        pendingArgs = null;
+    }
+
+    function flush() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (pendingArgs) {
+            saveSessionStateToApi(...pendingArgs);
+            pendingArgs = null;
+        }
+    }
+
+    return { debouncedSave, cancel, flush };
+}

@@ -19,6 +19,9 @@ import {
     apiResponseToState,
     stateToApiPayload,
     createDebouncedApiSave,
+    fetchSessionStateFromApi,
+    saveSessionStateToApi,
+    createDebouncedSessionSave,
 } from "@/lib/progressApi";
 
 // ═══════════════════════════════════════════════════════════════
@@ -290,5 +293,104 @@ describe("createDebouncedApiSave", () => {
         flush();
 
         expect(fetch).not.toHaveBeenCalled();
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  Session state API
+// ═══════════════════════════════════════════════════════════════
+
+describe("fetchSessionStateFromApi", () => {
+    beforeEach(() => {
+        vi.stubGlobal("fetch", vi.fn());
+    });
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it("returns parsed data on 200", async () => {
+        const mockData = { active_scenario_id: "s1", current_step_id: "step_1" };
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockData),
+        });
+
+        const result = await fetchSessionStateFromApi();
+        expect(result).toEqual(mockData);
+        expect(fetch).toHaveBeenCalledWith("/api/progress/session");
+    });
+
+    it("returns null on failure", async () => {
+        fetch.mockResolvedValueOnce({ ok: false, status: 401 });
+
+        const result = await fetchSessionStateFromApi();
+        expect(result).toBeNull();
+    });
+});
+
+describe("saveSessionStateToApi", () => {
+    beforeEach(() => {
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
+        vi.spyOn(console, "warn").mockImplementation(() => {});
+    });
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it("sends PUT with scenario and step IDs", async () => {
+        await saveSessionStateToApi("scenario_1", "step_3");
+
+        expect(fetch).toHaveBeenCalledWith("/api/progress/session", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                active_scenario_id: "scenario_1",
+                current_step_id: "step_3",
+            }),
+        });
+    });
+
+    it("sends nulls when clearing session", async () => {
+        await saveSessionStateToApi(null, null);
+
+        expect(fetch).toHaveBeenCalledWith("/api/progress/session", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                active_scenario_id: null,
+                current_step_id: null,
+            }),
+        });
+    });
+});
+
+describe("createDebouncedSessionSave", () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
+    });
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+    });
+
+    it("debounces multiple rapid calls into one", () => {
+        const { debouncedSave } = createDebouncedSessionSave();
+
+        debouncedSave("s1", "step_1");
+        debouncedSave("s1", "step_2");
+        debouncedSave("s1", "step_3");
+
+        expect(fetch).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(1000);
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("flush fires pending save immediately", () => {
+        const { debouncedSave, flush } = createDebouncedSessionSave();
+
+        debouncedSave("s1", "step_2");
+        flush();
+        expect(fetch).toHaveBeenCalledTimes(1);
     });
 });
