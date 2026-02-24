@@ -321,53 +321,58 @@ export function InstructionalProvider({ children }) {
         let cancelled = false;
 
         (async () => {
-            // Fetch progress and session state in parallel
-            const [progressData, sessionData] = await Promise.all([
-                fetchProgressFromApi(),
-                fetchSessionStateFromApi(),
-            ]);
+            try {
+                // Fetch progress and session state in parallel
+                const [progressData, sessionData] = await Promise.all([
+                    fetchProgressFromApi(),
+                    fetchSessionStateFromApi(),
+                ]);
 
-            if (cancelled) return;
+                if (cancelled) return;
 
-            // Apply progress data (DB is authoritative)
-            const dbState = progressData ? apiResponseToState(progressData) : null;
-            if (dbState) {
-                setCompletedScenarios(new Set(dbState.completedScenarios));
-                setCompletedModules(new Set(dbState.completedModules));
-                setScores(dbState.scores);
-                setCoachMarksEnabled(dbState.coachMarksEnabled);
-                setIdmSetupComplete(dbState.idmSetupComplete);
+                // Apply progress data (DB is authoritative)
+                const dbState = progressData ? apiResponseToState(progressData) : null;
+                if (dbState) {
+                    setCompletedScenarios(new Set(dbState.completedScenarios));
+                    setCompletedModules(new Set(dbState.completedModules));
+                    setScores(dbState.scores);
+                    setCoachMarksEnabled(dbState.coachMarksEnabled);
+                    setIdmSetupComplete(dbState.idmSetupComplete);
 
-                // Keep localStorage in sync
-                saveProgressToLocalStorage({
-                    completedScenarios: dbState.completedScenarios,
-                    completedModules: dbState.completedModules,
-                    scores: dbState.scores,
-                    coachMarksEnabled: dbState.coachMarksEnabled,
-                    idmSetupComplete: dbState.idmSetupComplete,
-                });
-            }
-
-            // Recover active scenario if one was in progress
-            if (sessionData?.active_scenario_id && sessionData?.current_step_id) {
-                const scenario = scenarios.find(s => s.id === sessionData.active_scenario_id);
-                const step = scenario?.steps.find(s => s.id === sessionData.current_step_id);
-                if (scenario && step) {
-                    // Build visited set: all steps from start up to and including the recovered step
-                    const visited = new Set();
-                    for (const s of scenario.steps) {
-                        visited.add(s.id);
-                        if (s.id === sessionData.current_step_id) break;
-                    }
-
-                    setActiveScenarioId(sessionData.active_scenario_id);
-                    setCurrentStepId(sessionData.current_step_id);
-                    setVisitedStepIds(visited);
-                    setShowHint((dbState?.coachMarksEnabled ?? true) && !!step.autoShowHint);
-                    setRightPanelView("chat");
-                    setConversationHistory([]);
-                    setScenarioJustCompleted(null);
+                    // Keep localStorage in sync
+                    saveProgressToLocalStorage({
+                        completedScenarios: dbState.completedScenarios,
+                        completedModules: dbState.completedModules,
+                        scores: dbState.scores,
+                        coachMarksEnabled: dbState.coachMarksEnabled,
+                        idmSetupComplete: dbState.idmSetupComplete,
+                    });
                 }
+
+                // Recover active scenario if one was in progress
+                if (sessionData?.active_scenario_id && sessionData?.current_step_id) {
+                    const scenario = scenarios.find(s => s.id === sessionData.active_scenario_id);
+                    const step = scenario?.steps.find(s => s.id === sessionData.current_step_id);
+                    if (scenario && step) {
+                        // Build visited set: all steps from start up to and including the recovered step
+                        const visited = new Set();
+                        for (const s of scenario.steps) {
+                            visited.add(s.id);
+                            if (s.id === sessionData.current_step_id) break;
+                        }
+
+                        setActiveScenarioId(sessionData.active_scenario_id);
+                        setCurrentStepId(sessionData.current_step_id);
+                        setVisitedStepIds(visited);
+                        setShowHint((dbState?.coachMarksEnabled ?? true) && !!step.autoShowHint);
+                        setRightPanelView("chat");
+                        setConversationHistory([]);
+                        setScenarioJustCompleted(null);
+                    }
+                }
+            } catch (err) {
+                console.warn("Phase 2 DB sync failed, continuing with localStorage:", err);
+                // Silently continue — localStorage data is already loaded from Phase 1
             }
         })();
 
@@ -635,7 +640,6 @@ export function InstructionalProvider({ children }) {
             }
         }
 
-        console.log(`[DEV] Auto-loaded scenario: ${scenarioId}${targetStepId ? ` at step: ${targetStepId}` : ""}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -989,8 +993,6 @@ export function InstructionalProvider({ children }) {
             setRightPanelView("inbox");
             setScenarioJustCompleted(null);
             setVisitedStepIds(new Set());
-
-            console.log(`[DEV] Reset to Module ${moduleNum}: Modules 1-${moduleNum - 1} complete, Module ${moduleNum} freshly unlocked`);
         };
 
         window.addEventListener("keydown", handleDevReset);

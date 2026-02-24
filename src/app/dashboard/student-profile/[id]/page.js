@@ -43,7 +43,13 @@ export default function StudentProfileRoute() {
         }
     }, [hasData, hasRouteParam, parsedId, rawId, router, selectedStudent]);
 
-    if (!hasRouteParam || !selectedStudent) return null;
+    if (!hasRouteParam || !selectedStudent) {
+        return (
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb" }}>
+                <p style={{ color: "#9ca3af", fontSize: 14 }}>Loading profile...</p>
+            </div>
+        );
+    }
 
     return <StudentProfile student={selectedStudent} />;
 }

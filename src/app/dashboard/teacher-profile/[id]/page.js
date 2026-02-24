@@ -43,7 +43,13 @@ export default function TeacherProfileRoute() {
         }
     }, [hasData, hasRouteParam, parsedId, rawId, router, selectedTeacher]);
 
-    if (!hasRouteParam || !selectedTeacher) return null;
+    if (!hasRouteParam || !selectedTeacher) {
+        return (
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb" }}>
+                <p style={{ color: "#9ca3af", fontSize: 14 }}>Loading profile...</p>
+            </div>
+        );
+    }
 
     return <TeacherProfile teacher={selectedTeacher} />;
 }
