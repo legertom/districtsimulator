@@ -270,4 +270,24 @@ describe("createDebouncedApiSave", () => {
 
         expect(fetch).not.toHaveBeenCalled();
     });
+
+    it("flush fires the pending save immediately", () => {
+        const { debouncedSave, flush } = createDebouncedApiSave();
+
+        debouncedSave({ completedScenarios: ["s1"] });
+        expect(fetch).not.toHaveBeenCalled();
+
+        flush();
+
+        // Should fire immediately, not wait for timer
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("flush is a no-op when nothing is pending", () => {
+        const { flush } = createDebouncedApiSave();
+
+        flush();
+
+        expect(fetch).not.toHaveBeenCalled();
+    });
 });

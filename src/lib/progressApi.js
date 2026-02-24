@@ -130,15 +130,18 @@ export function clearLocalStorage() {
 
 /**
  * Create a debounced save function for API writes.
- * Returns { debouncedSave, cancel }.
+ * Returns { debouncedSave, cancel, flush }.
  */
 export function createDebouncedApiSave() {
     let timer = null;
+    let pendingState = null;
 
     function debouncedSave(state) {
+        pendingState = state;
         if (timer) clearTimeout(timer);
         timer = setTimeout(() => {
             timer = null;
+            pendingState = null;
             saveProgressToApi(state);
         }, DEBOUNCE_MS);
     }
@@ -146,7 +149,19 @@ export function createDebouncedApiSave() {
     function cancel() {
         if (timer) clearTimeout(timer);
         timer = null;
+        pendingState = null;
     }
 
-    return { debouncedSave, cancel };
+    function flush() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (pendingState) {
+            saveProgressToApi(pendingState);
+            pendingState = null;
+        }
+    }
+
+    return { debouncedSave, cancel, flush };
 }

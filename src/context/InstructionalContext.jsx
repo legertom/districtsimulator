@@ -368,7 +368,7 @@ export function InstructionalProvider({ children }) {
 
     // Cleanup debounce timer on unmount
     useEffect(() => {
-        return () => debouncedApiSaveRef.current?.cancel();
+        return () => debouncedApiSaveRef.current?.flush();
     }, []);
 
     // ═══ Notification helper ═══
