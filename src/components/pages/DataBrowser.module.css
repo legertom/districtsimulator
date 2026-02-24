@@ -397,3 +397,21 @@
 .pageButton:disabled:hover {
     background: none;
 }
+
+/* ── Profile link in detail panel ────────────────────────────── */
+
+.detailPanelFooter {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.viewProfileLink {
+    color: #1464ff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.viewProfileLink:hover {
+    text-decoration: underline;
+}

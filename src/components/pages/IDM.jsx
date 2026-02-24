@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { PageHeader, Tabs, DataTable, Modal, Pagination } from "@/components/ui";
 import { useInstructional } from "@/context/InstructionalContext";
 import { useDataVariant } from "@/context/DataVariantContext";
+import { useScenario } from "@/context/ScenarioContext";
+import { buildProfileRouteByType } from "@/lib/routing";
 import styles from "./IDM.module.css";
 
 /* ── Inline SVG helpers ─────────────────────── */
@@ -64,9 +67,29 @@ const CopyIcon = () => (
 
 /* ── Component ──────────────────────────────── */
 
+function findProfileIdForEvent(ev, scenarioData) {
+    const userType = ev.userType?.toLowerCase();
+    const nameParts = ev.user?.split(" ") || [];
+    const firstName = nameParts[0]?.toLowerCase();
+    const lastName = nameParts[nameParts.length - 1]?.toLowerCase();
+
+    let collection;
+    if (userType === "student") collection = scenarioData.dataBrowser?.students;
+    else if (userType === "teacher") collection = scenarioData.dataBrowser?.teachers;
+    else if (userType === "staff") collection = scenarioData.dataBrowser?.staff;
+
+    if (!collection || !firstName || !lastName) return null;
+
+    const match = collection.find(
+        (p) => p.first?.toLowerCase() === firstName && p.last?.toLowerCase() === lastName
+    );
+    return match ? { id: match.id, userType: ev.userType } : null;
+}
+
 export default function IDM({ onEditProvisioning }) {
     const { checkActionGoal, idmSetupComplete } = useInstructional();
     const { resolvedData } = useDataVariant();
+    const { scenario } = useScenario();
     const idm = resolvedData?.idm ?? {};
     const configuredDestinations = idm.destinations ?? [];
     const syncHistory = idm.syncHistory ?? [];
@@ -646,9 +669,25 @@ export default function IDM({ onEditProvisioning }) {
                                                                         </div>
                                                                     </div>
                                                                     <div className={styles.detailActions}>
-                                                                        <a href="#" className={styles.detailActionLink} onClick={(e) => e.preventDefault()}>
-                                                                            Open Profile
-                                                                        </a>
+                                                                        {(() => {
+                                                                            const profileMatch = findProfileIdForEvent(ev, scenario);
+                                                                            if (!profileMatch) {
+                                                                                return (
+                                                                                    <span className={styles.detailActionLink} style={{ opacity: 0.4, cursor: "default" }}>
+                                                                                        Open Profile
+                                                                                    </span>
+                                                                                );
+                                                                            }
+                                                                            return (
+                                                                                <Link
+                                                                                    href={buildProfileRouteByType(profileMatch.userType, profileMatch.id)}
+                                                                                    className={styles.detailActionLink}
+                                                                                    onClick={(e) => e.stopPropagation()}
+                                                                                >
+                                                                                    Open Profile
+                                                                                </Link>
+                                                                            );
+                                                                        })()}
                                                                         <a href="#" className={styles.detailActionLink} onClick={(e) => e.preventDefault()}>
                                                                             Unlink user
                                                                         </a>

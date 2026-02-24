@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { useScenario } from "@/context/ScenarioContext";
 import { demoDistrict } from "@/data/demoIdentity";
+import { buildStudentProfileRoute, buildTeacherProfileRoute, buildStaffProfileRoute } from "@/lib/routing";
 import styles from "./DataBrowser.module.css";
 import { Icon } from "@/components/ui/Icons";
 import { DataTable } from "@/components/ui/DataTable";
@@ -177,6 +179,20 @@ function DetailPanel({ type, item, onClose, sections, students, enrollmentsByStu
                     {type === "Schools" && renderSchoolDetail()}
                     {type === "Sections" && renderSectionDetail()}
                 </div>
+                {(type === "Students" || type === "Teachers" || type === "Staff") && (
+                    <div className={styles.detailPanelFooter}>
+                        <Link
+                            href={
+                                type === "Students" ? buildStudentProfileRoute(item.id) :
+                                type === "Teachers" ? buildTeacherProfileRoute(item.id) :
+                                buildStaffProfileRoute(item.id)
+                            }
+                            className={styles.viewProfileLink}
+                        >
+                            View Full Profile →
+                        </Link>
+                    </div>
+                )}
             </div>
         </div>
     );
