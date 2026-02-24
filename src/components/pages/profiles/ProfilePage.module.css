@@ -156,6 +156,11 @@
 
 /* ── Back link ───────────────────────────────────────────────── */
 
+.backLinkWrapper {
+    padding: 12px 32px 0;
+    background: white;
+}
+
 .backLink {
     display: inline-flex;
     align-items: center;

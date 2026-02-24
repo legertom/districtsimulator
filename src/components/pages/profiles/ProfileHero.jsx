@@ -44,7 +44,7 @@ export default function ProfileHero({ name, cleverId, metaChips = [], email, sta
     return (
         <>
             {/* Back link sits above the hero */}
-            <div style={{ padding: "12px 32px 0", background: "white" }}>
+            <div className={styles.backLinkWrapper}>
                 <Link href={buildDashboardRoute("data-browser")} className={styles.backLink}>
                     ← Back to {backLabel}
                 </Link>
