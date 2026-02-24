@@ -115,6 +115,8 @@ export default function ChatView() {
     }, []);
 
     // ── Lobby mode: build welcome + ticket notifications ──
+    // Syncs chat log with instructional context; guarded by lobbyBuilt ref to prevent cascading renders.
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (!isLobby) {
             setLobbyBuilt(false);
@@ -153,8 +155,11 @@ export default function ChatView() {
             lobbyTimeoutsRef.current.push(t);
         });
     }, [isLobby, lobbyBuilt, currentModule, availableTickets]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // ── Scenario initialization ──
+    // Resets chat log when a new scenario begins; deduped by prevScenarioIdRef.
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (!activeScenario) return;
         if (activeScenario.id === prevScenarioIdRef.current) return;
@@ -175,8 +180,11 @@ export default function ChatView() {
         setChatMessages(msgs);
         setInputValue("");
     }, [activeScenario, isOnboarding]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // ── Step change → append new messages ──
+    // Appends chat messages when the instructional engine advances a step; deduped by prevStepIdRef.
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (!currentStep) return;
         if (currentStep.id === prevStepIdRef.current) return;
@@ -207,8 +215,11 @@ export default function ChatView() {
             appendMessages(msgs, isFirst ? 0 : 500);
         }
     }, [currentStep, appendMessages]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // ── Scenario completion ──
+    // Appends completion messages when a scenario finishes; fires once per completion.
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (!scenarioJustCompleted) return;
 
@@ -221,6 +232,7 @@ export default function ChatView() {
 
         appendMessages(msgs, 600);
     }, [scenarioJustCompleted, coachMarksEnabled, appendMessages]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // ── Auto-scroll ──
     useEffect(() => {
