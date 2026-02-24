@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import styles from "./error.module.css";
 
 export default function DashboardError({ error, reset }) {
@@ -19,9 +20,9 @@ export default function DashboardError({ error, reset }) {
                     <button className={styles.retryButton} onClick={() => reset()}>
                         Try again
                     </button>
-                    <a href="/dashboard" className={styles.homeLink}>
+                    <Link href="/dashboard" className={styles.homeLink}>
                         Go to Dashboard
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>
