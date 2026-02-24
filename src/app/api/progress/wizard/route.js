@@ -8,7 +8,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
  */
 export async function GET() {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.email || !session?.user?.id) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,7 +39,7 @@ export async function GET() {
  */
 export async function PUT(request) {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.email || !session?.user?.id) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
