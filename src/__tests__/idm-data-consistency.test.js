@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { events } from "@/data/defaults/idm";
-import { STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA } from "@/data/defaults/dataBrowser";
+import { STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SCHOOLS_DATA } from "@/data/defaults/dataBrowser";
+import { generateProvisioningResults } from "@/lib/provisioningEngine";
+import { DEFAULT_PROVISIONING_STATE } from "@/data/defaults/idm-provisioning";
 
 /**
  * Verifies that every IDM event references a real person from the Data Browser.
@@ -62,5 +64,22 @@ describe("IDM Events ↔ Data Browser consistency", () => {
             seen.add(key);
         }
         expect(duplicates).toHaveLength(0);
+    });
+
+    it("engine-generated events reference real Data Browser people", () => {
+        const { events: engineEvents } = generateProvisioningResults(DEFAULT_PROVISIONING_STATE, {
+            students: STUDENTS_DATA,
+            teachers: TEACHERS_DATA,
+            staff: STAFF_DATA,
+            schools: SCHOOLS_DATA,
+        });
+
+        const allPeople = [...STUDENTS_DATA, ...TEACHERS_DATA, ...STAFF_DATA];
+        for (const ev of engineEvents) {
+            const person = allPeople.find((p) => p.id === ev.personId);
+            expect(person).toBeDefined();
+            expect(ev.user).toBe(`${person.first} ${person.last}`);
+            expect(ev.sisId).toBe(person.id);
+        }
     });
 });

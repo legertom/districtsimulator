@@ -2,6 +2,12 @@ import { describe, it, expect } from "vitest";
 
 // Copy the function for direct testing (same as in IDM.jsx)
 function findProfileIdForEvent(ev, scenarioData) {
+    // Prefer personId from engine-generated events (exact match)
+    if (ev.personId) {
+        return { id: ev.personId, userType: ev.userType };
+    }
+
+    // Fall back to name-based heuristic for static events
     const userType = ev.userType?.toLowerCase();
     const nameParts = ev.user?.split(" ") || [];
     const firstName = nameParts[0]?.toLowerCase();
@@ -84,5 +90,40 @@ describe("findProfileIdForEvent", () => {
     it("does not cross-match between user types", () => {
         const ev = { user: "Annamarie Feest", userType: "Teacher" };
         expect(findProfileIdForEvent(ev, mockScenario)).toBeNull();
+    });
+
+    it("prefers personId when present (engine-generated event)", () => {
+        const ev = {
+            user: "Annamarie Feest",
+            userType: "Student",
+            personId: "10a98369-7f2b-466b-abf2-1b9411e35351",
+        };
+        const result = findProfileIdForEvent(ev, mockScenario);
+        expect(result).toEqual({
+            id: "10a98369-7f2b-466b-abf2-1b9411e35351",
+            userType: "Student",
+        });
+    });
+
+    it("personId takes precedence over name matching", () => {
+        const ev = {
+            user: "Wrong Name",
+            userType: "Student",
+            personId: "some-known-id",
+        };
+        const result = findProfileIdForEvent(ev, mockScenario);
+        expect(result).toEqual({
+            id: "some-known-id",
+            userType: "Student",
+        });
+    });
+
+    it("falls back to name matching when personId is absent", () => {
+        const ev = {
+            user: "Annamarie Feest",
+            userType: "Student",
+        };
+        const result = findProfileIdForEvent(ev, mockScenario);
+        expect(result.id).toBe("stu-1");
     });
 });
