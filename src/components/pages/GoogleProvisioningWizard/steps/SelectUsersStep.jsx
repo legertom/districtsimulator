@@ -140,7 +140,7 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
             )}
 
             <div className={styles.nextBtnRow}>
-                <button className={styles.nextBtn} onClick={handleNext} disabled={!anySelected}>
+                <button className={styles.nextBtn} data-instruction-target="next-credentials" onClick={handleNext} disabled={!anySelected}>
                     Next
                 </button>
             </div>

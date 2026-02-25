@@ -105,6 +105,7 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
             },
         });
         setShowFormatEditor(false);
+        checkActionGoal(`credential-format-saved-${userType}`);
     };
 
     /** Save fallback format from modal */
@@ -142,6 +143,7 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
                     },
                 },
             });
+            checkActionGoal(`credential-fallback-added-${userType}`);
         } else {
             setShowFallbackEditor(true);
         }
@@ -302,7 +304,10 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
                         <button
                             className={styles.editFormatLink}
                             data-instruction-target={`edit-format-link-${userType}`}
-                            onClick={() => setShowFormatEditor(true)}
+                            onClick={() => {
+                                checkActionGoal(`credential-edit-format-${userType}`);
+                                setShowFormatEditor(true);
+                            }}
                         >
                             Edit your format
                         </button>
@@ -365,6 +370,7 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
                         ) : (
                             <button
                                 className={styles.editFormatLink}
+                                data-instruction-target={`add-fallback-${userType}`}
                                 onClick={handleAddFallback}
                                 style={{ display: "block", marginTop: 8 }}
                             >
