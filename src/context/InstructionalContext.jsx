@@ -19,6 +19,7 @@ import {
     saveSessionStateToApi,
     createDebouncedSessionSave,
     fetchWizardStateFromApi,
+    saveWizardStateToApi,
 } from "@/lib/progressApi";
 
 export const InstructionalContext = createContext();
@@ -933,6 +934,8 @@ export function InstructionalProvider({ children }) {
         clearLocalStorage();
         try { localStorage.removeItem("cedarridge-welcome-seen"); } catch { /* ignore */ }
         try { localStorage.removeItem("idm-provisioning-state"); } catch { /* ignore */ }
+        try { localStorage.removeItem("idm-provisioning-results"); } catch { /* ignore */ }
+        try { localStorage.removeItem("idm-provisioning-sync-history"); } catch { /* ignore */ }
         setCompletedScenarios(new Set());
         setCompletedModules(new Set());
         setScores({});
@@ -957,8 +960,8 @@ export function InstructionalProvider({ children }) {
                 coachMarksEnabled: true,
                 idmSetupComplete: false,
             });
-            // Also clear session state
             saveSessionStateToApi(null, null);
+            saveWizardStateToApi({});
         }
     }, [isAuthenticated]);
 
