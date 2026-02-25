@@ -46,6 +46,7 @@ export default function PreviewStep({ state, setToast, onExit, onProvisionComple
     };
 
     const handleRefresh = () => {
+        checkActionGoal("wizard-refresh-preview");
         const results = generateProvisioningResults(state, {
             students: STUDENTS_DATA,
             teachers: TEACHERS_DATA,

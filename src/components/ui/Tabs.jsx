@@ -32,11 +32,14 @@ export function Tabs({ tabs, activeTab, onTabChange, className = "" }) {
                 const tabLabel = typeof tab === "string" ? tab : tab.label;
                 const isActive = activeTab === tabId;
 
+                const dataTarget = typeof tab === "object" ? tab["data-instruction-target"] : undefined;
+
                 return (
                     <button
                         key={tabId}
                         className={`${styles.tab} ${isActive ? styles.activeTab : ""}`}
                         onClick={() => onTabChange(tabId)}
+                        {...(dataTarget ? { "data-instruction-target": dataTarget } : {})}
                     >
                         {tabLabel}
                     </button>

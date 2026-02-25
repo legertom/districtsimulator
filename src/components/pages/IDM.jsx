@@ -168,7 +168,7 @@ export default function IDM({ onEditProvisioning }) {
         { id: "tasks", label: "Tasks" },
         { id: "sync-history", label: "Sync History" },
         { id: "exports", label: "Exports" },
-        { id: "events", label: "Events" },
+        { id: "events", label: "Events", "data-instruction-target": "events-tab" },
     ];
 
     /* ── Close dropdowns on outside click ───── */
