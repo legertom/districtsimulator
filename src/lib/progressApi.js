@@ -239,3 +239,63 @@ export function createDebouncedSessionSave() {
 
     return { debouncedSave, cancel, flush };
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  Wizard state persistence (provisioning wizard config)
+// ═══════════════════════════════════════════════════════════════
+
+export async function fetchWizardStateFromApi() {
+    try {
+        const res = await fetch("/api/progress/wizard");
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+}
+
+export async function saveWizardStateToApi(wizardData) {
+    try {
+        await fetch("/api/progress/wizard", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wizard_data: wizardData }),
+        });
+    } catch (err) {
+        console.warn("[progressApi] Failed to save wizard state:", err);
+    }
+}
+
+export function createDebouncedWizardSave() {
+    let timer = null;
+    let pendingState = null;
+
+    function debouncedSave(wizardData) {
+        pendingState = wizardData;
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+            timer = null;
+            pendingState = null;
+            saveWizardStateToApi(wizardData);
+        }, 1000);
+    }
+
+    function cancel() {
+        if (timer) clearTimeout(timer);
+        timer = null;
+        pendingState = null;
+    }
+
+    function flush() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (pendingState) {
+            saveWizardStateToApi(pendingState);
+            pendingState = null;
+        }
+    }
+
+    return { debouncedSave, cancel, flush };
+}

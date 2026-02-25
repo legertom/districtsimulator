@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { WIZARD_STEPS, DEFAULT_PROVISIONING_STATE, UNCONFIGURED_PROVISIONING_STATE } from "@/data/defaults/idm-provisioning";
 import { useInstructional } from "@/context/InstructionalContext";
+import {
+    fetchWizardStateFromApi,
+    createDebouncedWizardSave,
+} from "@/lib/progressApi";
 import ConnectStep from "./steps/ConnectStep";
 import ManagementLevelStep from "./steps/ManagementLevelStep";
 import SelectUsersStep from "./steps/SelectUsersStep";
@@ -51,15 +56,46 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
     });
     const [toast, setToast] = useState(null);
     const { checkActionGoal } = useInstructional();
+    const { data: session } = useSession();
+    const wizardSaveRef = useRef(null);
 
-    // Persist wizard state to localStorage
+    useEffect(() => {
+        if (session?.user) {
+            wizardSaveRef.current = createDebouncedWizardSave();
+        }
+        return () => {
+            wizardSaveRef.current?.flush();
+        };
+    }, [session?.user]);
+
+    // Persist wizard state to localStorage + Supabase
     useEffect(() => {
         try {
             localStorage.setItem("idm-provisioning-state", JSON.stringify(wizardState));
         } catch {
             // ignore
         }
+        wizardSaveRef.current?.debouncedSave(wizardState);
     }, [wizardState]);
+
+    // Fetch wizard state from Supabase and merge if newer
+    useEffect(() => {
+        if (!session?.user) return;
+        let cancelled = false;
+
+        (async () => {
+            const dbData = await fetchWizardStateFromApi();
+            if (cancelled || !dbData?.wizard_data) return;
+
+            const localRaw = localStorage.getItem("idm-provisioning-state");
+            if (!localRaw) {
+                setWizardState(dbData.wizard_data);
+                localStorage.setItem("idm-provisioning-state", JSON.stringify(dbData.wizard_data));
+            }
+        })();
+
+        return () => { cancelled = true; };
+    }, [session?.user]);
 
     // Toast auto-dismiss
     useEffect(() => {
@@ -191,6 +227,7 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
                         <StepComponent
                             state={wizardState}
                             updateState={updateState}
+                            onUpdateState={updateState}
                             goNext={goNext}
                             goBack={goBack}
                             goToStep={goToStep}

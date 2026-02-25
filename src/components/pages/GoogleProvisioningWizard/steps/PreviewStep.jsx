@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useInstructional } from "@/context/InstructionalContext";
+import { generateProvisioningResults, generateSyncHistory } from "@/lib/provisioningEngine";
+import { STUDENTS_DATA, TEACHERS_DATA, STAFF_DATA, SCHOOLS_DATA } from "@/data/defaults/dataBrowser";
 import styles from "../GoogleProvisioningWizard.module.css";
 
 const DownloadIcon = () => (
@@ -31,7 +33,7 @@ const InfoIcon = () => (
     </svg>
 );
 
-export default function PreviewStep({ state, setToast, onExit, onProvisionComplete }) {
+export default function PreviewStep({ state, setToast, onExit, onProvisionComplete, onUpdateState }) {
     const { checkActionGoal } = useInstructional();
     const { preview } = state;
 
@@ -44,10 +46,57 @@ export default function PreviewStep({ state, setToast, onExit, onProvisionComple
     };
 
     const handleRefresh = () => {
-        setToast("Refreshing preview data...");
+        const results = generateProvisioningResults(state, {
+            students: STUDENTS_DATA,
+            teachers: TEACHERS_DATA,
+            staff: STAFF_DATA,
+            schools: SCHOOLS_DATA,
+        });
+
+        try {
+            localStorage.setItem("idm-provisioning-results", JSON.stringify(results));
+        } catch { /* ignore */ }
+
+        if (onUpdateState) {
+            onUpdateState({
+                preview: {
+                    lastRun: "just now",
+                    accountsToCreate: results.syncSummary.creates,
+                    accountsToUpdate: results.syncSummary.updates,
+                    accountsToArchive: results.syncSummary.archives,
+                    syncIssues: results.syncSummary.issues,
+                    details: [
+                        { action: "Matched", detail: `${results.syncSummary.matches} Clever accounts will be matched with Google accounts.`, nextSteps: "-" },
+                        { action: "Creates", detail: `${results.syncSummary.creates} Google account${results.syncSummary.creates !== 1 ? "s" : ""} will be created based on Clever data.`, nextSteps: "-" },
+                        { action: "Total Updates", detail: `${results.syncSummary.updates} Google accounts will be updated based on Clever data.`, nextSteps: "-" },
+                        { action: "Archives", detail: `${results.syncSummary.archives} Google accounts will be suspended and moved to an archive OU.`, nextSteps: "-" },
+                        { action: "Total Issues", detail: `There will be ${results.syncSummary.issues} issues.`, nextSteps: "-" },
+                        { action: "Conflicts", detail: "0 accounts will not be created or matched because of conflicts.", nextSteps: "-" },
+                    ],
+                },
+            });
+        }
+
+        setToast("Preview refreshed with provisioning engine results.");
     };
 
     const handleProvision = () => {
+        const results = generateProvisioningResults(state, {
+            students: STUDENTS_DATA,
+            teachers: TEACHERS_DATA,
+            staff: STAFF_DATA,
+            schools: SCHOOLS_DATA,
+        });
+
+        try {
+            localStorage.setItem("idm-provisioning-results", JSON.stringify(results));
+        } catch { /* ignore */ }
+
+        const syncHist = generateSyncHistory(results.syncSummary, results.events.length);
+        try {
+            localStorage.setItem("idm-provisioning-sync-history", JSON.stringify(syncHist));
+        } catch { /* ignore */ }
+
         checkActionGoal("wizard-provision-google");
         onProvisionComplete?.();
         setToast("Provisioning started! Google accounts are being created. Returning to IDM...");
@@ -70,7 +119,7 @@ export default function PreviewStep({ state, setToast, onExit, onProvisionComple
                 <button className={styles.previewActionLink} onClick={handleCheckUser}>
                     <SearchIcon /> Check a user
                 </button>
-                <button className={styles.previewActionLink} onClick={handleRefresh}>
+                <button className={styles.previewActionLink} data-instruction-target="preview-refresh-btn" onClick={handleRefresh}>
                     <RefreshIcon /> Refresh
                 </button>
             </div>
