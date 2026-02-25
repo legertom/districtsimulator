@@ -8,6 +8,7 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
     const { checkActionGoal } = useInstructional();
     const anySelected = state.provisionStudents || state.provisionTeachers || state.provisionStaff;
     const [showRollover, setShowRollover] = useState(false);
+    const nextBtnRef = React.useRef(null);
 
     const handleUserTypeChange = (field, checked) => {
         updateState({ [field]: checked });
@@ -23,6 +24,10 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
     const handleNext = () => {
         if (!showRollover) {
             setShowRollover(true);
+            // Scroll the Next button into view after rollover section renders
+            setTimeout(() => {
+                nextBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+            }, 100);
         } else {
             goNext();
         }
@@ -112,35 +117,33 @@ export default function SelectUsersStep({ state, updateState, goNext }) {
             </div>
 
             {showRollover && (
-                <div className={styles.userTypeCard} style={{ marginTop: 24 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--gray-900)", margin: "0 0 8px 0" }}>
-                        Enter an IDM rollover date to mark the start of a new school year.
-                    </h3>
-                    <p style={{ fontSize: 13, color: "var(--gray-600)", lineHeight: 1.5, margin: "0 0 16px 0" }}>
-                        If you do not sync graduation year from your SIS, Clever IDM calculates graduation year
-                        based on students&apos; grade level. During the rollover period, IDM needs to know if your
-                        data is for the past or upcoming school year.
-                    </p>
-
-                    <label style={{ fontSize: 13, fontWeight: 600, color: "var(--gray-700)", display: "block", marginBottom: 6 }}>
-                        Graduation Rollover Date
-                    </label>
-                    <div style={{ position: "relative", maxWidth: 280 }}>
-                        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14, color: "var(--gray-500)" }}>📅</span>
-                        <input
-                            type="text"
-                            className={styles.dateInput}
-                            value={state.graduationRolloverDate || ""}
-                            onChange={(e) => updateState({ graduationRolloverDate: e.target.value })}
-                            placeholder="MM/DD/YYYY"
-                            style={{ paddingLeft: 32, width: "100%", padding: "8px 12px 8px 32px", border: "1px solid var(--gray-300)", borderRadius: 6, fontSize: 14, color: "var(--gray-800)" }}
-                        />
+                <div className={styles.userTypeCard} style={{ marginTop: 16, padding: "16px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--gray-900)", margin: "0 0 4px 0" }}>
+                                Graduation Rollover Date
+                            </h3>
+                            <p style={{ fontSize: 12, color: "var(--gray-500)", lineHeight: 1.4, margin: 0 }}>
+                                Optional. If you don&apos;t sync graduation year from your SIS, IDM calculates it from grade level.
+                            </p>
+                        </div>
+                        <div style={{ position: "relative", minWidth: 200 }}>
+                            <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14, color: "var(--gray-500)" }}>📅</span>
+                            <input
+                                type="text"
+                                className={styles.dateInput}
+                                value={state.graduationRolloverDate || ""}
+                                onChange={(e) => updateState({ graduationRolloverDate: e.target.value })}
+                                placeholder="MM/DD/YYYY"
+                                style={{ paddingLeft: 32, width: "100%", padding: "8px 12px 8px 32px", border: "1px solid var(--gray-300)", borderRadius: 6, fontSize: 14, color: "var(--gray-800)" }}
+                            />
+                        </div>
                     </div>
                 </div>
             )}
 
             <div className={styles.nextBtnRow}>
-                <button className={styles.nextBtn} data-instruction-target="next-credentials" onClick={handleNext} disabled={!anySelected}>
+                <button ref={nextBtnRef} className={styles.nextBtn} data-instruction-target="next-credentials" onClick={handleNext} disabled={!anySelected}>
                     Next
                 </button>
             </div>

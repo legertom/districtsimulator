@@ -487,9 +487,6 @@ export default function CredentialFormatEditorModal({
 
                             {/* Add buttons */}
                             <div className={styles.addButtonsRow}>
-                                <button className={styles.addBtn} onClick={addDot}>
-                                    + Add &quot;.&quot;
-                                </button>
                                 <button className={styles.addBtn} onClick={addVariable}>
                                     + Add an SIS Variable
                                 </button>
