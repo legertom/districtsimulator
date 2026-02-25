@@ -68,6 +68,12 @@ const CopyIcon = () => (
 /* ── Component ──────────────────────────────── */
 
 function findProfileIdForEvent(ev, scenarioData) {
+    // Prefer personId from engine-generated events (exact match)
+    if (ev.personId) {
+        return { id: ev.personId, userType: ev.userType };
+    }
+
+    // Fall back to name-based heuristic for static events
     const userType = ev.userType?.toLowerCase();
     const nameParts = ev.user?.split(" ") || [];
     const firstName = nameParts[0]?.toLowerCase();
@@ -91,9 +97,31 @@ export default function IDM({ onEditProvisioning }) {
     const { resolvedData } = useDataVariant();
     const { scenario } = useScenario();
     const idm = resolvedData?.idm ?? {};
+
+    const { dynamicEvents, dynamicSyncHistory } = React.useMemo(() => {
+        if (!idmSetupComplete) return { dynamicEvents: null, dynamicSyncHistory: null };
+        let events = null;
+        let syncHist = null;
+        try {
+            const eventsRaw = localStorage.getItem("idm-provisioning-results");
+            if (eventsRaw) {
+                const parsed = JSON.parse(eventsRaw);
+                events = parsed.events || null;
+            }
+            const syncRaw = localStorage.getItem("idm-provisioning-sync-history");
+            if (syncRaw) {
+                syncHist = JSON.parse(syncRaw);
+            }
+        } catch {
+            // Fall back to static data
+        }
+        return { dynamicEvents: events, dynamicSyncHistory: syncHist };
+    }, [idmSetupComplete]);
+
     const configuredDestinations = idm.destinations ?? [];
-    const syncHistory = idm.syncHistory ?? [];
-    const allEvents = idm.events ?? [];
+    const syncHistoryData = dynamicSyncHistory || (idm.syncHistory ?? []);
+    const allEvents = dynamicEvents || (idm.events ?? []);
+    const totalProvisionedUsers = allEvents.length;
 
     // Before IDM is set up, show all destinations including Google Workspace.
     // After setup, only show the non-Google options (Google is already configured).
@@ -441,7 +469,7 @@ export default function IDM({ onEditProvisioning }) {
                             </span>
                             <div className={styles.notificationText}>
                                 <p className={styles.notificationTitle}>
-                                    Clever IDM is managing 40 Google users
+                                    Clever IDM is managing {totalProvisionedUsers} Google users
                                 </p>
                                 <p className={styles.notificationDesc}>
                                     View students.csv and teachers_and_staff.csv for a list of emails to upload them to your SIS.
@@ -460,7 +488,7 @@ export default function IDM({ onEditProvisioning }) {
                 {idmSetupComplete && activeTab === "sync-history" && (
                     <div className={styles.tabContent}>
                         <h2 className={styles.sectionTitle}>Sync History</h2>
-                        <DataTable columns={syncHistoryColumns} data={syncHistory} />
+                        <DataTable columns={syncHistoryColumns} data={syncHistoryData} />
                     </div>
                 )}
 
@@ -469,7 +497,7 @@ export default function IDM({ onEditProvisioning }) {
                     <div className={styles.tabContent} data-instruction-target="exports-tab-content">
                         <div className={styles.exportSection}>
                             <h3 className={styles.exportSectionTitle}>All Clever IDM Google Users</h3>
-                            <p className={styles.exportDesc}>Clever IDM is managing 40 Google users.</p>
+                            <p className={styles.exportDesc}>Clever IDM is managing {totalProvisionedUsers} Google users.</p>
                             <button className={styles.downloadLink} onClick={handleDownloadUserEmails}>
                                 <DownloadIcon /> Download user emails
                             </button>

@@ -4,17 +4,24 @@ import { useMemo } from "react";
 import { useInstructional } from "@/context/InstructionalContext";
 import styles from "./ProfilePage.module.css";
 
-/**
- * "Clever IDM Information" card for profile Details tabs.
- * Only renders when IDM setup is complete.
- *
- * @param {{ userType: "student"|"teacher"|"staff", person: object }} props
- */
 export default function CleverIDMSection({ userType, person }) {
     const { idmSetupComplete } = useInstructional();
 
-    // Read provisioning config from localStorage (set by the wizard)
+    const provisionedEvent = useMemo(() => {
+        if (typeof window === "undefined" || !person?.id) return null;
+        try {
+            const raw = localStorage.getItem("idm-provisioning-results");
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            const events = parsed.events || [];
+            return events.find((ev) => ev.personId === person.id) || null;
+        } catch {
+            return null;
+        }
+    }, [person?.id]);
+
     const provisioningConfig = useMemo(() => {
+        if (provisionedEvent) return null;
         if (typeof window === "undefined") return null;
         try {
             const raw = localStorage.getItem("idm-provisioning-state");
@@ -22,12 +29,15 @@ export default function CleverIDMSection({ userType, person }) {
         } catch {
             return null;
         }
-    }, []);
+    }, [provisionedEvent]);
 
     if (!idmSetupComplete) return null;
 
-    const googleEmail = computeEmail(provisioningConfig, userType, person) || "—";
-    const googleId = "—";
+    const googleEmail = provisionedEvent
+        ? provisionedEvent.destinationUsername
+        : computeEmail(provisioningConfig, userType, person) || "\u2014";
+    const googleId = provisionedEvent ? provisionedEvent.cleverId : "\u2014";
+    const googleOU = provisionedEvent ? provisionedEvent.currentOU : null;
 
     return (
         <div className={styles.card}>
@@ -35,8 +45,9 @@ export default function CleverIDMSection({ userType, person }) {
             <div className={styles.fieldGrid}>
                 <Field label="Google Email" value={googleEmail} />
                 <Field label="Google ID" value={googleId} />
+                {googleOU && <Field label="Google OU" value={googleOU} />}
                 {userType !== "staff" && (
-                    <Field label="Google Password" value="••••••••" />
+                    <Field label="Google Password" value="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" />
                 )}
                 <div className={styles.fieldGroup}>
                     <span className={styles.fieldLabel}>Actions</span>
@@ -51,17 +62,15 @@ function Field({ label, value }) {
     return (
         <div className={styles.fieldGroup}>
             <span className={styles.fieldLabel}>{label}</span>
-            <span className={value && value !== "—" ? styles.fieldValue : styles.fieldEmpty}>
-                {value || "—"}
+            <span className={value && value !== "\u2014" ? styles.fieldValue : styles.fieldEmpty}>
+                {value || "\u2014"}
             </span>
         </div>
     );
 }
 
-// ── Helpers ─────────────────────────────────────────────────
-
 function computeEmail(config, userType, person) {
-    const typeKey = userType + "s"; // "students", "teachers", "staff" → "staffs" is fine, will fallback
+    const typeKey = userType + "s";
     const cred = config?.credentials?.[typeKey] || config?.credentials?.[userType];
     if (!cred?.email || !person) return null;
     const domain = cred.domain || "cedarridgesd.org";

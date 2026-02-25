@@ -18,6 +18,7 @@ import {
     fetchSessionStateFromApi,
     saveSessionStateToApi,
     createDebouncedSessionSave,
+    fetchWizardStateFromApi,
 } from "@/lib/progressApi";
 
 export const InstructionalContext = createContext();
@@ -323,9 +324,10 @@ export function InstructionalProvider({ children }) {
         (async () => {
             try {
                 // Fetch progress and session state in parallel
-                const [progressData, sessionData] = await Promise.all([
+                const [progressData, sessionData, wizardData] = await Promise.all([
                     fetchProgressFromApi(),
                     fetchSessionStateFromApi(),
+                    fetchWizardStateFromApi(),
                 ]);
 
                 if (cancelled) return;
@@ -368,6 +370,23 @@ export function InstructionalProvider({ children }) {
                         setRightPanelView("chat");
                         setConversationHistory([]);
                         setScenarioJustCompleted(null);
+                    }
+                }
+
+                if (wizardData?.wizard_data) {
+                    try {
+                        const localWizard = localStorage.getItem("idm-provisioning-state");
+                        if (!localWizard) {
+                            localStorage.setItem("idm-provisioning-state", JSON.stringify(wizardData.wizard_data));
+                        }
+                        if (wizardData.wizard_data.provisioning_results) {
+                            const localResults = localStorage.getItem("idm-provisioning-results");
+                            if (!localResults) {
+                                localStorage.setItem("idm-provisioning-results", JSON.stringify(wizardData.wizard_data.provisioning_results));
+                            }
+                        }
+                    } catch {
+                        // ignore localStorage errors
                     }
                 }
             } catch (err) {
