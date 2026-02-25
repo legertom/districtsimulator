@@ -6,6 +6,7 @@ import {
     GOOGLE_ORG_UNITS,
     SIS_VARIABLES,
     FORMAT_FUNCTIONS,
+    PREMADE_OU_FORMATS,
 } from "@/data/defaults/idm-provisioning";
 import styles from "../GoogleProvisioningWizard.module.css";
 
@@ -19,6 +20,7 @@ const SAMPLE_USER_MAP = {
     "student.state_id": (s) => s.stateId || "",
     "staff.department": (s) => s.department || "",
     "staff.title": (s) => s.title || "",
+    "staff.job_code": (s) => s.jobCode || "",
     "teacher.title": (s) => s.title || "",
     "teacher.teacher_number": (s) => s.teacherNumber || "",
 };
@@ -205,6 +207,9 @@ export default function FormatEditorModal({
     const [currentOUsCollapsed, setCurrentOUsCollapsed] = useState(true);
     const [advancedMode, setAdvancedMode] = useState(false);
     const [rawFormatString, setRawFormatString] = useState(() => rowsToString(format || []));
+    const [editorStep, setEditorStep] = useState(format?.length ? "builder" : "chooser");
+    const [buildMode, setBuildMode] = useState("premade");
+    const [selectedPresetId, setSelectedPresetId] = useState("");
     const funcRef = useRef(null);
 
     // Close functions dropdown on outside click
@@ -312,6 +317,32 @@ export default function FormatEditorModal({
         }
     };
 
+    const presets = PREMADE_OU_FORMATS[userType] || [];
+
+    useEffect(() => {
+        if (!selectedPresetId && presets.length > 0) {
+            setSelectedPresetId(presets[0].id);
+        }
+    }, [presets, selectedPresetId]);
+
+    const handleContinue = () => {
+        if (buildMode === "advanced") {
+            setAdvancedMode(true);
+            setEditorStep("builder");
+            setRawFormatString(rowsToString(rows));
+            return;
+        }
+
+        if (buildMode === "premade") {
+            const preset = presets.find((p) => p.id === selectedPresetId);
+            if (preset) {
+                setRows(preset.rows.map((r) => ({ ...r })));
+            }
+        }
+        setAdvancedMode(false);
+        setEditorStep("builder");
+    };
+
     /* ── Shared right column (used by both modes) ── */
     const rightColumn = (
         <div className={styles.formatEditorRight}>
@@ -410,7 +441,86 @@ export default function FormatEditorModal({
             <div className={styles.formatEditorBody}>
                 {/* Left column */}
                 <div className={styles.formatEditorLeft}>
-                    {advancedMode ? (
+                    {editorStep === "chooser" ? (
+                        <>
+                            <p className={styles.formatEditorSubtitle}>
+                                You&apos;ll have several options to build a format.
+                            </p>
+
+                            <div className={styles.formatModeCard}>
+                                <label className={styles.formatModeOption}>
+                                    <input
+                                        type="radio"
+                                        name="format-mode"
+                                        checked={buildMode === "premade"}
+                                        onChange={() => setBuildMode("premade")}
+                                    />
+                                    <div>
+                                        <div className={styles.formatModeTitle}>Start with a premade sub-OU format</div>
+                                        <div className={styles.formatModeBody}>
+                                            Pick a common format to begin, then edit it as needed.
+                                        </div>
+                                        <select
+                                            className={styles.formatModeSelect}
+                                            value={selectedPresetId}
+                                            onChange={(e) => setSelectedPresetId(e.target.value)}
+                                            disabled={presets.length === 0}
+                                        >
+                                            {presets.length === 0 && <option>No presets available</option>}
+                                            {presets.map((p) => (
+                                                <option key={p.id} value={p.id}>
+                                                    {p.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div className={styles.formatModeCard}>
+                                <label className={styles.formatModeOption}>
+                                    <input
+                                        type="radio"
+                                        name="format-mode"
+                                        checked={buildMode === "blocks"}
+                                        onChange={() => setBuildMode("blocks")}
+                                    />
+                                    <div>
+                                        <div className={styles.formatModeTitle}>Build a sub-OU format</div>
+                                        <div className={styles.formatModeBody}>
+                                            Build your sub-OU format using blocks for variables, text, and functions.
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div className={styles.formatModeCard}>
+                                <label className={styles.formatModeOption}>
+                                    <input
+                                        type="radio"
+                                        name="format-mode"
+                                        checked={buildMode === "advanced"}
+                                        onChange={() => setBuildMode("advanced")}
+                                    />
+                                    <div>
+                                        <div className={styles.formatModeTitle}>Enter a format string (Advanced)</div>
+                                        <div className={styles.formatModeBody}>
+                                            Use the legacy syntax to write a raw format string.
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div className={styles.modalFooter}>
+                                <button className={styles.nextBtn} onClick={handleContinue}>
+                                    Continue
+                                </button>
+                                <button className={styles.cancelBtn} onClick={onCancel}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </>
+                    ) : advancedMode ? (
                         /* ── Advanced Mode: raw textarea ── */
                         <>
                             <p className={styles.formatEditorSubtitle}>
@@ -553,6 +663,12 @@ export default function FormatEditorModal({
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className={styles.formatEditorNote}>
+                                Please note: The block builder approach doesn&apos;t currently support extension fields
+                                or advanced use of functions. If you need to use extension fields or more complex
+                                functions, use the advanced option to enter a format string.
                             </div>
 
                             {/* Footer */}

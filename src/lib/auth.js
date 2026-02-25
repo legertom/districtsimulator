@@ -10,51 +10,52 @@ import { getSupabaseServerClient } from './supabase/server';
 // Validate secrets on load
 ENV.validateAuthSecret();
 
-export const authOptions = {
-    // Determine providers
-    providers: [
-        ...(isGoogleProviderEnabled()
-            ? [
-                GoogleProvider({
-                    clientId: process.env.GOOGLE_CLIENT_ID,
-                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                }),
-            ]
-            : []),
-        CredentialsProvider({
-            name: 'Credentials',
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" }
-            },
-            async authorize(credentials, req) {
-                const emailInput = credentials?.email?.trim().toLowerCase();
-                const ip = req?.headers?.['x-forwarded-for'] || req?.connection?.remoteAddress || 'unknown-ip';
-                const identifier = `${emailInput}-${ip}`;
+const providers = [
+    ...(isGoogleProviderEnabled()
+        ? [
+            GoogleProvider({
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            }),
+        ]
+        : []),
+    CredentialsProvider({
+        name: 'Credentials',
+        credentials: {
+            email: { label: "Email", type: "email" },
+            password: { label: "Password", type: "password" }
+        },
+        async authorize(credentials, req) {
+            const emailInput = credentials?.email?.trim().toLowerCase();
+            const ip = req?.headers?.['x-forwarded-for'] || req?.connection?.remoteAddress || 'unknown-ip';
+            const identifier = `${emailInput}-${ip}`;
 
-                if (isRateLimited(identifier)) {
-                    throw new Error("Too many login attempts. Please try again later.");
-                }
-
-                // Placeholder logic until user persistence is wired up
-                // Hardcoded admin for initial testing
-                const user = {
-                    id: "1",
-                    name: "Clever Admin",
-                    email: "admin@clever.com",
-                    role: "admin"
-                };
-
-                if (emailInput === user.email && credentials?.password === "password") {
-                    clearRateLimit(identifier); // Reset attempts on success
-                    return user;
-                }
-
-                // Return null if user data could not be retrieved
-                return null;
+            if (isRateLimited(identifier)) {
+                throw new Error("Too many login attempts. Please try again later.");
             }
-        })
-    ],
+
+            // Placeholder logic until user persistence is wired up
+            // Hardcoded admin for initial testing
+            const user = {
+                id: "1",
+                name: "Clever Admin",
+                email: "admin@clever.com",
+                role: "admin"
+            };
+
+            if (emailInput === user.email && credentials?.password === "password") {
+                clearRateLimit(identifier); // Reset attempts on success
+                return user;
+            }
+
+            // Return null if user data could not be retrieved
+            return null;
+        }
+    }),
+];
+
+export const authOptions = {
+    providers,
     secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
     session: {
         strategy: "jwt",

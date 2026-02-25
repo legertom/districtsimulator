@@ -43,21 +43,29 @@ const STEP_COMPONENTS = {
 
 export default function GoogleProvisioningWizard({ currentStep, onStepChange, onExit, onProvisionComplete }) {
     const [localStep, setLocalStep] = useState(WIZARD_STEPS[0].id);
-    const { idmSetupComplete } = useInstructional();
+    const { idmSetupComplete, checkActionGoal } = useInstructional();
     const [wizardState, setWizardState] = useState(() => {
-        try {
-            const saved = localStorage.getItem("idm-provisioning-state");
-            if (saved) return JSON.parse(saved);
-        } catch {
-            // ignore
-        }
         // Use unconfigured state when IDM hasn't been set up yet
         return idmSetupComplete ? { ...DEFAULT_PROVISIONING_STATE } : { ...UNCONFIGURED_PROVISIONING_STATE };
     });
+    const [hydrated, setHydrated] = useState(false);
     const [toast, setToast] = useState(null);
-    const { checkActionGoal } = useInstructional();
     const { data: session } = useSession();
     const wizardSaveRef = useRef(null);
+
+    // Load saved state on client only to avoid hydration mismatch
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem("idm-provisioning-state");
+            if (saved) {
+                setWizardState(JSON.parse(saved));
+            }
+        } catch {
+            // ignore
+        } finally {
+            setHydrated(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (session?.user) {
@@ -70,13 +78,14 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
 
     // Persist wizard state to localStorage + Supabase
     useEffect(() => {
+        if (!hydrated) return;
         try {
             localStorage.setItem("idm-provisioning-state", JSON.stringify(wizardState));
         } catch {
             // ignore
         }
         wizardSaveRef.current?.debouncedSave(wizardState);
-    }, [wizardState]);
+    }, [wizardState, hydrated]);
 
     // Fetch wizard state from Supabase and merge if newer
     useEffect(() => {
@@ -156,6 +165,10 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
     };
 
     const StepComponent = STEP_COMPONENTS[activeStep];
+
+    if (!hydrated) {
+        return null;
+    }
 
     return (
         <div className={styles.wizardOverlay}>

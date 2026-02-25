@@ -191,22 +191,51 @@ export const GOOGLE_ORG_UNITS = [
         path: "/",
         children: [
             { id: "devices", name: "Devices", path: "/Devices", children: [] },
+            { id: "kathys-ou", name: "Kathy's OU", path: "/Kathy's OU", children: [] },
             {
                 id: "students",
                 name: "Students",
                 path: "/Students",
                 children: [
                     {
+                        id: "students-fort-virgilfield",
+                        name: "Fort Virgilfield Elementary School",
+                        path: "/Students/Fort Virgilfield Elementary School",
+                        children: [
+                            { id: "students-fort-virgilfield-1", name: "1", path: "/Students/Fort Virgilfield Elementary School/1", children: [] },
+                            { id: "students-fort-virgilfield-2", name: "2", path: "/Students/Fort Virgilfield Elementary School/2", children: [] },
+                            { id: "students-fort-virgilfield-3", name: "3", path: "/Students/Fort Virgilfield Elementary School/3", children: [] },
+                            { id: "students-fort-virgilfield-4", name: "4", path: "/Students/Fort Virgilfield Elementary School/4", children: [] },
+                            { id: "students-fort-virgilfield-5", name: "5", path: "/Students/Fort Virgilfield Elementary School/5", children: [] },
+                            { id: "students-fort-virgilfield-kindergarten", name: "Kindergarten", path: "/Students/Fort Virgilfield Elementary School/Kindergarten", children: [] },
+                        ],
+                    },
+                    {
+                        id: "students-santa-rosa",
+                        name: "Santa Rosa Elementary School",
+                        path: "/Students/Santa Rosa Elementary School",
+                        children: [
+                            { id: "students-santa-rosa-1", name: "1", path: "/Students/Santa Rosa Elementary School/1", children: [] },
+                            { id: "students-santa-rosa-2", name: "2", path: "/Students/Santa Rosa Elementary School/2", children: [] },
+                            { id: "students-santa-rosa-3", name: "3", path: "/Students/Santa Rosa Elementary School/3", children: [] },
+                            { id: "students-santa-rosa-4", name: "4", path: "/Students/Santa Rosa Elementary School/4", children: [] },
+                            { id: "students-santa-rosa-5", name: "5", path: "/Students/Santa Rosa Elementary School/5", children: [] },
+                            { id: "students-santa-rosa-kindergarten", name: "Kindergarten", path: "/Students/Santa Rosa Elementary School/Kindergarten", children: [] },
+                        ],
+                    },
+                    {
                         id: "students-treutelside",
                         name: "Cedar Ridge Middle School",
                         path: "/Students/Cedar Ridge Middle School",
                         children: [
+                            { id: "students-treutelside-6", name: "6", path: "/Students/Cedar Ridge Middle School/6", children: [] },
                             { id: "students-treutelside-7", name: "7", path: "/Students/Cedar Ridge Middle School/7", children: [] },
                             { id: "students-treutelside-8", name: "8", path: "/Students/Cedar Ridge Middle School/8", children: [] },
                         ],
                     },
                 ],
             },
+            { id: "students-no-longer", name: "Students no longer in Mayton District", path: "/Students no longer in Mayton District", children: [] },
             {
                 id: "users",
                 name: "Users",
@@ -217,10 +246,13 @@ export const GOOGLE_ORG_UNITS = [
                         name: "Staff",
                         path: "/Users/Staff",
                         children: [
-                            { id: "users-staff-teachers", name: "Teachers", path: "/Users/Staff/Teachers", children: [] },
+                            { id: "users-staff-counseling", name: "Counseling", path: "/Users/Staff/Counseling", children: [] },
+                            { id: "users-staff-district-office", name: "District Office", path: "/Users/Staff/District Office", children: [] },
                             { id: "users-staff-operations", name: "Operations", path: "/Users/Staff/Operations", children: [] },
+                            { id: "users-staff-student-services", name: "Student Services", path: "/Users/Staff/Student Services", children: [] },
                         ],
                     },
+                    { id: "users-teachers", name: "Teachers", path: "/Users/Teachers", children: [] },
                 ],
             },
         ],
@@ -266,6 +298,7 @@ export const SAMPLE_STAFF = {
     sisId: "b2345678-90ab-cdef-1234-567890abcdef",
     title: "Librarian",
     department: "Operations",
+    jobCode: "OPS-204",
     exampleEmail: "oswaldo.pouros@cedarridgesd.org",
 };
 
@@ -287,6 +320,7 @@ export const SIS_VARIABLES = {
         { variable: "school_name", label: "School Name" },
         { variable: "staff.title", label: "Title" },
         { variable: "staff.department", label: "Department" },
+        { variable: "staff.job_code", label: "Job Code" },
     ],
 };
 
@@ -321,3 +355,63 @@ export const FORMAT_FUNCTIONS = [
     "Text Before", "To Lowercase", "To Uppercase", "Trim Left",
     "Capitalize after Delimiter",
 ];
+
+/** Premade sub-OU formats — matches common Clever IDM options */
+export const PREMADE_OU_FORMATS = {
+    students: [
+        {
+            id: "school",
+            label: "{School}",
+            rows: [{ type: "text", value: "/" }, { type: "variable", variable: "school_name", label: "School Name" }],
+        },
+        {
+            id: "school-grade",
+            label: "{School} > {Grade}",
+            rows: [
+                { type: "text", value: "/" },
+                { type: "variable", variable: "school_name", label: "School Name" },
+                { type: "text", value: "/" },
+                { type: "variable", variable: "student.grade", label: "Grade" },
+            ],
+        },
+        {
+            id: "school-gradyear",
+            label: "{School} > {Graduation Year}",
+            rows: [
+                { type: "text", value: "/" },
+                { type: "variable", variable: "school_name", label: "School Name" },
+                { type: "text", value: "/" },
+                { type: "variable", variable: "student.graduation_year", label: "Graduation Year" },
+            ],
+        },
+        {
+            id: "grade",
+            label: "{Grade}",
+            rows: [{ type: "text", value: "/" }, { type: "variable", variable: "student.grade", label: "Grade" }],
+        },
+        {
+            id: "gradyear",
+            label: "{Graduation Year}",
+            rows: [{ type: "text", value: "/" }, { type: "variable", variable: "student.graduation_year", label: "Graduation Year" }],
+        },
+    ],
+    teachers: [
+        {
+            id: "school",
+            label: "{School}",
+            rows: [{ type: "text", value: "/" }, { type: "variable", variable: "school_name", label: "School Name" }],
+        },
+    ],
+    staff: [
+        {
+            id: "department",
+            label: "{Department}",
+            rows: [{ type: "text", value: "/" }, { type: "variable", variable: "staff.department", label: "Department" }],
+        },
+        {
+            id: "job-code",
+            label: "{Job Code}",
+            rows: [{ type: "text", value: "/" }, { type: "variable", variable: "staff.job_code", label: "Job Code" }],
+        },
+    ],
+};
