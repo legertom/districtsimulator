@@ -141,7 +141,7 @@ export const scenarios = [
                 nextStep: "step_setup_users_assessment",
                 guideMessage: "Check the boxes for Students, Teachers, and Staff.",
                 alexPrompt: "Cedar Ridge provisions everyone — students, teachers, and staff. Check all three boxes.",
-                alexCorrectResponse: "All three user types selected. You can see the counts — 20 students, 10 teachers, 10 staff. That's our whole district.",
+                alexCorrectResponse: "All three user types selected — 20 students, 10 teachers, 10 staff. When you click Next, you'll see a Graduation Rollover Date field. Leave it blank for now — Cedar Ridge syncs graduation year directly from their SIS, so IDM doesn't need to calculate it. Click Next twice to continue.",
                 hint: {
                     target: "user-type-checkboxes",
                     message: "Check the boxes for Students, Teachers, and Staff.",
