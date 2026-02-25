@@ -80,7 +80,9 @@ export default function IDM({ onEditProvisioning }) {
     const [toast, setToast] = useState(null);
 
     // Exports
-    const [sftpEnabled, setSftpEnabled] = useState(false);
+    const [sftpEnabled, setSftpEnabled] = useState(true);
+    const [showSftpPassword, setShowSftpPassword] = useState(false);
+    const isImpersonationMode = true;
 
     // Events tab
     const [eventsPage, setEventsPage] = useState(1);
@@ -391,36 +393,50 @@ export default function IDM({ onEditProvisioning }) {
                     <div className={styles.tabContent}>
                         <div className={styles.exportSection}>
                             <h3 className={styles.exportSectionTitle}>All Clever IDM Google Users</h3>
-                            <p className={styles.exportDesc}>Clever IDM is managing 40 Google users.</p>
-                            <button className={styles.downloadLink} onClick={handleDownloadUserEmails}>
-                                <DownloadIcon /> Download user emails
-                            </button>
+                            <div className={styles.exportDownloadRow}>
+                                <button className={styles.downloadLink} onClick={handleDownloadUserEmails}>
+                                    <DownloadIcon /> Download user emails
+                                </button>
+                                <p className={styles.exportDownloadCopy}>Clever IDM is managing 40 Google users</p>
+                            </div>
                         </div>
 
                         <div className={styles.exportSection}>
-                            <h3 className={styles.exportSectionTitle}>Recent Clever IDM Google Credentials</h3>
-                            <p className={styles.exportDesc}>
-                                Download credentials for accounts created or updated in the last 10 days.
-                            </p>
-                            <button className={styles.downloadLink} onClick={handleDownloadRecentAccounts}>
-                                <DownloadIcon /> Download recent accounts
-                            </button>
+                            <h3 className={styles.exportSectionTitle}>
+                                Recent Clever IDM Google Credentials
+                                {isImpersonationMode ? " (disabled in impersonation mode)" : ""}
+                            </h3>
+                            <div className={styles.exportDownloadRow}>
+                                <button className={styles.downloadLink} onClick={handleDownloadRecentAccounts}>
+                                    <DownloadIcon /> Download recent accounts
+                                </button>
+                                <p className={styles.exportDownloadCopy}>
+                                    This export contains credentials created or updated within the last 10 days.
+                                </p>
+                            </div>
                         </div>
 
                         <div className={styles.exportSection}>
-                            <h3 className={styles.exportSectionTitle}>Enable SFTP access for IDM exports</h3>
+                            <h3 className={styles.exportSectionTitle}>
+                                Enable SFTP access for IDM exports
+                                {isImpersonationMode ? " (disabled in impersonation mode)" : ""}
+                            </h3>
                             <p className={styles.exportDesc}>
-                                Enable SFTP access to allow automated export of IDM data.
-                                Visit the <a href="#" className={styles.helpLink}>Help Center</a> for more information.
+                                Allow use of SFTP to access IDM exports. This can be used to build automated processes.
+                                Learn more in our <a href="#" className={styles.helpLink}>Help Center</a>.
                             </p>
                             <label className={styles.toggleLabel}>
                                 <div
-                                    className={`${styles.toggle} ${sftpEnabled ? styles.toggleOn : ""}`}
-                                    onClick={() => setSftpEnabled(!sftpEnabled)}
+                                    className={`${styles.toggle} ${sftpEnabled ? styles.toggleOn : ""} ${isImpersonationMode ? styles.toggleDisabled : ""}`}
+                                    onClick={() => {
+                                        if (!isImpersonationMode) setSftpEnabled(!sftpEnabled);
+                                    }}
                                     role="switch"
                                     aria-checked={sftpEnabled}
+                                    aria-disabled={isImpersonationMode}
                                     tabIndex={0}
                                     onKeyDown={(e) => {
+                                        if (isImpersonationMode) return;
                                         if (e.key === "Enter" || e.key === " ") {
                                             e.preventDefault();
                                             setSftpEnabled(!sftpEnabled);
@@ -431,6 +447,72 @@ export default function IDM({ onEditProvisioning }) {
                                 </div>
                                 <span>{sftpEnabled ? "Enabled" : "Disabled"}</span>
                             </label>
+
+                            {sftpEnabled && (
+                                <div className={styles.sftpDetails}>
+                                    <div className={styles.sftpRow}>
+                                        <div className={styles.sftpMeta}>
+                                            <div className={styles.sftpLabel}>SFTP URL</div>
+                                            <div className={styles.sftpValue}>reports-sftp.clever.com</div>
+                                        </div>
+                                        <button
+                                            className={styles.copyBtn}
+                                            onClick={() => copyToClipboard("reports-sftp.clever.com", "sftp-url")}
+                                        >
+                                            {copiedField === "sftp-url" ? "Copied" : "Copy"}
+                                        </button>
+                                    </div>
+
+                                    <div className={styles.sftpRow}>
+                                        <div className={styles.sftpMeta}>
+                                            <div className={styles.sftpLabel}>SFTP Username</div>
+                                            <div className={styles.sftpValue}>impersonator-access-denied</div>
+                                        </div>
+                                        <button
+                                            className={styles.copyBtn}
+                                            onClick={() => copyToClipboard("impersonator-access-denied", "sftp-username")}
+                                        >
+                                            {copiedField === "sftp-username" ? "Copied" : "Copy"}
+                                        </button>
+                                    </div>
+
+                                    <div className={styles.sftpRow}>
+                                        <div className={styles.sftpMeta}>
+                                            <div className={styles.sftpLabel}>SFTP Password</div>
+                                            <div className={styles.sftpValue}>
+                                                {showSftpPassword ? "impersonator-password-denied" : "*******************"}
+                                            </div>
+                                        </div>
+                                        <div className={styles.sftpActions}>
+                                            <button
+                                                className={styles.copyBtn}
+                                                onClick={() => setShowSftpPassword((prev) => !prev)}
+                                            >
+                                                {showSftpPassword ? "Hide" : "Show"}
+                                            </button>
+                                            <button
+                                                className={styles.copyBtn}
+                                                onClick={() => copyToClipboard("impersonator-password-denied", "sftp-password")}
+                                            >
+                                                {copiedField === "sftp-password" ? "Copied" : "Copy"}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.sftpRow}>
+                                        <div className={styles.sftpMeta}>
+                                            <div className={styles.sftpLabel}>SFTP Port</div>
+                                            <div className={styles.sftpValue}>22</div>
+                                        </div>
+                                        <button
+                                            className={styles.copyBtn}
+                                            onClick={() => copyToClipboard("22", "sftp-port")}
+                                        >
+                                            {copiedField === "sftp-port" ? "Copied" : "Copy"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
