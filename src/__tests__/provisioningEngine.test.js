@@ -130,10 +130,9 @@ describe("applyOUTemplate", () => {
 // ═══════════════════════════════════════════════════════════════
 
 describe("generateCleverId", () => {
-    it("produces a hex string of consistent length", () => {
+    it("produces a 24-character hex string matching reference data format", () => {
         const id = generateCleverId("test-id");
-        expect(id.length).toBeGreaterThanOrEqual(16);
-        expect(id.length).toBeLessThanOrEqual(24);
+        expect(id).toHaveLength(24);
         expect(id).toMatch(/^[0-9a-f]+$/);
     });
 

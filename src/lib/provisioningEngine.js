@@ -80,13 +80,18 @@ export function applyOUTemplate(ouConfig, person, userType, schoolsData) {
 }
 
 export function generateCleverId(personId) {
-    let hash = 0;
     const str = personId || "unknown";
-    for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+    // Generate three 8-char hex segments from different hash seeds
+    // to produce a 24-character ID matching the reference data format
+    const segments = [];
+    for (let seed = 0; seed < 3; seed++) {
+        let hash = seed * 0x9e3779b9; // golden-ratio offset per segment
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+        }
+        segments.push(Math.abs(hash).toString(16).padStart(8, "0"));
     }
-    const hex = Math.abs(hash).toString(16).padStart(8, "0");
-    return `${hex}${hex.split("").reverse().join("")}`.slice(0, 24);
+    return segments.join("").slice(0, 24);
 }
 
 // ═══════════════════════════════════════════════════════════════
