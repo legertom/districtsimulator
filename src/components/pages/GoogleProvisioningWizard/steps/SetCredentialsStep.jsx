@@ -10,6 +10,7 @@ import CredentialFormatEditorModal, {
     formatToTokens,
     formatToEmailString,
 } from "./CredentialFormatEditorModal";
+import { useInstructional } from "@/context/InstructionalContext";
 import styles from "../GoogleProvisioningWizard.module.css";
 
 const CheckIcon = () => (
@@ -75,6 +76,7 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
     const [showFormatEditor, setShowFormatEditor] = useState(false);
     const [showFallbackEditor, setShowFallbackEditor] = useState(false);
     const [section, setSection] = useState(1); // 1 = user preview, 2 = email config
+    const { checkActionGoal } = useInstructional();
 
     const cred = migrateCredential(credential);
 
@@ -163,9 +165,10 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
     /** Next Step: progressive disclosure, then save */
     const handleNextStep = () => {
         if (section === 1) {
+            checkActionGoal(`credential-next-step-${userType}`);
             setSection(2);
         } else {
-            // Section 2 → save + return to overview
+            checkActionGoal(`credential-save-${userType}`);
             updateState({
                 credentials: {
                     ...state.credentials,
@@ -418,6 +421,7 @@ function CredentialEditView({ title, userType, credential, sample, onBack, updat
 
 export default function SetCredentialsStep({ state, updateState, goNext }) {
     const [editingType, setEditingType] = useState(null);
+    const { checkActionGoal } = useInstructional();
 
     // Count completed credential steps
     const types = [];
@@ -474,7 +478,7 @@ export default function SetCredentialsStep({ state, updateState, goNext }) {
                         title="Student credentials"
                         userType="students"
                         credential={state.credentials.students}
-                        onEdit={() => setEditingType("students")}
+                        onEdit={() => { checkActionGoal("credential-edit-students"); setEditingType("students"); }}
                     />
                 )}
                 {state.provisionTeachers && (
@@ -482,7 +486,7 @@ export default function SetCredentialsStep({ state, updateState, goNext }) {
                         title="Teacher credentials"
                         userType="teachers"
                         credential={state.credentials.teachers}
-                        onEdit={() => setEditingType("teachers")}
+                        onEdit={() => { checkActionGoal("credential-edit-teachers"); setEditingType("teachers"); }}
                     />
                 )}
                 {state.provisionStaff && (
@@ -490,7 +494,7 @@ export default function SetCredentialsStep({ state, updateState, goNext }) {
                         title="Staff credentials"
                         userType="staff"
                         credential={state.credentials.staff}
-                        onEdit={() => setEditingType("staff")}
+                        onEdit={() => { checkActionGoal("credential-edit-staff"); setEditingType("staff"); }}
                     />
                 )}
             </div>
