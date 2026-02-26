@@ -273,6 +273,12 @@ export function InstructionalProvider({ children }) {
     // Prevents wrong-branch steps from showing as completed.
     const [visitedStepIds, setVisitedStepIds] = useState(() => new Set());
 
+    // ── Step history stack for go-back ──
+    // Tracks the ordered path of step IDs so the user can rewind.
+    const [stepHistory, setStepHistory] = useState([]);
+    const stepHistoryRef = useRef(stepHistory);
+    useEffect(() => { stepHistoryRef.current = stepHistory; }, [stepHistory]);
+
     // ── Refs to avoid stale closures in setTimeout callbacks ──
     const activeScenarioIdRef = useRef(activeScenarioId);
     const currentStepIdRef = useRef(currentStepId);
@@ -550,6 +556,7 @@ export function InstructionalProvider({ children }) {
         setConversationHistory([]);
         setScenarioJustCompleted(null);
         setVisitedStepIds(new Set([firstStep.id]));
+        setStepHistory([]);
 
         // Initialize per-scenario scoring (v2: mode-aware)
         const mode = scoreModeKey(guided);
@@ -734,6 +741,12 @@ export function InstructionalProvider({ children }) {
         const scenario = scenarios.find(s => s.id === scenarioId);
         const nextStep = scenario?.steps.find(s => s.id === nextStepId);
         if (nextStep) {
+            // Push current step onto history stack before advancing
+            const currentId = currentStepIdRef.current;
+            if (currentId) {
+                setStepHistory(prev => [...prev, currentId]);
+            }
+
             setCurrentStepId(nextStepId);
             setVisitedStepIds(prev => new Set([...prev, nextStepId]));
             setShowHint(coachMarksEnabledRef.current && !!nextStep.autoShowHint);
@@ -751,6 +764,25 @@ export function InstructionalProvider({ children }) {
     useEffect(() => {
         advanceStepRef.current = advanceStep;
     }, [advanceStep]);
+
+    // ═══ Step undo (go back) ═══
+
+    const goBackStep = useCallback(() => {
+        const history = stepHistoryRef.current;
+        if (history.length === 0) return;
+
+        const prevStepId = history[history.length - 1];
+        setStepHistory(prev => prev.slice(0, -1));
+
+        const scenarioId = activeScenarioIdRef.current;
+        const scenario = scenarios.find(s => s.id === scenarioId);
+        const prevStep = scenario?.steps.find(s => s.id === prevStepId);
+
+        if (prevStep) {
+            setCurrentStepId(prevStepId);
+            setShowHint(coachMarksEnabledRef.current && !!prevStep.autoShowHint);
+        }
+    }, []);
 
     // ═══ Action handling ═══
 
@@ -1043,6 +1075,8 @@ export function InstructionalProvider({ children }) {
         checkNavigationGoal,
         checkActionGoal,
         advanceStep,
+        goBackStep,
+        stepHistory,
 
         // IDM setup
         idmSetupComplete,
