@@ -55,6 +55,8 @@ export default function ChatView() {
         completedScenarios,
         completedModules,
         acceptTicket,
+        goBackStep,
+        stepHistory,
     } = useInstructional();
 
     const [chatMessages, setChatMessages] = useState([]);
@@ -66,6 +68,9 @@ export default function ChatView() {
     const prevScenarioIdRef = useRef(null);
     const typingTimeoutRef = useRef(null);
     const lobbyTimeoutsRef = useRef([]);
+    // Step undo: snapshot chat message count at each step entry
+    const chatSnapshotsRef = useRef({});
+    const prevStepHistoryLenRef = useRef(0);
 
     const isOnboarding = activeScenario?.chatMode === "onboarding";
     const boss = CHARACTERS.boss;
@@ -132,18 +137,22 @@ export default function ChatView() {
         lobbyTimeoutsRef.current.forEach(t => clearTimeout(t));
         lobbyTimeoutsRef.current = [];
 
-        // Staggered entrance: welcome → tickets
+        // Staggered entrance: typing indicator → welcome → tickets
         const welcome = currentModule?.bossIntro;
         if (welcome) {
+            // Show typing indicator first, then replace with actual message
+            const t0 = setTimeout(() => setIsTyping(true), 400);
             const t1 = setTimeout(() => {
+                setIsTyping(false);
                 setChatMessages(prev => [...prev, {
                     id: msgId(), type: "welcome", text: welcome,
                 }]);
-            }, 300);
-            lobbyTimeoutsRef.current.push(t1);
+            }, 1400);
+            lobbyTimeoutsRef.current.push(t0, t1);
         }
 
         availableTickets.forEach((scenario, idx) => {
+            const baseDelay = welcome ? 1800 : 800;
             const t = setTimeout(() => {
                 setChatMessages(prev => [...prev, {
                     id: msgId(),
@@ -151,7 +160,7 @@ export default function ChatView() {
                     scenario,
                     scenarioId: scenario.id,
                 }]);
-            }, 800 + idx * 400);
+            }, baseDelay + idx * 400);
             lobbyTimeoutsRef.current.push(t);
         });
     }, [isLobby, lobbyBuilt, currentModule, availableTickets]);
@@ -165,6 +174,8 @@ export default function ChatView() {
         if (activeScenario.id === prevScenarioIdRef.current) return;
         prevScenarioIdRef.current = activeScenario.id;
         prevStepIdRef.current = null;
+        chatSnapshotsRef.current = {};
+        prevStepHistoryLenRef.current = 0;
 
         const msgs = [];
         if (isOnboarding) {
@@ -182,14 +193,35 @@ export default function ChatView() {
     }, [activeScenario, isOnboarding]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
-    // ── Step change → append new messages ──
-    // Appends chat messages when the instructional engine advances a step; deduped by prevStepIdRef.
+    // ── Step change → append new messages (or restore snapshot on go-back) ──
     /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (!currentStep) return;
         if (currentStep.id === prevStepIdRef.current) return;
 
+        // Detect go-back: stepHistory shrunk since last render
+        const isGoingBack = stepHistory.length < prevStepHistoryLenRef.current;
+        prevStepHistoryLenRef.current = stepHistory.length;
+
+        if (isGoingBack) {
+            // Restore chat to the snapshot from when this step was originally entered,
+            // then fall through to re-add this step's messages below
+            const snapshotLen = chatSnapshotsRef.current[currentStep.id];
+            if (snapshotLen != null) {
+                setChatMessages(prev => prev.slice(0, snapshotLen));
+            }
+        }
+
         const isFirst = prevStepIdRef.current === null;
+
+        if (!isGoingBack) {
+            // Snapshot current message count BEFORE adding this step's messages
+            setChatMessages(prev => {
+                chatSnapshotsRef.current[currentStep.id] = prev.length;
+                return prev;
+            });
+        }
+
         prevStepIdRef.current = currentStep.id;
 
         const step = normalizeStep(currentStep);
@@ -212,9 +244,10 @@ export default function ChatView() {
         }
 
         if (msgs.length > 0) {
-            appendMessages(msgs, isFirst ? 0 : 500);
+            // On go-back, add immediately (no typing delay)
+            appendMessages(msgs, isGoingBack ? 0 : (isFirst ? 0 : 500));
         }
-    }, [currentStep, appendMessages]);
+    }, [currentStep, stepHistory, appendMessages]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
     // ── Scenario completion ──
@@ -511,7 +544,9 @@ export default function ChatView() {
                         <button className={styles.sendButton} onClick={handleSend} disabled={!inputValue.trim()}>↑</button>
                     </div>
                     <div className={styles.footerMeta}>
-                        <span className={styles.footerHint}>Enter to send</span>
+                        {stepHistory.length > 0 ? (
+                            <button className={styles.backStepButton} onClick={goBackStep}>← Back</button>
+                        ) : <span className={styles.footerHint}>Enter to send</span>}
                         <button className={styles.skipButton} onClick={skipTicket}>Skip</button>
                     </div>
                 </div>
@@ -519,14 +554,18 @@ export default function ChatView() {
                 <div className={styles.footer}>
                     <div className={styles.footerStatus}>{norm?.guideMessage || "Head over to the right spot in the dashboard..."}</div>
                     <div className={styles.footerMeta}>
-                        <span />
+                        {stepHistory.length > 0 ? (
+                            <button className={styles.backStepButton} onClick={goBackStep}>← Back</button>
+                        ) : <span />}
                         <button className={styles.skipButton} onClick={skipTicket}>Skip</button>
                     </div>
                 </div>
             ) : currentStep ? (
                 <div className={styles.footer}>
                     <div className={styles.footerMeta}>
-                        <span className={styles.footerHint}>Pick an answer above</span>
+                        {stepHistory.length > 0 ? (
+                            <button className={styles.backStepButton} onClick={goBackStep}>← Back</button>
+                        ) : <span className={styles.footerHint}>Pick an answer above</span>}
                         <button className={styles.skipButton} onClick={skipTicket}>Skip</button>
                     </div>
                 </div>

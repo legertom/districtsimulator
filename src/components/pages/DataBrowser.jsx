@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useScenario } from "@/context/ScenarioContext";
 import { demoDistrict } from "@/data/demoIdentity";
 import { buildStudentProfileRoute, buildTeacherProfileRoute, buildStaffProfileRoute } from "@/lib/routing";
@@ -32,81 +32,8 @@ function DetailField({ label, value }) {
     );
 }
 
-function DetailPanel({ type, item, onClose, sections, students, enrollmentsByStudent, enrollmentsBySection }) {
+function DetailPanel({ type, item, onClose, sections, students, enrollmentsBySection }) {
     if (!item) return null;
-
-    const renderStudentDetail = () => {
-        const enrolledSectionIds = enrollmentsByStudent?.[item.id] || [];
-        const enrolledSections = sections?.filter(s => enrolledSectionIds.includes(s.id)) || [];
-        return (
-            <>
-                <DetailField label="Name" value={`${item.first} ${item.middleName ? item.middleName + " " : ""}${item.last}`} />
-                <DetailField label="Student Number" value={item.studentNumber} />
-                <DetailField label="State ID" value={item.stateId} />
-                <DetailField label="School" value={item.school} />
-                <DetailField label="Grade" value={item.grade} />
-                <DetailField label="Gender" value={item.gender} />
-                <DetailField label="Date of Birth" value={item.dob} />
-                <DetailField label="Email" value={item.email} />
-                <DetailField label="Race" value={item.race} />
-                <DetailField label="Hispanic/Latino" value={item.hispanicLatino} />
-                <DetailField label="Home Language" value={item.homeLanguage} />
-                <DetailField label="ELL Status" value={item.ellStatus} />
-                <DetailField label="FRL Status" value={item.frlStatus} />
-                <DetailField label="IEP Status" value={item.iepStatus} />
-                <DetailField label="Address" value={`${item.street}, ${item.city}, ${item.state} ${item.zip}`} />
-                <DetailField label="Data Source" value={item.dataSource} />
-                {enrolledSections.length > 0 && (
-                    <div className={styles.detailField}>
-                        <span className={styles.detailLabel}>Enrolled Sections ({enrolledSections.length})</span>
-                        <ul className={styles.detailList}>
-                            {enrolledSections.map(s => (
-                                <li key={s.id}>{s.course} &mdash; {s.teacher} (P{s.period})</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </>
-        );
-    };
-
-    const renderTeacherDetail = () => {
-        const teacherSections = sections?.filter(s => s.teacherId === item.id) || [];
-        return (
-            <>
-                <DetailField label="Name" value={`${item.title} ${item.first} ${item.middleName ? item.middleName + " " : ""}${item.last}`} />
-                <DetailField label="Teacher Number" value={item.teacherNumber} />
-                <DetailField label="State Teacher ID" value={item.stateTeacherId} />
-                <DetailField label="School" value={item.school} />
-                <DetailField label="Email" value={item.email} />
-                <DetailField label="Username" value={item.username} />
-                <DetailField label="Data Source" value={item.dataSource} />
-                {teacherSections.length > 0 && (
-                    <div className={styles.detailField}>
-                        <span className={styles.detailLabel}>Sections ({teacherSections.length})</span>
-                        <ul className={styles.detailList}>
-                            {teacherSections.map(s => (
-                                <li key={s.id}>{s.course} &mdash; Grade {s.grade} (P{s.period})</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </>
-        );
-    };
-
-    const renderStaffDetail = () => (
-        <>
-            <DetailField label="Name" value={`${item.first} ${item.last}`} />
-            <DetailField label="Title" value={item.title} />
-            <DetailField label="Department" value={item.department} />
-            <DetailField label="Role" value={item.role} />
-            <DetailField label="School" value={item.school} />
-            <DetailField label="Email" value={item.email} />
-            <DetailField label="Username" value={item.username} />
-            <DetailField label="Data Source" value={item.dataSource} />
-        </>
-    );
 
     const renderSchoolDetail = () => (
         <>
@@ -158,9 +85,6 @@ function DetailPanel({ type, item, onClose, sections, students, enrollmentsByStu
     };
 
     const titles = {
-        Students: `${item.first} ${item.last}`,
-        Teachers: `${item.title || ""} ${item.first} ${item.last}`,
-        Staff: `${item.first} ${item.last}`,
         Schools: item.name,
         Sections: item.name || item.course,
     };
@@ -173,26 +97,9 @@ function DetailPanel({ type, item, onClose, sections, students, enrollmentsByStu
                     <button className={styles.detailClose} onClick={onClose}>&times;</button>
                 </div>
                 <div className={styles.detailBody}>
-                    {type === "Students" && renderStudentDetail()}
-                    {type === "Teachers" && renderTeacherDetail()}
-                    {type === "Staff" && renderStaffDetail()}
                     {type === "Schools" && renderSchoolDetail()}
                     {type === "Sections" && renderSectionDetail()}
                 </div>
-                {(type === "Students" || type === "Teachers" || type === "Staff") && (
-                    <div className={styles.detailPanelFooter}>
-                        <Link
-                            href={
-                                type === "Students" ? buildStudentProfileRoute(item.id) :
-                                type === "Teachers" ? buildTeacherProfileRoute(item.id) :
-                                buildStaffProfileRoute(item.id)
-                            }
-                            className={styles.viewProfileLink}
-                        >
-                            View Full Profile →
-                        </Link>
-                    </div>
-                )}
             </div>
         </div>
     );
@@ -261,6 +168,7 @@ function LastModifiedCell({ row }) {
 
 // ── Main Component ──────────────────────────────────────────
 export default function DataBrowser() {
+    const router = useRouter();
     const { scenario } = useScenario();
     const {
         tabs: TABS,
@@ -330,7 +238,15 @@ export default function DataBrowser() {
     };
 
     const handleRowClick = (row) => {
-        setSelectedItem(row);
+        if (activeTab === "Students") {
+            router.push(buildStudentProfileRoute(row.id));
+        } else if (activeTab === "Teachers") {
+            router.push(buildTeacherProfileRoute(row.id));
+        } else if (activeTab === "Staff") {
+            router.push(buildStaffProfileRoute(row.id));
+        } else {
+            setSelectedItem(row);
+        }
     };
 
     // ── Format count text ───────────────────────────────────
@@ -382,7 +298,7 @@ export default function DataBrowser() {
         { key: "last", header: "Last", sortable: true },
         { key: "title", header: "Title", sortable: true },
         { key: "dataSource", header: "Data Source", sortable: false },
-        { key: "email", header: "Email", sortable: true, render: (row) => <span className={styles.link}>{row.email}</span> },
+        { key: "email", header: "Email", sortable: true },
         lastModifiedCol,
     ];
 
@@ -390,7 +306,7 @@ export default function DataBrowser() {
         { key: "first", header: "First", sortable: true },
         { key: "last", header: "Last", sortable: true },
         { key: "title", header: "Title", sortable: true },
-        { key: "email", header: "Email", sortable: true, render: (row) => <span className={styles.link}>{row.email}</span> },
+        { key: "email", header: "Email", sortable: true },
         { key: "dataSource", header: "Data Source", sortable: false },
         lastModifiedCol,
     ];
@@ -539,7 +455,6 @@ export default function DataBrowser() {
                     onClose={() => setSelectedItem(null)}
                     sections={SECTIONS_DATA}
                     students={STUDENTS_DATA}
-                    enrollmentsByStudent={ENROLLMENTS_BY_STUDENT}
                     enrollmentsBySection={ENROLLMENTS_BY_SECTION}
                 />
             )}
