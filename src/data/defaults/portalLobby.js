@@ -45,7 +45,7 @@ export const portalApps = [
         iconBackground: "radial-gradient(circle at 35% 35%, #f59e0b 0%, #f97316 60%, #c2410c 100%)",
         iconTextColor: "#ffffff",
         launchMode: "dashboard",
-        launchTarget: "dashboard",
+        launchTarget: "home",
     },
     {
         id: "district-dashboard",
@@ -55,7 +55,7 @@ export const portalApps = [
         iconBackground: "linear-gradient(135deg, #1946b8 0%, #1464ff 100%)",
         iconTextColor: "#ffffff",
         launchMode: "dashboard",
-        launchTarget: "dashboard",
+        launchTarget: "home",
     },
     {
         id: "district-my-apps",

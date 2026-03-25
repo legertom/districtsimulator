@@ -5,7 +5,7 @@
 
 export const navItems = [
     {
-        id: "dashboard",
+        id: "home",
         label: "Dashboard home",
         icon: "dashboard",
     },

@@ -57,12 +57,14 @@ export default function ChatView() {
         acceptTicket,
         goBackStep,
         stepHistory,
+        resetAllProgress,
     } = useInstructional();
 
     const [chatMessages, setChatMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const [lobbyBuilt, setLobbyBuilt] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
     const bottomRef = useRef(null);
     const prevStepIdRef = useRef(null);
     const prevScenarioIdRef = useRef(null);
@@ -362,6 +364,11 @@ export default function ChatView() {
                     </div>
                     <div className={styles.headerActions}>
                         {renderProgressDots()}
+                        <button
+                            className={styles.resetButton}
+                            onClick={() => setShowResetConfirm(true)}
+                            title="Reset all progress"
+                        >⟲</button>
                     </div>
                 </div>
             ) : (
@@ -388,6 +395,21 @@ export default function ChatView() {
                                 title={coachMarksEnabled ? "Disable coach marks" : "Enable coach marks"}
                             >💡</button>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* ── Reset confirmation ── */}
+            {showResetConfirm && (
+                <div className={styles.resetConfirm}>
+                    <p>Reset all progress? This cannot be undone.</p>
+                    <div className={styles.resetActions}>
+                        <button className={styles.resetConfirmBtn} onClick={() => { resetAllProgress(); setShowResetConfirm(false); }}>
+                            Reset
+                        </button>
+                        <button className={styles.resetCancelBtn} onClick={() => setShowResetConfirm(false)}>
+                            Cancel
+                        </button>
                     </div>
                 </div>
             )}

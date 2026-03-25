@@ -645,3 +645,70 @@
         transform: translateY(-4px);
     }
 }
+
+/* ── Reset button ── */
+
+.resetButton {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--gray-300);
+    background: var(--gray-100);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    transition: all 0.2s;
+}
+
+.resetButton:hover {
+    background: var(--gray-200);
+    color: var(--error);
+}
+
+/* ── Reset confirmation ── */
+
+.resetConfirm {
+    padding: 12px 16px;
+    background: var(--error-bg);
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 13px;
+    color: var(--text-primary);
+    animation: slideIn 0.2s ease-out;
+}
+
+.resetConfirm p {
+    margin: 0 0 8px 0;
+}
+
+.resetActions {
+    display: flex;
+    gap: 8px;
+}
+
+.resetConfirmBtn {
+    background: var(--error);
+    color: white;
+    border: none;
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.resetConfirmBtn:hover {
+    opacity: 0.9;
+}
+
+.resetCancelBtn {
+    background: white;
+    color: var(--text-secondary);
+    border: 1px solid var(--gray-300);
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}

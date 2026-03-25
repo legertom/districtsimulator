@@ -25,7 +25,7 @@ import EdtechAnalytics from "@/components/pages/EdtechAnalytics";
 import Reports from "@/components/pages/Reports";
 
 export const DASHBOARD_PAGE_COMPONENTS = {
-    dashboard: DashboardHome,
+    home: DashboardHome,
     "my-applications": MyApplications,
     "add-applications": AddApplications,
     "lms-connect": LMSConnect,

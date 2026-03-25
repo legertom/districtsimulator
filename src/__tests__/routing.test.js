@@ -25,7 +25,7 @@ describe("dashboard route parsing", () => {
 
     it("builds dashboard URLs from valid and invalid values", () => {
         expect(buildDashboardRoute("sis-sync")).toBe("/dashboard/sis-sync");
-        expect(buildDashboardRoute("totally-wrong")).toBe("/dashboard/dashboard");
+        expect(buildDashboardRoute("totally-wrong")).toBe("/dashboard/home");
     });
 });
 

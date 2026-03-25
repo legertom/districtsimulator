@@ -43,9 +43,14 @@ const STEP_COMPONENTS = {
 
 export default function GoogleProvisioningWizard({ currentStep, onStepChange, onExit, onProvisionComplete }) {
     const [localStep, setLocalStep] = useState(WIZARD_STEPS[0].id);
-    const { idmSetupComplete, checkActionGoal } = useInstructional();
+    const { idmSetupComplete, activeScenario, checkActionGoal } = useInstructional();
     const [wizardState, setWizardState] = useState(() => {
-        // Use unconfigured state when IDM hasn't been set up yet
+        // During the onboarding scenario, use the fully configured default state
+        // so that pre-configured data (OUs, credentials, etc.) is visible for quiz steps.
+        // Otherwise use unconfigured state when IDM hasn't been set up yet.
+        if (activeScenario?.chatMode === "onboarding") {
+            return { ...DEFAULT_PROVISIONING_STATE };
+        }
         return idmSetupComplete ? { ...DEFAULT_PROVISIONING_STATE } : { ...UNCONFIGURED_PROVISIONING_STATE };
     });
     const [hydrated, setHydrated] = useState(false);
@@ -55,6 +60,12 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
 
     // Load saved state on client only to avoid hydration mismatch
     useEffect(() => {
+        // During onboarding, skip localStorage — always use the fully configured
+        // DEFAULT_PROVISIONING_STATE so quiz steps have data to reference.
+        if (activeScenario?.chatMode === "onboarding") {
+            setHydrated(true);
+            return;
+        }
         try {
             const saved = localStorage.getItem("idm-provisioning-state");
             if (saved) {
@@ -65,7 +76,7 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
         } finally {
             setHydrated(true);
         }
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (session?.user) {
@@ -128,8 +139,10 @@ export default function GoogleProvisioningWizard({ currentStep, onStepChange, on
     const currentStepDef = WIZARD_STEPS[currentStepIndex];
 
     const goToStep = (stepId) => {
-        if (stepId === activeStep) return;
+        // Always fire the goal action — the user may be clicking the active step
+        // to satisfy a scenario navigation goal (e.g. "click Organize OUs")
         checkActionGoal(`wizard-step-${stepId}`);
+        if (stepId === activeStep) return;
         setStep(stepId);
     };
 

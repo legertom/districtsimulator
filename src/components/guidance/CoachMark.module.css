@@ -11,7 +11,7 @@
 .spotlight {
     position: absolute;
     border-radius: 8px;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6); /* Dim everything else */
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35); /* Dim everything else — light enough to keep text readable */
     animation: pulse 2s infinite;
     pointer-events: none;
 }
@@ -47,15 +47,25 @@
     transform: rotate(45deg);
 }
 
+.arrowRight {
+    position: absolute;
+    top: 20px;
+    right: -6px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    transform: rotate(45deg);
+}
+
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(255, 255, 255, 0.7);
     }
     70% {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 0 10px rgba(255, 255, 255, 0);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35), 0 0 0 10px rgba(255, 255, 255, 0);
     }
     100% {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(255, 255, 255, 0);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(255, 255, 255, 0);
     }
 }
 

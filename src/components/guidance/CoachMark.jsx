@@ -24,13 +24,22 @@ export default function CoachMark() {
 
         const rect = element.getBoundingClientRect();
 
-        // Verify the element is actually visible and not behind a fixed overlay
+        // Verify the element is actually visible and not fully behind a fixed overlay
         // (e.g. the provisioning wizard covering the sidebar). elementFromPoint
         // ignores pointer-events:none layers like the CoachMark itself.
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const topEl = document.elementFromPoint(centerX, centerY);
-        if (topEl && !element.contains(topEl) && !topEl.contains(element)) {
+        // Check multiple points — the element may be partially overlapped by the chat panel.
+        const probePoints = [
+            [rect.left + rect.width / 2, rect.top + rect.height / 2],  // center
+            [rect.left + 4, rect.top + rect.height / 2],                // left edge
+            [rect.left + rect.width - 4, rect.top + rect.height / 2],   // right edge
+            [rect.left + rect.width / 2, rect.top + 4],                 // top edge
+            [rect.left + rect.width / 2, rect.top + rect.height - 4],   // bottom edge
+        ];
+        const isVisible = probePoints.some(([px, py]) => {
+            const topEl = document.elementFromPoint(px, py);
+            return topEl && (element.contains(topEl) || topEl.contains(element));
+        });
+        if (!isVisible) {
             return null;
         }
 
@@ -47,9 +56,27 @@ export default function CoachMark() {
         let retryCount = 0;
         const MAX_RETRIES = 5;
 
-        const updateRect = () => {
+        const updateRect = (scrolled = false) => {
             const rect = findTarget();
             if (rect) {
+                // If the target is partially or fully outside the viewport, scroll it into view
+                // and re-measure after the scroll completes
+                if (!scrolled) {
+                    const targetId = currentStep?.hint?.target;
+                    const element = targetId && (
+                        document.getElementById(targetId)
+                        || document.querySelector(`[data-instruction-target="${targetId}"]`)
+                        || document.querySelector(`[data-nav-id="${targetId}"]`)
+                    );
+                    if (element) {
+                        const viewportHeight = window.innerHeight;
+                        if (rect.top < 0 || rect.top + rect.height > viewportHeight - 80) {
+                            element.scrollIntoView({ behavior: "smooth", block: "center" });
+                            timer = setTimeout(() => updateRect(true), 350);
+                            return;
+                        }
+                    }
+                }
                 setTargetRect(rect);
             } else if (coachMarksEnabled && showHint && currentStep?.hint?.target) {
                 retryCount++;
@@ -71,7 +98,26 @@ export default function CoachMark() {
         // Delay the initial check slightly to allow DOM to render and avoid synchronous setState in effect
         timer = setTimeout(updateRect, 0);
 
-        return () => clearTimeout(timer);
+        // Continuously re-measure so the spotlight tracks the target through
+        // scroll, resize, and layout shifts (e.g. after scrollIntoView).
+        let rafId;
+        let lastTop = null;
+        let lastLeft = null;
+        const track = () => {
+            const rect = findTarget();
+            if (rect && (rect.top !== lastTop || rect.left !== lastLeft)) {
+                lastTop = rect.top;
+                lastLeft = rect.left;
+                setTargetRect(rect);
+            }
+            rafId = requestAnimationFrame(track);
+        };
+        rafId = requestAnimationFrame(track);
+
+        return () => {
+            clearTimeout(timer);
+            cancelAnimationFrame(rafId);
+        };
     }, [findTarget, coachMarksEnabled, showHint, currentStep]);
 
     // Render Guard: Must have both rect AND valid hint data with message
@@ -90,41 +136,48 @@ export default function CoachMark() {
                 }}
             />
             {/* The Hint Message */}
-            <div
-                className={styles.tooltip}
-                style={(() => {
-                    const viewportWidth = window.innerWidth;
-                    const viewportHeight = window.innerHeight;
-                    const tooltipWidth = 280;
-                    const tooltipHeight = 80;
+            {(() => {
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const tooltipWidth = 280;
+                const tooltipHeight = 80;
 
-                    let top = targetRect.top + (targetRect.height / 2) - (tooltipHeight / 2);
-                    let left = targetRect.left + targetRect.width + 16;
+                // Account for the chat panel on the right side
+                const chatPanel = document.querySelector('[class*="chatPanel"]');
+                const usableWidth = chatPanel
+                    ? chatPanel.getBoundingClientRect().left
+                    : viewportWidth;
 
-                    // If tooltip would go off right edge, place it to the left
-                    if (left + tooltipWidth > viewportWidth - 16) {
-                        left = targetRect.left - tooltipWidth - 16;
-                    }
+                let top = targetRect.top + (targetRect.height / 2) - (tooltipHeight / 2);
+                let left = targetRect.left + targetRect.width + 16;
+                let flippedLeft = false;
 
-                    // If tooltip would go off bottom, nudge up
-                    if (top + tooltipHeight > viewportHeight - 16) {
-                        top = viewportHeight - tooltipHeight - 16;
-                    }
+                // If tooltip would overlap the chat panel or go off right edge, place it to the left
+                if (left + tooltipWidth > usableWidth - 16) {
+                    left = targetRect.left - tooltipWidth - 16;
+                    flippedLeft = true;
+                }
 
-                    // If tooltip would go off top, nudge down
-                    if (top < 16) {
-                        top = 16;
-                    }
+                // If tooltip would go off bottom, nudge up
+                if (top + tooltipHeight > viewportHeight - 16) {
+                    top = viewportHeight - tooltipHeight - 16;
+                }
 
-                    return { top, left };
-                })()}
-            >
-                <div className={styles.arrow} />
-                <div className={styles.content}>
-                    <span className={styles.icon}>💡</span>
-                    {currentStep.hint.message}
-                </div>
-            </div>
+                // If tooltip would go off top, nudge down
+                if (top < 16) {
+                    top = 16;
+                }
+
+                return (
+                    <div className={styles.tooltip} style={{ top, left }}>
+                        <div className={flippedLeft ? styles.arrowRight : styles.arrow} />
+                        <div className={styles.content}>
+                            <span className={styles.icon}>💡</span>
+                            {currentStep.hint.message}
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 }

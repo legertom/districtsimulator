@@ -1,9 +1,9 @@
 import { WIZARD_STEPS } from "@/data/defaults/idm-provisioning";
 
-export const DEFAULT_DASHBOARD_PAGE = "dashboard";
+export const DEFAULT_DASHBOARD_PAGE = "home";
 
 export const DASHBOARD_PAGE_KEYS = [
-    "dashboard",
+    "home",
     "my-applications",
     "add-applications",
     "lms-connect",

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { portalApps } from "./portalLobby";
 
 const DASHBOARD_TARGETS = new Set([
-  "dashboard",
+  "home",
   "my-applications",
   "add-applications",
   "lms-connect",

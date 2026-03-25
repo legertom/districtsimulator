@@ -955,8 +955,7 @@ export function InstructionalProvider({ children }) {
         setCurrentStepId(null);
         setShowHint(false);
         setConversationHistory([]);
-        // Note: don't clear scenarioJustCompleted here — ChatView uses it
-        // to show the completion card before transitioning to lobby
+        setScenarioJustCompleted(null);
         setVisitedStepIds(new Set());
     }, []);
 

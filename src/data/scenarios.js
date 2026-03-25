@@ -146,7 +146,7 @@ export const scenarios = [
                     target: "user-type-checkboxes",
                     message: "Check the boxes for Students, Teachers, and Staff.",
                 },
-                autoShowHint: false,
+                autoShowHint: true,
             },
             // ── 8. Confirm total user count ──────────────────────
             {
